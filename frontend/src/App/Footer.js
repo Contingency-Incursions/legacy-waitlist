@@ -28,12 +28,12 @@ const H3 = styled.h2`
 `;
 
 const LegalNotices = () => {
-  const [open, seCIen] = useState(false);
+  const [open, setOpen] = useState(false);
 
   return (
     <>
-      <A onClick={() => seCIen(true)}>Legal Notices</A>
-      <Modal open={open} seCIen={seCIen}>
+      <A onClick={() => setOpen(true)}>Legal Notices</A>
+      <Modal open={open} setOpen={setOpen}>
         <Box style={{ maxWidth: "700px" }}>
           <H2>Legal Notices</H2>
           <H3>CCP Games:</H3>
@@ -72,7 +72,7 @@ const LegalNotices = () => {
 };
 
 const TeamDirectory = () => {
-  const [open, seCIen] = useState(false);
+  const [open, setOpen] = useState(false);
   const [team] = useApi("/api/commanders/public");
 
   const leadership = team?.filter((c) => c.role == "Leadership");
@@ -80,8 +80,8 @@ const TeamDirectory = () => {
 
   return (
     <>
-      <A onClick={() => seCIen(true)}>Meet the Team</A>
-      <Modal open={open} seCIen={seCIen}>
+      <A onClick={() => setOpen(true)}>Meet the Team</A>
+      <Modal open={open} setOpen={setOpen}>
         <Box style={{ maxWidth: "700px" }}>
           <H2>Fleet Commanders</H2>
 
