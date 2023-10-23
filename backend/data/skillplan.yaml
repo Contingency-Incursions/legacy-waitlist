@@ -74,7 +74,7 @@ plans:
         level: 5
       # - type: fit
       #   hull: Nestor
-      #   fit: Elite Hybrid Nestor
+      #   fit: Elite Amulet Nestor
       - type: skills
         from: Nestor
         tier: min
@@ -219,4 +219,4 @@ plans:
         tier: elite
       - type: fit
         hull: Nestor
-        fit: Elite Hybrid Nestor
+        fit: Elite Amulet Nestor

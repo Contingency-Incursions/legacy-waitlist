@@ -31,7 +31,7 @@ notes:
   - name: Elite Ascendancy Nestor
     description: >
       Implant Required: EM-806. You are required to be approved logi (Logistics Specialist) to fly this ship.
-  - name: Elite Hybrid Nestor
+  - name: Elite Amulet Nestor
     description: >
       Implant Required: EM-806. You are required to be approved logi (Logistics Specialist) to fly this ship.
   - name: CI Nestor Antigank
@@ -39,7 +39,7 @@ notes:
       The EM-806 implant is required, the RA-706 and HS-906 are recommended all other implants are optional. Consider checking the regional market for event drugs which improve your armour HP or resists.
 
   ## Vindicators
-  - name: CI Vindicator Elite Hybrid
+  - name: CI Vindicator Elite Amulet
     description: >
       You need to be a Web Specialist to use this ship after 130h.
   - name: CI Vindicator Elite

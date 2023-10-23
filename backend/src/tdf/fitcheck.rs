@@ -298,7 +298,7 @@ impl<'a> FitChecker<'a> {
                 let mut implants_nok = "";
                 if doctrine_fit.name.contains("Ascendancy") && set_tag != "WARPSPEED" {
                     implants_nok = "Ascendancy";
-                } else if doctrine_fit.name.contains("Hybrid") && set_tag != "AMULET" {
+                } else if doctrine_fit.name.contains("Amulet") && set_tag != "AMULET" {
                     let implants = [
                         type_id!("High-grade Amulet Alpha"),
                         type_id!("High-grade Amulet Beta"),
@@ -308,7 +308,7 @@ impl<'a> FitChecker<'a> {
                     ];
                     for implant in implants {
                         if !self.pilot.implants.contains(&implant) {
-                            implants_nok = "Hybrid";
+                            implants_nok = "Amulet";
                         }
                     }
                 } else if doctrine_fit.name.contains("Amulet") && set_tag != "AMULET" {
@@ -336,16 +336,16 @@ impl<'a> FitChecker<'a> {
                 } else if doctrine_fit.name.contains(&set_tag.to_title_case())
                     || (set_tag == "WARPSPEED"
                         && !(doctrine_fit.name.contains("Amulet")
-                            || doctrine_fit.name.contains("Hybrid")))
+                            || doctrine_fit.name.contains("Amulet")))
                     || self.fit.hull == type_id!("Oneiros")
-                    || (set_tag == "AMULET" && doctrine_fit.name.contains("Hybrid"))
+                    || (set_tag == "AMULET" && doctrine_fit.name.contains("Amulet"))
                 {
                     self.tags.insert(set_tag);
                     // give warning if you have all but slot 10 or wrong slot for that ship
                     if implantmatch::detect_slot10(self.fit.hull, self.pilot.implants).is_none() {
                         self.tags.insert("NO-SLOT10");
                     }
-                    if set_tag == "AMULET" && doctrine_fit.name.contains("Hybrid") {
+                    if set_tag == "AMULET" && doctrine_fit.name.contains("Amulet") {
                         self.tags.insert("SLOW");
                     }
                 }
