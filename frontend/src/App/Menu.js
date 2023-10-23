@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import { NavLink } from "react-router-dom";
 import { AuthContext } from "../contexts";
-import logoImage from "./logo.png";
+import logoImage from "./Logo_Design2-04.png";
 import styled from "styled-components";
 import { InputGroup, Select, NavButton, AButton } from "../Components/Form";
 import BrowserNotification from "../Components/Event";
@@ -45,7 +45,6 @@ NavBar.LogoLink = styled(NavLink).attrs((props) => ({
 `;
 NavBar.Logo = styled.img`
   width: 150px;
-  filter: ${(props) => props.theme.logo.filter};
 `;
 NavBar.Menu = styled.div`
   display: flex;

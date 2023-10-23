@@ -1,6 +1,8 @@
 import React from "react";
 import PropTypes from "prop-types";
 import styled, { ThemeContext } from "styled-components";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {faExclamationTriangle,} from "@fortawesome/free-solid-svg-icons";
 
 export const Badge = styled.span`
   background-color: ${(props) => (props.theme.colors[props.variant] || {}).color || "transparent"};
@@ -97,15 +99,19 @@ export const icons = {
   "ELITE-GOLD": { type: "shield", color: "yellow", letter: "E", name: "Elite Gold" },
   ELITE: { type: "shield", color: "neutral", letter: "E", name: "Elite" },
   UNKNOWN: { type: "shield", color: "neutral", letter: "?", name: null },
+  "AT-WAR": {type: 'icon', icon: faExclamationTriangle, color: 'yellow', name: 'Pilot at war'},
+  "FACTION-WAR": {type: 'icon', icon: faExclamationTriangle, name: 'Pilot in FW'},
 };
 
 const BadgeIcon = ({ type = "UNKNOWN", height = "1.2em" }) => {
   const badge = icons[type] ?? icons["UNKNOWN"];
-  return badge.type === "shield" ? (
-    <Shield {...badge} h={height} title={badge.name} />
-  ) : (
-    <img src={badge.href} title={badge.name} alt={badge.name} style={{ height }} />
-  );
+  if(badge.type == 'shield'){
+    return <Shield {...badge} h={height} title={badge.name} />
+  } else if(badge.type == 'icon') {
+    return <span title={badge.name}><FontAwesomeIcon icon={badge.icon} /></span>
+  } else {
+    return <img src={badge.href} title={badge.name} alt={badge.name} style={{ height }} />
+  }
 };
 
 BadgeIcon.propTypes = {
