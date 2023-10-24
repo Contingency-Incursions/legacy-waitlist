@@ -45,12 +45,12 @@ async fn list_badges(
     account.require_access("badges-manage")?;
 
     let rows = sqlx::query!(
-        "SELECT id as `id!`, name as `name!`, 
+        "SELECT id as \"id!\", name as \"name!\", 
             (
                 SELECT COUNT(*)
                 FROM badge_assignment AS badge_assignment
                 WHERE badge_assignment.badgeId = badge.id
-            ) AS `member_count!: i64`
+            ) AS \"member_count!: i64\"
         FROM badge"
     )
     .fetch_all(app.get_db())
@@ -83,18 +83,18 @@ async fn get_badge_members(
         "SELECT 
         c.id, 
         c.name, 
-        g.id AS `grantedById!`, 
-        g.name AS `grantedByName!`, 
-        b.id AS `badge_id`, 
-        b.name AS `badge_name`, 
+        g.id AS \"grantedById!\", 
+        g.name AS \"grantedByName!\", 
+        b.id AS \"badge_id\", 
+        b.name AS \"badge_name\", 
         grantedAt 
       FROM 
         badge_assignment 
-        JOIN `character` AS c ON characterId = c.id 
-        JOIN `character` AS g ON grantedById = g.id 
+        JOIN character AS c ON characterId = c.id 
+        JOIN character AS g ON grantedById = g.id 
         JOIN badge AS b ON badgeId = b.id 
       WHERE 
-        badgeId = ?",
+        badgeId = $1",
         badge_id
     )
     .fetch_all(app.get_db())
@@ -109,7 +109,7 @@ async fn get_badge_members(
                 member_count: -1,
                 exclude_badge_id: -1,
             },
-            granted_at: assignment.grantedAt,
+            granted_at: assignment.grantedat,
             character: Character {
                 id: assignment.id,
                 name: assignment.name,
@@ -136,7 +136,7 @@ async fn assign_badge(
     account.require_access("badges-manage")?;
 
     // Ensure the requested badge exists
-    let badge = sqlx::query!("SELECT * FROM badge WHERE id=? LIMIT 1", badge_id)
+    let badge = sqlx::query!("SELECT * FROM badge WHERE id=$1 LIMIT 1", badge_id)
         .fetch_optional(app.get_db())
         .await?;
 
@@ -149,7 +149,7 @@ async fn assign_badge(
 
     // Ensure the requested character exists
     let character = sqlx::query!(
-        "SELECT id as `id!`, name as `name!` FROM `character` WHERE id=? LIMIT 1",
+        "SELECT id as \"id!\", name as \"name!\" FROM character WHERE id=$1 LIMIT 1",
         request_character.id
     )
     .fetch_optional(app.get_db())
@@ -166,7 +166,7 @@ async fn assign_badge(
     let character = character.unwrap();
 
     if sqlx::query!(
-        "SELECT id FROM `character` WHERE id=? LIMIT 1",
+        "SELECT id FROM character WHERE id=$1 LIMIT 1",
         character.id
     )
     .fetch_all(app.get_db())
@@ -182,7 +182,7 @@ async fn assign_badge(
 
     // Make sure we don't duplicate this record
     if sqlx::query!(
-        "SELECT * FROM badge_assignment WHERE characterid=? AND badgeId=?",
+        "SELECT * FROM badge_assignment WHERE characterid=$1 AND badgeId=$2",
         character.id,
         badge_id
     )
@@ -205,7 +205,7 @@ async fn assign_badge(
         let exclude_id = badge.exclude_badge_id.unwrap();
 
         if let Some(excluded_badge) = sqlx::query!(
-            "SELECT b.name FROM badge_assignment JOIN badge AS b ON b.id=badgeId WHERE badgeId=? AND characterId=?",
+            "SELECT b.name FROM badge_assignment JOIN badge AS b ON b.id=badgeId WHERE badgeId=$1 AND characterId=$2",
             exclude_id,
             character.id
         )
@@ -223,7 +223,7 @@ async fn assign_badge(
 
     let now = chrono::Utc::now().timestamp();
     sqlx::query!(
-        "INSERT INTO badge_assignment (characterId, badgeId, grantedById, grantedAt) VALUES (?, ?, ?, ?)",
+        "INSERT INTO badge_assignment (characterId, badgeId, grantedById, grantedAt) VALUES ($1, $2, $3, $4)",
         character.id,
         badge_id,
         account.id,
@@ -246,7 +246,7 @@ async fn revoke_badge(
     account.require_access("badges-manage")?;
 
     sqlx::query!(
-        "DELETE FROM badge_assignment WHERE characterId=? AND badgeId=?",
+        "DELETE FROM badge_assignment WHERE characterId=$1 AND badgeId=$2",
         character_id,
         badge_id
     )

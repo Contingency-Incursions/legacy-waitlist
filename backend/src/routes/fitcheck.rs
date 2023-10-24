@@ -43,7 +43,7 @@ async fn fitcheck(
     };
 
     let badges: Vec<String> = sqlx::query!(
-        "SELECT badge.name FROM badge JOIN badge_assignment ON id=badge_assignment.BadgeId WHERE badge_assignment.CharacterId=?", input.character_id
+        "SELECT badge.name FROM badge JOIN badge_assignment ON id=badge_assignment.BadgeId WHERE badge_assignment.CharacterId=$1", input.character_id
     )
     .fetch_all(app.get_db())
     .await?

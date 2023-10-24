@@ -12,7 +12,7 @@ pub async fn lookup(db: &crate::DB, ids: &[i64]) -> Result<HashMap<i64, Characte
         .collect::<Vec<_>>()
         .join(",");
     let query_str = format!(
-        "SELECT id, name FROM `character` WHERE id IN ({})",
+        "SELECT id, name FROM character WHERE id IN ({})",
         placeholders
     );
     let mut query = sqlx::query_as::<_, CharacterRecord>(&query_str);

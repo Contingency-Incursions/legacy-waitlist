@@ -17,7 +17,7 @@ extern crate rocket;
 extern crate eve_data_macros;
 
 extern crate sqlx;
-type DBEngine = sqlx::MySql;
+type DBEngine = sqlx::Postgres;
 
 
 pub type DB = sqlx::Pool<DBEngine>;
@@ -40,7 +40,7 @@ fn not_found(_req: &Request) -> String {
 
 #[tokio::main]
 async fn main() {
-    let options = sqlx::mysql::MySqlPoolOptions::new();
+    let options = sqlx::postgres::PgPoolOptions::new();
 
     let config_file = env::var("WAITLIST_CONFIG").unwrap_or_else(|_| "./config.toml".to_string());
     let raw_config = std::fs::read_to_string(&config_file).expect("Could not load config");

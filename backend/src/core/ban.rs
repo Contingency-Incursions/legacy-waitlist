@@ -19,7 +19,7 @@ impl BanService {
             Ok(Some(bans))
         } else {
             if let Some(character) = sqlx::query!(
-                "SELECT corporation_id FROM `character` WHERE id=?",
+                "SELECT corporation_id FROM character WHERE id=$1",
                 character_id
             )
             .fetch_optional(self.db.as_ref())
@@ -40,7 +40,7 @@ impl BanService {
             Ok(Some(bans))
         } else {
             if let Some(corporation) = sqlx::query!(
-                "SELECT alliance_id as `alliance_id?` FROM corporation WHERE id=?",
+                "SELECT alliance_id as \"alliance_id?\" FROM corporation WHERE id=$1",
                 corporation_id
             )
             .fetch_optional(self.db.as_ref())
@@ -82,14 +82,14 @@ impl BanService {
                 public_reason,
                 reason,
                 revoked_at,
-                issuer.id AS `issued_by_id`,
-                issuer.name AS `issued_by_name`
+                issuer.id AS \"issued_by_id\",
+                issuer.name AS \"issued_by_name\"
             FROM
                 ban
             JOIN
-                `character` as issuer ON issued_by=issuer.id
+                character as issuer ON issued_by=issuer.id
             WHERE
-                entity_id=? AND entity_type=? AND (revoked_at IS NULL OR revoked_at > ?)",
+                entity_id=$1 AND entity_type=$2 AND (revoked_at IS NULL OR revoked_at > $3)",
             entity_id,
             entity_type,
             now
@@ -141,15 +141,15 @@ impl BanService {
                 public_reason,
                 reason,
                 revoked_at,
-                issuer.id AS `issued_by_id`,
-                issuer.name AS `issued_by_name`,
+                issuer.id AS \"issued_by_id\",
+                issuer.name AS \"issued_by_name\",
                 revoked_by
             FROM
                 ban
             JOIN
-                `character` as issuer ON issued_by=issuer.id
+                character as issuer ON issued_by=issuer.id
             WHERE
-                entity_id=? AND entity_type=?
+                entity_id=$1 AND entity_type=$2
             ORDER BY
                 issued_at",
             entity_id,
@@ -194,7 +194,7 @@ impl BanService {
         // foreach ban, go through and look up name
         for b in bans.iter_mut() {
             if let Some(revoked_by) = &b.revoked_by {
-                if let Ok(row) = sqlx::query!("SELECT * FROM `character` WHERE id=?", revoked_by.id)
+                if let Ok(row) = sqlx::query!("SELECT * FROM character WHERE id=$1", revoked_by.id)
                     .fetch_optional(self.db.as_ref())
                     .await
                 {

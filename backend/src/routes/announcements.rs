@@ -47,7 +47,7 @@ async fn get_active_announcements(app: &Application) -> Result<Vec<AnnouncementP
         "SELECT
         id,
         message,
-        is_alert AS `is_alert!: bool`,
+        is_alert AS \"is_alert!: bool\",
         pages,
         created_by_id,
         created_at,
@@ -66,7 +66,7 @@ async fn get_active_announcements(app: &Application) -> Result<Vec<AnnouncementP
     for a in announcements {
         let created_by = sqlx::query_as!(
             Character,
-            "SELECT id,name,corporation_id FROM `character` WHERE id=?",
+            "SELECT id,name,corporation_id FROM character WHERE id=$1",
             a.created_by_id
         )
         .fetch_optional(app.get_db())
@@ -109,7 +109,7 @@ async fn create(
     let now = chrono::Utc::now().timestamp();
 
     sqlx::query!(
-        "INSERT INTO announcement (message, is_alert, pages, created_by_id, created_at) VALUES (?, ?, ?, ?, ?)",
+        "INSERT INTO announcement (message, is_alert, pages, created_by_id, created_at) VALUES ($1, $2, $3, $4, $5)",
         body.message,
         body.is_alert,
         body.pages,
@@ -147,7 +147,7 @@ async fn update(
         "SELECT
           id,
           message,
-          is_alert AS `is_alert!: bool`,
+          is_alert AS \"is_alert!: bool\",
           pages,
           created_by_id,
           created_at,
@@ -156,7 +156,7 @@ async fn update(
         FROM
           announcement
         WHERE
-          id=? AND revoked_at IS NULL",
+          id=$1 AND revoked_at IS NULL",
         announcement_id
     )
     .fetch_optional(app.get_db())
@@ -169,7 +169,7 @@ async fn update(
     }
 
     sqlx::query!(
-        "UPDATE announcement SET message=?, is_alert=?, pages=?, created_by_id=? WHERE id=?",
+        "UPDATE announcement SET message=$1, is_alert=$2, pages=$3, created_by_id=$4 WHERE id=$5",
         body.message,
         body.is_alert,
         body.pages,
@@ -206,7 +206,7 @@ async fn revoke(
         "SELECT
           id,
           message,
-          is_alert AS `is_alert!: bool`,
+          is_alert AS \"is_alert!: bool\",
           pages,
           created_by_id,
           created_at,
@@ -215,7 +215,7 @@ async fn revoke(
         FROM
           announcement
         WHERE
-          id=? AND revoked_at IS NULL",
+          id=$1 AND revoked_at IS NULL",
         announcement_id
     )
     .fetch_optional(app.get_db())
@@ -230,7 +230,7 @@ async fn revoke(
     let now = chrono::Utc::now().timestamp();
 
     sqlx::query!(
-        "UPDATE announcement SET revoked_by_id=?, revoked_at=? WHERE id=?",
+        "UPDATE announcement SET revoked_by_id=$1, revoked_at=$2 WHERE id=$3",
         account.id,
         now,
         announcement_id
