@@ -335,8 +335,7 @@ impl<'a> FitChecker<'a> {
                     self.tags.insert("SAVIOR");
                 } else if doctrine_fit.name.contains(&set_tag.to_title_case())
                     || (set_tag == "WARPSPEED"
-                        && !(doctrine_fit.name.contains("Amulet")
-                            || doctrine_fit.name.contains("Amulet")))
+                        && doctrine_fit.name.contains("Amulet"))
                     || self.fit.hull == type_id!("Oneiros")
                     || (set_tag == "AMULET" && doctrine_fit.name.contains("Amulet"))
                 {
