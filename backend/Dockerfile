@@ -75,4 +75,4 @@ COPY data data
 ADD Rocket.toml .
 
 ENTRYPOINT /app/backend
-EXPOSE 5000w
+EXPOSE 5000
