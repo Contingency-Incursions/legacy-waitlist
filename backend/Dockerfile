@@ -5,7 +5,6 @@ ADD . /app/backend
 WORKDIR /app/backend
 RUN apt update
 RUN apt install postgresql postgresql-contrib -f -y
-RUN systemctl start postgresql.service
 
 ARG DATABASE_USERNAME=waitlist
 ARG DATABASE_PASSWORD
