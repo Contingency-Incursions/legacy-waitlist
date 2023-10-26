@@ -19,12 +19,12 @@ jobs:
         build: ["release", "dev"]
     services:
       database:
-        image: mysql:8
+        image: postgres:latest
         env:
-          MYSQL_DATABASE: waitlist
-          MYSQL_USER: waitlist
-          MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
-          MYSQL_RANDOM_ROOT_PASSWORD: true
+          PG_DATABASE: waitlist
+          PG_USER: waitlist
+          PG_PASSWORD: ${{ secrets.PG_PASSWORD }}
+          PG_RANDOM_ROOT_PASSWORD: true
         ports:
           - 3306:3306
 
@@ -45,7 +45,7 @@ jobs:
 
       - name: Docker Build
         working-directory: ./backend
-        run: docker build --network host --build-arg "PROFILE=${{ matrix.build }}" --build-arg "DATABASE_PASSWORD=${{ secrets.MYSQL_PASSWORD }}" -t $COMPONENT .
+        run: docker build --network host --build-arg "PROFILE=${{ matrix.build }}" --build-arg "DATABASE_PASSWORD=${{ secrets.PG_PASSWORD }}" -t $COMPONENT .
 
       - name: Docker Push
         run: |

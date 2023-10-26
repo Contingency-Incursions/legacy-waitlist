@@ -11,10 +11,10 @@ services:
       - "mysql_data:/var/lib/mysql"
       - "./backend/sql/mysql.sql:/docker-entrypoint-initdb.d/schema.sql"
     environment:
-      MYSQL_DATABASE: "${MYSQL_DATABASE}"
-      MYSQL_USER: "${MYSQL_USER}"
-      MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
-      MYSQL_ROOT_PASSWORD: "${MYSQL_PASSWORD}"
+      PG_DATABASE: "${PG_DATABASE}"
+      PG_USER: "${PG_USER}"
+      PG_PASSWORD: "${PG_PASSWORD}"
+      PG_ROOT_PASSWORD: "${PG_PASSWORD}"
 
   sse:
     image: "tvdw/sse-server"
