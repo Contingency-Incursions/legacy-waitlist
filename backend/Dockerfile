@@ -1,16 +1,17 @@
 # Setup database
 FROM ubuntu as db-setup
+ARG DEBIAN_FRONTEND=noninteractive
 ADD . /app/backend
 WORKDIR /app/backend
-RUN apt update && apt install -y mysql-client
+RUN apt update
+RUN apt install postgresql postgresql-contrib -f -y
 
 ARG DATABASE_USERNAME=waitlist
 ARG DATABASE_PASSWORD
 ARG DATABASE_HOST=localhost
 ARG DATABASE_NAME=waitlist
 
-RUN mysql --protocol=tcp -h"${DATABASE_HOST}" -u"${DATABASE_USERNAME}" -p"${DATABASE_PASSWORD}" "${DATABASE_NAME}" < sql/mysql.sql
-RUN mysql --protocol=tcp -h"${DATABASE_HOST}" -u"${DATABASE_USERNAME}" -p"${DATABASE_PASSWORD}" "${DATABASE_NAME}" -e 'SHOW TABLES;'
+RUN PGPASSWORD="${DATABASE_PASSWORD}" psql --host="${DATABASE_HOST}" --user="${DATABASE_USERNAME}" "${DATABASE_NAME}" < sql/postgres.sql
 RUN touch /yes-i-want-this-step
 
 
@@ -40,7 +41,7 @@ RUN cargo chef prepare --recipe-path /recipe.json
 FROM base AS cacher
 ARG PROFILE=release
 COPY --from=planner /recipe.json /recipe.json
-RUN cargo chef cook --profile ${PROFILE} --no-default-features --features=mysql --recipe-path /recipe.json
+RUN cargo chef cook --profile ${PROFILE} --no-default-features --features=postgres --recipe-path /recipe.json
 
 
 # Build the image
@@ -58,10 +59,10 @@ ARG DATABASE_PASSWORD
 ARG DATABASE_HOST=localhost
 ARG DATABASE_NAME=waitlist
 
-ARG DATABASE_URL=mysql://${DATABASE_USERNAME}:${DATABASE_PASSWORD}@${DATABASE_HOST}/${DATABASE_NAME}?ssl-mode=disabled
+ARG DATABASE_URL=postgres://${DATABASE_USERNAME}:${DATABASE_PASSWORD}@${DATABASE_HOST}:5432/${DATABASE_NAME}
 ARG PROFILE=release
 
-RUN cargo build --profile ${PROFILE} --no-default-features --features=mysql
+RUN cargo build --profile ${PROFILE} --no-default-features --features=postgres
 RUN cp target/*/tdf_wl /backend
 
 

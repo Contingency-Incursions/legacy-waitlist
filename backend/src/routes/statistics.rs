@@ -9,13 +9,13 @@ use serde::Serialize;
 
 macro_rules! from_unixtime {
     ( $a:expr ) => {
-        concat!("from_unixtime(", $a, ")")
+        concat!("to_timestamp(", $a, ")")
     };
 }
 
 macro_rules! year_month {
     ( $a:expr ) => {
-        concat!("date_format(", $a, ", '%Y-%m')")
+        concat!("to_char(", $a, ", 'YYYY-MM')")
     };
 }
 
@@ -155,7 +155,7 @@ impl Queries {
             year_month!(from_unixtime!("first_seen")),
             " yearmonth,
                 character_id,
-                CAST(SUM(last_seen - first_seen) AS SIGNED) time_in_fleet
+                SUM(EXTRACT(EPOCH FROM (last_seen - first_seen) * interval '1 microsecond')) AS time_in_fleet
             FROM fleet_activity
             GROUP BY 1, 2
         "
@@ -191,7 +191,7 @@ impl Queries {
             year_month!(from_unixtime!("first_seen")),
             " yearmonth,
                 hull,
-                CAST(SUM(last_seen - first_seen) AS SIGNED) time_in_fleet
+                SUM(EXTRACT(EPOCH FROM (last_seen - first_seen) * interval '1 microsecond')) AS time_in_fleet
             FROM fleet_activity
             GROUP BY 1, 2
         "
@@ -262,7 +262,7 @@ impl Queries {
                 COUNT(DISTINCT character_id) x_count
             FROM fit_history
             JOIN fitting ON fit_history.fit_id=fitting.id
-            WHERE logged_at > ?
+            WHERE logged_at > $1
             GROUP BY 1
             "
         ))
@@ -290,9 +290,9 @@ impl Queries {
             "
             SELECT
                 hull,
-                CAST(SUM(last_seen - first_seen) AS SIGNED) fleet_seconds
+                SUM(EXTRACT(EPOCH FROM (last_seen - first_seen) * interval '1 microsecond')) AS fleet_seconds
             FROM fleet_activity
-            WHERE first_seen > ?
+            WHERE first_seen > $1
             GROUP BY 1
         "
         ))

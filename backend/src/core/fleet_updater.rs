@@ -71,7 +71,7 @@ impl FleetUpdater {
     }
 
     async fn update_fleet(&self, fleet_id: i64) -> Result<(), Madness> {
-        let fleet = sqlx::query!("SELECT * FROM fleet WHERE id = ?", fleet_id)
+        let fleet = sqlx::query!("SELECT * FROM fleet WHERE id = $1", fleet_id)
             .fetch_one(self.get_db())
             .await?;
 
@@ -88,10 +88,10 @@ impl FleetUpdater {
                 ) => {
                     // 403/404 => Delete the fleet, move on
                     let mut tx = self.get_db().begin().await?;
-                    sqlx::query!("DELETE FROM fleet_squad WHERE fleet_id=?", fleet_id)
+                    sqlx::query!("DELETE FROM fleet_squad WHERE fleet_id=$1", fleet_id)
                         .execute(&mut tx)
                         .await?;
-                    sqlx::query!("DELETE FROM fleet WHERE id=?", fleet_id)
+                    sqlx::query!("DELETE FROM fleet WHERE id=$1", fleet_id)
                         .execute(&mut tx)
                         .await?;
                     tx.commit().await?;
@@ -123,7 +123,10 @@ impl FleetUpdater {
                         .await?;
 
                     sqlx::query!(
-                        "REPLACE INTO `character` (id, name, last_seen) VALUES (?, ?, ?)",
+                        "INSERT INTO character (id, name, last_seen) VALUES ($1, $2, $3) ON CONFLICT (id)
+                        DO UPDATE
+                        SET name = excluded.name, 
+                        last_seen = excluded.last_seen;",
                         id,
                         character_info.name,
                         now
@@ -133,7 +136,7 @@ impl FleetUpdater {
                 }
                 else {
                     // If we know the character then we only need to touch `last_seen`
-                    sqlx::query!("UPDATE `character` SET `last_seen`= ? WHERE `id`=?",
+                    sqlx::query!("UPDATE character SET last_seen= $1 WHERE id=$2",
                         now,
                         id
                     )
@@ -152,23 +155,23 @@ impl FleetUpdater {
                     .fetch_all(self.get_db())
                     .await?
                     .into_iter()
-                    .map(|r| (r.character_id, r))
+                    .map(|r| (r.character_id.unwrap(), r))
                     .collect();
 
             let mut tx = self.get_db().begin().await?;
             for &id in &member_ids {
                 if let Some(record) = on_waitlist.get(&id) {
-                    changed.insert(record.waitlist_id);
-                    if record.is_alt > 0 {
+                    changed.insert(record.waitlist_id.unwrap());
+                    if record.is_alt.unwrap() == true {
                         sqlx::query!(
-                            "DELETE FROM waitlist_entry_fit WHERE character_id=?",
+                            "DELETE FROM waitlist_entry_fit WHERE character_id=$1",
                             record.character_id
                         )
                         .execute(&mut tx)
                         .await?;
                     } else {
                         sqlx::query!(
-                            "DELETE FROM waitlist_entry_fit WHERE entry_id=? AND is_alt = 0",
+                            "DELETE FROM waitlist_entry_fit WHERE entry_id=$1 AND is_alt = false",
                             record.entry_id
                         )
                         .execute(&mut tx)
@@ -189,7 +192,7 @@ impl FleetUpdater {
 
             let mut tx = self.get_db().begin().await?;
             let stored_in_fleet: HashMap<i64, _> = sqlx::query!(
-                "SELECT * FROM fleet_activity WHERE fleet_id=? AND has_left=0",
+                "SELECT * FROM fleet_activity WHERE fleet_id=$1 AND has_left= false",
                 fleet_id
             )
             .fetch_all(&mut tx)
@@ -206,16 +209,16 @@ impl FleetUpdater {
 
             // Detect newly joined members
             for (&id, member) in &have_in_fleet {
-                let is_boss = (fleet.boss_id == id) as i8;
+                let is_boss = (fleet.boss_id == id) as bool;
 
                 let mut should_insert = false;
                 if let Some(stored) = stored_in_fleet.get(&id) {
                     if (stored.hull as TypeID) == member.ship_type_id
-                        && (stored.is_boss as i8) == is_boss
+                        && (stored.is_boss as bool) == is_boss
                     {
                         if stored.last_seen < current_time - 60 {
                             sqlx::query!(
-                                "UPDATE fleet_activity SET last_seen=? WHERE id=?",
+                                "UPDATE fleet_activity SET last_seen=$1 WHERE id=$2",
                                 current_time,
                                 stored.id
                             )
@@ -224,7 +227,7 @@ impl FleetUpdater {
                         }
                     } else {
                         sqlx::query!(
-                            "UPDATE fleet_activity SET has_left=1, last_seen=? WHERE id=?",
+                            "UPDATE fleet_activity SET has_left= true, last_seen=$1 WHERE id=$2",
                             current_time,
                             stored.id
                         )
@@ -238,7 +241,7 @@ impl FleetUpdater {
 
                 if should_insert {
                     sqlx::query!(
-                        "INSERT INTO fleet_activity (character_id, fleet_id, first_seen, last_seen, is_boss, hull, has_left) VALUES (?, ?, ?, ?, ?, ?, 0)",
+                        "INSERT INTO fleet_activity (character_id, fleet_id, first_seen, last_seen, is_boss, hull, has_left) VALUES ($1, $2, $3, $4, $5, $6, false)",
                         member.character_id, fleet_id, current_time, current_time, is_boss, member.ship_type_id,
                     ).execute(&mut tx).await?;
                     new_fleet_comp = true;
@@ -248,7 +251,7 @@ impl FleetUpdater {
             // Detect members that left
             for (id, stored) in stored_in_fleet {
                 if !have_in_fleet.contains_key(&id) {
-                    sqlx::query!("UPDATE fleet_activity SET has_left=1 WHERE id=?", stored.id)
+                    sqlx::query!("UPDATE fleet_activity SET has_left=true WHERE id=$1", stored.id)
                         .execute(&mut tx)
                         .await?;
                     new_fleet_comp = true;
