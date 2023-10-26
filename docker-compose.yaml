@@ -6,10 +6,10 @@ services:
     image: "postgres:latest"
     restart: "unless-stopped"
     ports:
-      - "127.0.0.1:3306:3306"
+      - "127.0.0.1:5432:5432"
     volumes:
       - "pg_data:/var/lib/postgres"
-      - "./backend/sql/psotgres.sql:/docker-entrypoint-initdb.d/schema.sql"
+      #- "./backend/sql/postgres.sql:/docker-entrypoint-initdb.d/schema.sql"
     environment:
       PG_DATABASE: "${PG_DATABASE}"
       PG_USER: "${PG_USER}"

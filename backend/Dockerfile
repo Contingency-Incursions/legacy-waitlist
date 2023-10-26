@@ -11,7 +11,7 @@ ARG DATABASE_PASSWORD
 ARG DATABASE_HOST=localhost
 ARG DATABASE_NAME=waitlist
 
-RUN sudo -u postgres pgsql -u "${DATABASE_USERNAME}" -d "${DATABASE_NAME}" -a -f sql/postgres.sql
+RUN PGPASSWORD="${DATABASE_PASSWORD}" psql --host="${DATABASE_HOST}" --user="${DATABASE_USERNAME}" "${DATABASE_NAME}" < sql/postgres.sql
 RUN touch /yes-i-want-this-step
 
 
