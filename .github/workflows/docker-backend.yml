@@ -19,14 +19,13 @@ jobs:
         build: ["release", "dev"]
     services:
       database:
-        image: postgres:latest
+        image: postgres:16
         env:
-          PG_DATABASE: waitlist
-          PG_USER: waitlist
-          PG_PASSWORD: ${{ secrets.PG_PASSWORD }}
-          PG_RANDOM_ROOT_PASSWORD: true
+          POSTGRES_DB: waitlist
+          POSTGRES_USER: waitlist
+          POSTGRES_PASSWORD: ${{ secrets.PG_PASSWORD }}
         ports:
-          - 3306:3306
+          - 5432:5432
 
     steps:
       - name: Docker Login
@@ -35,6 +34,10 @@ jobs:
           registry: ghcr.io
           username: "${{ github.actor }}"
           password: "${{ secrets.GITHUB_TOKEN }}"
+
+      - name: Database Debug
+        run: |
+          sudo ss -tlpn
 
       - name: Checkout Repository
         uses: actions/checkout@v3

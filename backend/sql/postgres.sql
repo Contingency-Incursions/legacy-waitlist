@@ -230,7 +230,7 @@ CREATE TABLE waitlist_entry_fit (
 
 CREATE TABLE wiki_user (
   character_id BIGINT PRIMARY KEY NOT NULL,
-  user VARCHAR(255) NOT NULL UNIQUE,
+  "user" VARCHAR(255) NOT NULL UNIQUE,
   hash VARCHAR(60) NOT NULL,
   mail VARCHAR(255) NOT NULL UNIQUE,
   CONSTRAINT wiki_character FOREIGN KEY (character_id) REFERENCES character (id)
