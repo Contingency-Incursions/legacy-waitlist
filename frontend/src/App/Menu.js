@@ -151,7 +151,7 @@ export function Menu({ onChangeCharacter, theme, setTheme, sticker, setSticker }
               )}
               <InputGroup fixed>
                 <Teamspeak />
-                <AButton title="Discord" href="https://discord.gg/D8pkZhE8DD">
+                <AButton title="Discord" href="https://discord.gg/TmCxUZcn5B">
                   <FontAwesomeIcon icon={faDiscord} />
                 </AButton>
                 <BrowserNotification />
