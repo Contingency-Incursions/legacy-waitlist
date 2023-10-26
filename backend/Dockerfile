@@ -1,8 +1,10 @@
 # Setup database
 FROM ubuntu as db-setup
+ARG DEBIAN_FRONTEND=noninteractive
 ADD . /app/backend
 WORKDIR /app/backend
-RUN apt update && apt install -y postgresql
+RUN apt update
+RUN apt install postgresql postgresql-contrib -f -y
 
 ARG DATABASE_USERNAME=waitlist
 ARG DATABASE_PASSWORD
