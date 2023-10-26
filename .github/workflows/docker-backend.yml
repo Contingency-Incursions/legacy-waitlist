@@ -19,12 +19,11 @@ jobs:
         build: ["release", "dev"]
     services:
       database:
-        image: postgres:latest
+        image: postgres:16
         env:
-          PG_DATABASE: waitlist
-          PG_USER: waitlist
-          PG_PASSWORD: ${{ secrets.PG_PASSWORD }}
-          PG_RANDOM_ROOT_PASSWORD: true
+          POSTGRES_DB: waitlist
+          POSTGRES_USER: waitlist
+          POSTGRES_PASSWORD: ${{ secrets.PG_PASSWORD }}
         ports:
           - 5432:5432
 
