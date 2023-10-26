@@ -11,8 +11,8 @@ ARG DATABASE_PASSWORD
 ARG DATABASE_HOST=localhost
 ARG DATABASE_NAME=waitlist
 
-RUN pg --protocol=tcp -h"${DATABASE_HOST}" -u"${DATABASE_USERNAME}" -p"${DATABASE_PASSWORD}" "${DATABASE_NAME}" < sql/postgres.sql
-RUN pg --protocol=tcp -h"${DATABASE_HOST}" -u"${DATABASE_USERNAME}" -p"${DATABASE_PASSWORD}" "${DATABASE_NAME}" -e 'SHOW TABLES;'
+RUN pgsql --protocol=tcp -h"${DATABASE_HOST}" -u"${DATABASE_USERNAME}" -p"${DATABASE_PASSWORD}" "${DATABASE_NAME}" < sql/postgres.sql
+RUN pgsql --protocol=tcp -h"${DATABASE_HOST}" -u"${DATABASE_USERNAME}" -p"${DATABASE_PASSWORD}" "${DATABASE_NAME}" -e 'SHOW TABLES;'
 RUN touch /yes-i-want-this-step
 
 
