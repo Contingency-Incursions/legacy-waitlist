@@ -5,14 +5,14 @@ ADD . /app/backend
 WORKDIR /app/backend
 RUN apt update
 RUN apt install postgresql postgresql-contrib -f -y
+RUN systemctl start postgresql.service
 
 ARG DATABASE_USERNAME=waitlist
 ARG DATABASE_PASSWORD
 ARG DATABASE_HOST=localhost
 ARG DATABASE_NAME=waitlist
 
-RUN pgsql --protocol=tcp -h"${DATABASE_HOST}" -u"${DATABASE_USERNAME}" -p"${DATABASE_PASSWORD}" "${DATABASE_NAME}" < sql/postgres.sql
-RUN pgsql --protocol=tcp -h"${DATABASE_HOST}" -u"${DATABASE_USERNAME}" -p"${DATABASE_PASSWORD}" "${DATABASE_NAME}" -e 'SHOW TABLES;'
+RUN sudo -u postgres pgsql -u "${DATABASE_USERNAME}" -d "${DATABASE_NAME}" -a -f sql/postgres.sql
 RUN touch /yes-i-want-this-step
 
 
