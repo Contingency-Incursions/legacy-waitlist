@@ -8,7 +8,7 @@ RUN apt install postgresql postgresql-contrib -f -y
 
 ARG DATABASE_USERNAME=waitlist
 ARG DATABASE_PASSWORD
-ARG DATABASE_HOST=localhost
+ARG DATABASE_HOST=127.0.0.1
 ARG DATABASE_NAME=waitlist
 
 RUN PGPASSWORD="${DATABASE_PASSWORD}" psql --host="${DATABASE_HOST}" --user="${DATABASE_USERNAME}" "${DATABASE_NAME}" < sql/postgres.sql

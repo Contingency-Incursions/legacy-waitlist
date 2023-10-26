@@ -38,7 +38,7 @@ jobs:
 
       - name: Database Debug
         run: |
-          sudo ss -tlpn | grep 3306
+          sudo ss -tlpn | grep 5432
 
       - name: Checkout Repository
         uses: actions/checkout@v3
