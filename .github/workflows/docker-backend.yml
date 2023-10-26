@@ -36,10 +36,6 @@ jobs:
           username: "${{ github.actor }}"
           password: "${{ secrets.GITHUB_TOKEN }}"
 
-      - name: Database Debug
-        run: |
-          sudo ss -tlpn | grep 3306
-
       - name: Checkout Repository
         uses: actions/checkout@v3
 
