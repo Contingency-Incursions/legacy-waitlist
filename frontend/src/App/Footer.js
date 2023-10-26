@@ -53,7 +53,7 @@ const LegalNotices = () => {
 
           <H3>CI Logo:</H3>
           <p style={{ paddingBottom: "10px" }}>
-            The Website and Discord Logo and the favicon are designed by Spartalicious.
+            The Website and Discord Logo and the favicon are designed by Halbarad Dovanna.
           </p>
 
           <H3>Waitlist</H3>

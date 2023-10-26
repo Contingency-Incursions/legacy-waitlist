@@ -27,7 +27,7 @@ async fn set_wiki_passwd(
 ) -> Result<(), Madness> {
     account.require_one_of_access("waitlist-tag:TRAINEE,wiki-editor")?;
 
-    let character = sqlx::query!("SELECT name FROM `character` WHERE id = ?", account.id)
+    let character = sqlx::query!("SELECT name FROM character WHERE id = $1", account.id)
         .fetch_one(app.get_db())
         .await?;
 
@@ -67,7 +67,11 @@ async fn set_wiki_passwd(
     }
 
     sqlx::query!(
-        "REPLACE INTO `wiki_user` (`character_id`, `user`, `hash`, `mail`) VALUES (?, ?, ?, ?)",
+        "INSERT INTO wiki_user (character_id, wuser, hash, mail) VALUES ($1, $2, $3, $4) ON CONFLICT (character_id)
+        DO UPDATE
+        SET wuser = excluded.wuser, 
+        hash = excluded.hash, 
+        mail = excluded.mail;",
         account.id,
         wiki_user,
         hash_for_dokuwiki(input.password.as_ref()),
@@ -91,7 +95,7 @@ async fn whoami(
     app: &rocket::State<app::Application>,
     account: AuthenticatedAccount,
 ) -> Result<Json<WhoamiResponse>, Madness> {
-    let character = sqlx::query!("SELECT id, name FROM `character` WHERE id = ?", account.id)
+    let character = sqlx::query!("SELECT id, name FROM character WHERE id = $1", account.id)
         .fetch_one(app.get_db())
         .await?;
     let mut characters = vec![types::Character {
@@ -101,7 +105,7 @@ async fn whoami(
     }];
 
     let alts = sqlx::query!(
-        "SELECT id, name FROM alt_character JOIN `character` ON alt_character.alt_id = `character`.id WHERE account_id = ?",
+        "SELECT id, name FROM alt_character JOIN character ON alt_character.alt_id = character.id WHERE account_id = $1",
         account.id
     )
     .fetch_all(app.get_db())
@@ -134,7 +138,7 @@ async fn logout<'r>(
 ) -> Result<CookieSetter, Madness> {
     if let Some(account) = account {
         sqlx::query!(
-            "DELETE FROM alt_character WHERE account_id = ? OR alt_id = ?",
+            "DELETE FROM alt_character WHERE account_id = $1 OR alt_id = $2",
             account.id,
             account.id
         )
@@ -236,7 +240,7 @@ async fn callback(
             let account = account.unwrap();
             if account.id != character_id {
                 let is_admin = sqlx::query!(
-                    "SELECT character_id FROM admin WHERE character_id = ?",
+                    "SELECT character_id FROM admin WHERE character_id = $1",
                     character_id
                 )
                 .fetch_optional(app.get_db())
@@ -249,7 +253,8 @@ async fn callback(
                 }
 
                 sqlx::query!(
-                    "REPLACE INTO alt_character (account_id, alt_id) VALUES (?, ?)",
+                    "INSERT INTO alt_character (account_id, alt_id) VALUES ($1, $2) ON CONFLICT (account_id, alt_id)
+                    DO NOTHING;",
                     account.id,
                     character_id
                 )

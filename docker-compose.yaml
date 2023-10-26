@@ -1,20 +1,20 @@
 version: "3.7"
 volumes:
-  mysql_data:
+  pg_data:
 services:
   database:
-    image: "mysql:8"
+    image: "postgres:latest"
     restart: "unless-stopped"
     ports:
-      - "127.0.0.1:3306:3306"
+      - "127.0.0.1:5432:5432"
     volumes:
-      - "mysql_data:/var/lib/mysql"
-      - "./backend/sql/mysql.sql:/docker-entrypoint-initdb.d/schema.sql"
+      - "pg_data:/var/lib/postgres"
+      #- "./backend/sql/postgres.sql:/docker-entrypoint-initdb.d/schema.sql"
     environment:
-      MYSQL_DATABASE: "${MYSQL_DATABASE}"
-      MYSQL_USER: "${MYSQL_USER}"
-      MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
-      MYSQL_ROOT_PASSWORD: "${MYSQL_PASSWORD}"
+      PG_DATABASE: "${PG_DATABASE}"
+      PG_USER: "${PG_USER}"
+      PG_PASSWORD: "${PG_PASSWORD}"
+      PG_ROOT_PASSWORD: "${PG_PASSWORD}"
 
   sse:
     image: "tvdw/sse-server"

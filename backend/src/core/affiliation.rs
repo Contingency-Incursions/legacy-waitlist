@@ -44,12 +44,12 @@ impl AffiliationService {
         self.update_corp_affiliation(character.corporation_id)
             .await?;
 
-        if let None = sqlx::query!("SELECT * FROM `character` WHERE id=?", id)
+        if let None = sqlx::query!("SELECT * FROM character WHERE id=$1", id)
             .fetch_optional(self.db.as_ref())
             .await?
         {
             sqlx::query!(
-                "INSERT INTO `character` (id, name, corporation_id) VALUES (?, ?, ?)",
+                "INSERT INTO character (id, name, corporation_id) VALUES ($1, $2, $3)",
                 id,
                 character.name,
                 character.corporation_id
@@ -58,7 +58,7 @@ impl AffiliationService {
             .await?;
         } else {
             sqlx::query!(
-                "UPDATE `character` SET name=?, corporation_id=? WHERE id=?",
+                "UPDATE character SET name=$1, corporation_id=$2 WHERE id=$3",
                 character.name,
                 character.corporation_id,
                 id
@@ -71,7 +71,7 @@ impl AffiliationService {
     }
 
     pub async fn update_corp_affiliation(&self, id: i64) -> Result<(), Madness> {
-        let corporation = sqlx::query!("SELECT * FROM corporation WHERE id=?", id)
+        let corporation = sqlx::query!("SELECT * FROM corporation WHERE id=$1", id)
             .fetch_optional(self.db.as_ref())
             .await?;
 
@@ -97,7 +97,7 @@ impl AffiliationService {
 
         if !known {
             sqlx::query!(
-                "INSERT INTO corporation (id, name, alliance_id, updated_at) VALUES (?, ?, ?, ?)",
+                "INSERT INTO corporation (id, name, alliance_id, updated_at) VALUES ($1, $2, $3, $4)",
                 id,
                 esi_res.name,
                 esi_res.alliance_id,
@@ -107,7 +107,7 @@ impl AffiliationService {
             .await?;
         } else {
             sqlx::query!(
-                "UPDATE corporation SET name=?, alliance_id=?, updated_at=? WHERE id=?",
+                "UPDATE corporation SET name=$1, alliance_id=$2, updated_at=$3 WHERE id=$4",
                 esi_res.name,
                 esi_res.alliance_id,
                 now,
@@ -125,19 +125,19 @@ impl AffiliationService {
             .esi_client
             .get_unauthenticated(&format!("/latest/alliances/{}", id))
             .await?;
-        if let None = sqlx::query!("SELECT * FROM alliance WHERE id=?", id)
+        if let None = sqlx::query!("SELECT * FROM alliance WHERE id=$1", id)
             .fetch_optional(self.db.as_ref())
             .await?
         {
             sqlx::query!(
-                "INSERT INTO alliance (`id`, `name`) VALUES (?, ?)",
+                "INSERT INTO alliance (id, name) VALUES ($1, $2)",
                 id,
                 esi_res.name
             )
             .fetch_optional(self.db.as_ref())
             .await?;
         } else {
-            sqlx::query!("UPDATE alliance SET name=? WHERE id=?", esi_res.name, id)
+            sqlx::query!("UPDATE alliance SET name=$1 WHERE id=$2", esi_res.name, id)
                 .fetch_optional(self.db.as_ref())
                 .await?;
         }

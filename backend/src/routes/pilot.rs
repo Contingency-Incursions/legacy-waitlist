@@ -17,14 +17,14 @@ async fn pilot_info(
 ) -> Result<Json<CharacterAndLevel>, Madness> {
     authorize_character(&app.db, &account, character_id, Some("pilot-view")).await?;
 
-    let character = sqlx::query!("SELECT id, name FROM `character` WHERE id=?", character_id)
+    let character = sqlx::query!("SELECT id, name FROM character WHERE id=$1", character_id)
         .fetch_one(app.get_db())
         .await?;
 
     let mut tags: Vec<String> = Vec::new();
 
     // Add the ACL tag to the array
-    if let Some(admin) = sqlx::query!("SELECT role FROM admin WHERE character_id=?", character.id)
+    if let Some(admin) = sqlx::query!("SELECT role FROM admin WHERE character_id=$1", character.id)
         .fetch_optional(app.get_db())
         .await?
     {
@@ -37,7 +37,7 @@ async fn pilot_info(
     }
 
     // Add specialist badges to the tags array
-    for badge in sqlx::query!("SELECT b.name from badge_assignment AS ba INNER JOIN badge AS b on b.id=ba.BadgeId WHERE ba.CharacterId=?", character.id)
+    for badge in sqlx::query!("SELECT b.name from badge_assignment AS ba INNER JOIN badge AS b on b.id=ba.BadgeId WHERE ba.CharacterId=$1", character.id)
         .fetch_all(app.get_db())
         .await?
         .iter() {
@@ -65,15 +65,15 @@ async fn alt_info(
     let characters = sqlx::query_as!(
         Character,
         "SELECT
-            `id`,`name`,`corporation_id`
+            \"id\",\"name\",\"corporation_id\"
         FROM
-            `character`
+            character
         JOIN
-            `alt_character`AS `alt` ON (alt.alt_id=id OR alt.account_id=id)       
+            \"alt_character\"AS \"alt\" ON (alt.alt_id=id OR alt.account_id=id)       
         WHERE
-            (alt.alt_id=? OR alt.account_id=?) AND id!=?
+            (alt.alt_id=$1 OR alt.account_id=$2) AND id!=$3
         ORDER BY 
-            `name` ASC",
+            \"name\" ASC",
         character_id,
         character_id,
         character_id

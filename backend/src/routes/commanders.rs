@@ -58,7 +58,7 @@ async fn list(
     let mut filters = Vec::new();
 
     let rows =
-        sqlx::query!("SELECT role, count(role) as `member_count!: i64` FROM admin GROUP BY role")
+        sqlx::query!("SELECT role, count(role) as \"member_count!: i64\" FROM admin GROUP BY role")
             .fetch_all(app.get_db())
             .await?;
 
@@ -73,14 +73,14 @@ async fn list(
         "SELECT
         role,
         granted_at,
-        fc.id AS `id`,
-        fc.name AS `name`,
-        a.id AS `admin_id`,
-        a.name AS `admin_name`
+        fc.id AS \"id\",
+        fc.name AS \"name\",
+        a.id AS \"admin_id\",
+        a.name AS \"admin_name\"
       FROM
         admin
-        JOIN `character` AS fc ON character_id = fc.id
-        JOIN `character` AS a ON granted_by_id = a.id"
+        JOIN character AS fc ON character_id = fc.id
+        JOIN character AS a ON granted_by_id = a.id"
     )
     .fetch_all(app.get_db())
     .await?;
@@ -89,15 +89,15 @@ async fn list(
         .into_iter()
         .map(|cmdr| Commander {
             character: Character {
-                id: cmdr.id,
-                name: cmdr.name,
+                id: cmdr.id.unwrap(),
+                name: cmdr.name.unwrap(),
             },
-            role: cmdr.role,
+            role: cmdr.role.unwrap(),
             granted_by: Character {
-                id: cmdr.admin_id,
-                name: cmdr.admin_name,
+                id: cmdr.admin_id.unwrap(),
+                name: cmdr.admin_name.unwrap(),
             },
-            granted_at: cmdr.granted_at,
+            granted_at: cmdr.granted_at.unwrap(),
         })
         .collect();
 
@@ -143,12 +143,12 @@ async fn assign(
     }
 
     let character_id = body.character_id.unwrap();
-    if let Some(character) = sqlx::query!("SELECT * FROM `character` WHERE id=?", character_id)
+    if let Some(character) = sqlx::query!("SELECT * FROM character WHERE id=$1", character_id)
         .fetch_optional(app.get_db())
         .await?
     {
         // Ensure the character doesn't already have a role - Character <-> Admin is a 1 to 1 relationship
-        if let Some(_) = sqlx::query!("SELECT * FROM admin WHERE character_id=?", character_id)
+        if let Some(_) = sqlx::query!("SELECT * FROM admin WHERE character_id=$1", character_id)
             .fetch_optional(app.get_db())
             .await?
         {
@@ -160,7 +160,7 @@ async fn assign(
 
         let now = chrono::Utc::now().timestamp();
         sqlx::query!(
-            "INSERT INTO admin VALUES (?, ?, ?, ?)",
+            "INSERT INTO admin VALUES ($1, $2, $3, $4)",
             character_id,
             body.role,
             now,
@@ -181,7 +181,7 @@ async fn public_directory(
     app: &rocket::State<Application>,
 ) -> Result<Json<Vec<CharacterWithRole>>, Madness> {
     let team = sqlx::query!(
-        "SELECT role, fc.id, fc.name FROM admin JOIN `character` AS fc ON character_id = fc.id WHERE role != 'Wiki Team' ORDER BY role"
+        "SELECT role, fc.id, fc.name FROM admin JOIN character AS fc ON character_id = fc.id WHERE role != 'Wiki Team' ORDER BY role"
     )
     .fetch_all(app.get_db())
     .await?
@@ -233,7 +233,7 @@ async fn lookup(
 ) -> Result<String, Madness> {
     account.require_access("commanders-manage")?;
 
-    if let Some(role) = sqlx::query!("Select * FROM admin WHERE character_id=?", character_id)
+    if let Some(role) = sqlx::query!("Select * FROM admin WHERE character_id=$1", character_id)
         .fetch_optional(app.get_db())
         .await?
     {
@@ -260,7 +260,7 @@ async fn revoke(
     }
 
     // Check the target user has a role. If they do not return a 200, if they do...
-    if let Some(role) = sqlx::query!("SELECT * FROM admin WHERE character_id=?", character_id)
+    if let Some(role) = sqlx::query!("SELECT * FROM admin WHERE character_id=$1", character_id)
         .fetch_optional(app.get_db())
         .await?
     {
@@ -274,7 +274,7 @@ async fn revoke(
         }
 
         // Revoke the role
-        sqlx::query!("DELETE FROM admin WHERE character_id=?", character_id)
+        sqlx::query!("DELETE FROM admin WHERE character_id=$1", character_id)
             .execute(app.get_db())
             .await?;
     };

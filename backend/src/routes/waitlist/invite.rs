@@ -35,18 +35,18 @@ async fn invite(
 				wef.is_alt wef_is_alt,
                 we.account_id we_account_id,
                 fitting.hull fitting_hull,
-                EXISTS (SELECT character_id FROM admin WHERE character_id=we.account_id) as `has_acl!: bool`
+                EXISTS (SELECT character_id FROM admin WHERE character_id=we.account_id) as \"has_acl!: bool\"
             FROM waitlist_entry_fit wef
             JOIN waitlist_entry we ON wef.entry_id=we.id
             JOIN fitting ON wef.fit_id = fitting.id
-            WHERE wef.id = ?
+            WHERE wef.id = $1
         ",
         input.id
     )
     .fetch_one(app.get_db())
     .await?;
     // needs to match category.yaml file
-    let select_cat = if xup.wef_is_alt > 0 {
+    let select_cat = if xup.wef_is_alt == true {
         "alt".to_string()
     } else {
         xup.wef_category
@@ -55,7 +55,7 @@ async fn invite(
         "
             SELECT fleet_id, squad_id, wing_id FROM fleet
             JOIN fleet_squad ON fleet.id=fleet_squad.fleet_id
-            WHERE boss_id=? AND category=?
+            WHERE boss_id=$1 AND category=$2
         ",
         input.character_id,
         select_cat,
@@ -72,7 +72,7 @@ async fn invite(
         // The inviting FC does not have an HQ-FC badge, they are probably a trainee or advanced trainee
         if let Err(_e) = account.require_access("waitlist-tag:HQ-FC") {
             if sqlx::query!(
-                "SELECT id FROM badge JOIN badge_assignment AS ba ON id=ba.badgeId WHERE badge.name='LOGI' AND ba.characterId=?",
+                "SELECT id FROM badge JOIN badge_assignment AS ba ON id=ba.badgeId WHERE badge.name='LOGI' AND ba.characterId=$1",
                 xup.wef_character_id
             )
             .fetch_all(app.get_db())
@@ -105,7 +105,7 @@ async fn invite(
         )
         .await?;
 
-    let fc = sqlx::query!("SELECT name FROM `character` WHERE id=?", account.id)
+    let fc = sqlx::query!("SELECT name FROM character WHERE id=$1", account.id)
         .fetch_one(app.get_db())
         .await?;
 
