@@ -51,7 +51,7 @@ const LegalNotices = () => {
             from the use of this website.
           </p>
 
-          <H3>TOP Logo:</H3>
+          <H3>CI Logo:</H3>
           <p style={{ paddingBottom: "10px" }}>
             The Website and Discord Logo and the favicon are designed by Spartalicious.
           </p>
@@ -60,7 +60,7 @@ const LegalNotices = () => {
           <p>
             The source code for Contingency Incursions is available under the MIT license. The source
             code and fulltext for this license can be found{" "}
-            <A href="https://github.com/samuelgrant/top-waitlist/" target="_blank">
+            <A href="https://github.com/Contingency-Incursions/legacy-waitlist" target="_blank">
               here
             </A>
             .

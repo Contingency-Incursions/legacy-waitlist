@@ -2,12 +2,13 @@ use std::{
     cmp::min,
     collections::{BTreeMap, BTreeSet},
 };
-
+use reqwest::Method;
 use super::{fitmatch, implantmatch, skills::SkillTier};
 use crate::data::{categories, fits::DoctrineFit, skills::Skills};
 use eve_data_core::{FitError, Fitting, TypeDB, TypeID};
 use serde::Serialize;
 use inflector::Inflector;
+use std::time::Duration;
 
 #[derive(Debug)]
 pub struct Output {
@@ -33,6 +34,7 @@ pub struct PilotData<'a> {
     pub time_in_fleet: i64,
     pub skills: &'a Skills,
     pub access_keys: &'a BTreeSet<String>,
+    pub id: &'a i64
 }
 
 pub struct FitChecker<'a> {
@@ -49,7 +51,7 @@ pub struct FitChecker<'a> {
 }
 
 impl<'a> FitChecker<'a> {
-    pub fn check(
+    pub async fn check(
         pilot: &PilotData<'_>,
         fit: &Fitting,
         badges: &Vec<String>,
@@ -75,6 +77,7 @@ impl<'a> FitChecker<'a> {
         checker.set_category();
         checker.add_snowflake_tags();
         checker.add_implant_tag();
+        checker.add_war_tags().await;
         checker.merge_tags();
         checker.check_time_in_fleet();
 
@@ -295,7 +298,7 @@ impl<'a> FitChecker<'a> {
                 let mut implants_nok = "";
                 if doctrine_fit.name.contains("Ascendancy") && set_tag != "WARPSPEED" {
                     implants_nok = "Ascendancy";
-                } else if doctrine_fit.name.contains("Hybrid") && set_tag != "AMULET" {
+                } else if doctrine_fit.name.contains("Amulet") && set_tag != "AMULET" {
                     let implants = [
                         type_id!("High-grade Amulet Alpha"),
                         type_id!("High-grade Amulet Beta"),
@@ -305,7 +308,7 @@ impl<'a> FitChecker<'a> {
                     ];
                     for implant in implants {
                         if !self.pilot.implants.contains(&implant) {
-                            implants_nok = "Hybrid";
+                            implants_nok = "Amulet";
                         }
                     }
                 } else if doctrine_fit.name.contains("Amulet") && set_tag != "AMULET" {
@@ -332,17 +335,16 @@ impl<'a> FitChecker<'a> {
                     self.tags.insert("SAVIOR");
                 } else if doctrine_fit.name.contains(&set_tag.to_title_case())
                     || (set_tag == "WARPSPEED"
-                        && !(doctrine_fit.name.contains("Amulet")
-                            || doctrine_fit.name.contains("Hybrid")))
+                        && doctrine_fit.name.contains("Amulet"))
                     || self.fit.hull == type_id!("Oneiros")
-                    || (set_tag == "AMULET" && doctrine_fit.name.contains("Hybrid"))
+                    || (set_tag == "AMULET" && doctrine_fit.name.contains("Amulet"))
                 {
                     self.tags.insert(set_tag);
                     // give warning if you have all but slot 10 or wrong slot for that ship
                     if implantmatch::detect_slot10(self.fit.hull, self.pilot.implants).is_none() {
                         self.tags.insert("NO-SLOT10");
                     }
-                    if set_tag == "AMULET" && doctrine_fit.name.contains("Hybrid") {
+                    if set_tag == "AMULET" && doctrine_fit.name.contains("Amulet") {
                         self.tags.insert("SLOW");
                     }
                 }
@@ -361,6 +363,39 @@ impl<'a> FitChecker<'a> {
             }
         }
         self.category = Some(category);
+    }
+
+    async fn add_war_tags(&mut self) -> Result<(), Box<dyn std::error::Error>> {
+
+        use serde::Deserialize;
+
+        #[derive(Debug, Deserialize)]
+        pub struct WarCheckerResponse<> {
+            pub id: i64,
+            pub active_war: bool,
+            pub faction_war: bool
+        }
+
+        let client = reqwest::Client::new();
+
+        let response = client
+        .request(Method::GET, format!("http://127.0.0.1:3001/char_checker/{}", self.pilot.id))
+        .timeout(Duration::from_secs(5))
+        .send()
+        .await?;
+
+        let data = response.json::<Vec<WarCheckerResponse>>().await?;
+        let war_data = &data[0];
+
+        if war_data.active_war == true {
+            self.tags.insert("AT-WAR");
+        }
+
+        if war_data.faction_war  == true {
+            self.tags.insert("FACTION-WAR");
+        }
+
+        Ok(())
     }
 
     fn add_snowflake_tags(&mut self) {

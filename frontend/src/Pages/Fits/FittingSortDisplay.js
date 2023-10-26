@@ -236,7 +236,7 @@ function ShipDisplay({ fit, id, note }) {
               <FitCard.Content.Badges>
                 {note ? <FontAwesomeIcon icon={faExclamationCircle} /> : null}
                 {fit.name.toLowerCase().indexOf("hybrid") !== -1 ? (
-                  <Shield color="red" letter="H" title="Requires Hybrid Clone" />
+                  <Shield color="red" letter="H" title="Requires Amulet + WS-618 Clone" />
                 ) : fit.name.toLowerCase().indexOf("ascendancy") !== -1 ? (
                   <Shield color="red" letter="W" title="Requires Ascendancy Clone" />
                 ) : null}
@@ -257,7 +257,7 @@ function ImplantOut() {
     <>
       <DisplayDOM style={{ justifyContent: "initial" }}>
         <ImplantButton name="Ascendancy" img={wbadge} />
-        <ImplantButton name="Hybrid" img={hbadge} />
+        <ImplantButton name="Amulet" img={hbadge} />
       </DisplayDOM>
     </>
   );
