@@ -6,8 +6,9 @@ pub async fn lookup(db: &crate::DB, ids: &[i64]) -> Result<HashMap<i64, Characte
     if ids.is_empty() {
         return Ok(HashMap::new());
     }
-
-    let placeholders = iter::repeat("?")
+    
+    let mut index = 1;
+    let placeholders = iter::repeat_with(|| {let tmp = index; index += 1; format!("${}", tmp)})
         .take(ids.len())
         .collect::<Vec<_>>()
         .join(",");
