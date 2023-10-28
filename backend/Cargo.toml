@@ -32,11 +32,12 @@ regex = "*"
 rand = "*"
 thiserror = "*"
 bcrypt = "*"
-zxcvbn = "*"
+zxcvbn = "2.2.0"
 itertools = "*"
 Inflector = "*"
 bigdecimal = { version = "*", features = ["serde"] }
 dotenv = "*"
+sentry = "*"
 
 [features]
 default = ["postgres"]

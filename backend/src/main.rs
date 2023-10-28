@@ -38,45 +38,57 @@ fn not_found(_req: &Request) -> String {
     format!("404 Not Found")
 }
 
-#[tokio::main]
-async fn main() {
-    let options = sqlx::postgres::PgPoolOptions::new();
+fn main() {
+    let _guard = sentry::init(("
 
-    let config_file = env::var("WAITLIST_CONFIG").unwrap_or_else(|_| "./config.toml".to_string());
-    let raw_config = std::fs::read_to_string(&config_file).expect("Could not load config");
-    let config: config::Config = toml::from_str(&raw_config).expect("Could not load config");
+    https://988040048939a23af92b0a85ebe93fe2@o1154850.ingest.sentry.io/4506129796235264", sentry::ClientOptions {
+    release: sentry::release_name!(),
+    ..Default::default()
+}));
 
-    let database = options
-        .idle_timeout(std::time::Duration::from_secs(config.database.idle_timeout))
-        .connect_timeout(std::time::Duration::from_secs(
-            config.database.connect_timeout,
-        ))
-        .min_connections(config.database.min_connections)
-        .max_connections(config.database.max_connections)
-        .connect(&config.database.url)
-        .await
-        .unwrap();
-    let database = Arc::new(database);
+tokio::runtime::Builder::new_multi_thread()
+        .enable_all()
+        .build()
+        .unwrap()
+        .block_on(async {
+            let options = sqlx::postgres::PgPoolOptions::new();
 
-    if config.fleet_updater.enable {
-        let fleet_updater =
-            core::fleet_updater::FleetUpdater::new(database.clone(), config.clone());
-        fleet_updater.start();
-    }
-
-    if config.skill_updater.enable {
-        let skill_updater =
-            core::skill_updater::SkillUpdater::new(database.clone(), config.clone());
-        skill_updater.start();
-    }
-
-    let application = app::new(database, config);
-    rocket::build()
-        .register("/", catchers![not_authorized, forbidden, not_found])
-        .mount("/", routes::routes())
-        .manage(application)
-        .attach(request_logger::RequestLogger {})
-        .launch()
-        .await
-        .unwrap();
+            let config_file = env::var("WAITLIST_CONFIG").unwrap_or_else(|_| "./config.toml".to_string());
+            let raw_config = std::fs::read_to_string(&config_file).expect("Could not load config");
+            let config: config::Config = toml::from_str(&raw_config).expect("Could not load config");
+        
+            let database = options
+                .idle_timeout(std::time::Duration::from_secs(config.database.idle_timeout))
+                .connect_timeout(std::time::Duration::from_secs(
+                    config.database.connect_timeout,
+                ))
+                .min_connections(config.database.min_connections)
+                .max_connections(config.database.max_connections)
+                .connect(&config.database.url)
+                .await
+                .unwrap();
+            let database = Arc::new(database);
+        
+            if config.fleet_updater.enable {
+                let fleet_updater =
+                    core::fleet_updater::FleetUpdater::new(database.clone(), config.clone());
+                fleet_updater.start();
+            }
+        
+            if config.skill_updater.enable {
+                let skill_updater =
+                    core::skill_updater::SkillUpdater::new(database.clone(), config.clone());
+                skill_updater.start();
+            }
+        
+            let application = app::new(database, config);
+            rocket::build()
+                .register("/", catchers![not_authorized, forbidden, not_found])
+                .mount("/", routes::routes())
+                .manage(application)
+                .attach(request_logger::RequestLogger {})
+                .launch()
+                .await
+                .unwrap();
+        });
 }
