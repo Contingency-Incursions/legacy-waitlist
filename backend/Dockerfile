@@ -4,7 +4,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 ADD . /app/backend
 WORKDIR /app/backend
 RUN apt update
-RUN apt install postgresql postgresql-contrib -f -y
+RUN apt install postgresql postgresql-contrib libssl-dev -f -y
 
 ARG DATABASE_USERNAME=waitlist
 ARG DATABASE_PASSWORD
