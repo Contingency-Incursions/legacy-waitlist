@@ -40,6 +40,7 @@ RUN cargo chef prepare --recipe-path /recipe.json
 # Cache dependencies
 FROM base AS cacher
 ARG PROFILE=release
+RUN apt install libssl-dev -f -y
 COPY --from=planner /recipe.json /recipe.json
 RUN cargo chef cook --profile ${PROFILE} --no-default-features --features=postgres --recipe-path /recipe.json
 
