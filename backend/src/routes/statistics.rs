@@ -155,7 +155,7 @@ impl Queries {
             year_month!(from_unixtime!("first_seen")),
             " yearmonth,
                 character_id,
-                SUM(EXTRACT(EPOCH FROM (last_seen - first_seen) * interval '1 microsecond')) AS time_in_fleet
+                CAST(SUM(last_seen - first_seen) as BIGINT) AS time_in_fleet
             FROM fleet_activity
             GROUP BY 1, 2
         "
