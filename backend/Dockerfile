@@ -28,7 +28,7 @@ RUN sh shrink-sde.sh
 FROM rust:1.72-alpine AS base
 WORKDIR /app/backend
 RUN apk add --no-cache musl-dev sqlite
-RUN apk add openssl-dev libressl-dev
+RUN apk add libressl-dev
 RUN cargo install cargo-chef
 
 
