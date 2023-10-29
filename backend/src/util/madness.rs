@@ -76,6 +76,7 @@ impl<'r> rocket::response::Responder<'r, 'static> for Madness {
         };
 
         if status == Status::InternalServerError {
+            sentry::capture_error(&self);
             error!("Request error: {}: {:#?}", self, self);
         }
 
