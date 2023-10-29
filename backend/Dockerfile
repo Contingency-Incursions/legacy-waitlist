@@ -28,7 +28,7 @@ RUN sh shrink-sde.sh
 FROM rust:1.72-alpine AS base
 WORKDIR /app/backend
 RUN apk add --no-cache musl-dev sqlite
-RUN apk add openssl-dev
+RUN apk add openssl-dev libressl-dev
 RUN cargo install cargo-chef
 
 
@@ -52,8 +52,6 @@ COPY --from=cacher /app/backend/target target
 COPY --from=cacher $CARGO_HOME $CARGO_HOME
 COPY --from=sde-export /data/sqlite-shrunk.sqlite sqlite-shrunk.sqlite
 ADD . /app/backend
-
-RUN apk add --no-cache mariadb-client
 
 ARG DATABASE_USERNAME=waitlist
 ARG DATABASE_PASSWORD
