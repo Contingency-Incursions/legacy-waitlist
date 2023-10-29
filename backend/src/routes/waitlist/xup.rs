@@ -83,7 +83,7 @@ async fn get_time_in_fleet(db: &crate::DB, character_id: i64) -> Result<i64, sql
         seconds: Option<i64>,
     }
     let result: TimeResult = sqlx::query_as::<_, TimeResult>(
-        "SELECT  SUM(EXTRACT(EPOCH FROM (last_seen - first_seen) * interval '1 microsecond')) AS seconds FROM fleet_activity WHERE character_id=$1",
+        "SELECT SUM(last_seen - first_seen) AS seconds FROM fleet_activity WHERE character_id=$1",
     )
     .bind(character_id)
     .fetch_one(db)
