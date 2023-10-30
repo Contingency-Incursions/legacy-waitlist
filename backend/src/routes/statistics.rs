@@ -191,7 +191,7 @@ impl Queries {
             year_month!(from_unixtime!("first_seen")),
             " yearmonth,
                 hull,
-                SUM(EXTRACT(EPOCH FROM (last_seen - first_seen) * interval '1 microsecond')) AS time_in_fleet
+                CAST(SUM(last_seen - first_seen) as BIGINT) AS time_in_fleet
             FROM fleet_activity
             GROUP BY 1, 2
         "
@@ -290,7 +290,7 @@ impl Queries {
             "
             SELECT
                 hull,
-                SUM(EXTRACT(EPOCH FROM (last_seen - first_seen) * interval '1 microsecond')) AS fleet_seconds
+                CAST(SUM(last_seen - first_seen) as BIGINT) AS fleet_seconds
             FROM fleet_activity
             WHERE first_seen > $1
             GROUP BY 1

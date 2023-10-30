@@ -379,7 +379,7 @@ impl<'a> FitChecker<'a> {
         let client = reqwest::Client::new();
 
         let response = client
-        .request(Method::GET, format!("https://evetools.flightleveltech.co.nz//char_checker/{}", self.pilot.id))
+        .request(Method::GET, format!("http://localhost:3001/char_checker/{}", self.pilot.id))
         .timeout(Duration::from_secs(5))
         .send()
         .await?;
