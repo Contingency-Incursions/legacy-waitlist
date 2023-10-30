@@ -258,7 +258,7 @@ impl Queries {
         let res: Vec<Result> = sqlx::query_as(concat!(
             "
             SELECT
-                CAST(hull as BIGINT),
+                CAST(hull as INT),
                 COUNT(DISTINCT character_id) x_count
             FROM fit_history
             JOIN fitting ON fit_history.fit_id=fitting.id
@@ -289,7 +289,7 @@ impl Queries {
         let res: Vec<Result> = sqlx::query_as(concat!(
             "
             SELECT
-                CAST(hull as BIGINT),
+                CAST(hull as INT),
                 CAST(SUM(last_seen - first_seen) as BIGINT) AS fleet_seconds
             FROM fleet_activity
             WHERE first_seen > $1
