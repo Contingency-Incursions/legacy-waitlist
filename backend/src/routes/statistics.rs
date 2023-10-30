@@ -190,7 +190,7 @@ impl Queries {
                 ",
             year_month!(from_unixtime!("first_seen")),
             " yearmonth,
-                hull,
+                CAST(hull as BIGINT),
                 CAST(SUM(last_seen - first_seen) as BIGINT) AS time_in_fleet
             FROM fleet_activity
             GROUP BY 1, 2
@@ -226,7 +226,7 @@ impl Queries {
                 ",
             year_month!(from_unixtime!("logged_at")),
             " yearmonth,
-                hull,
+                CAST(hull as BIGINT),
                 COUNT(DISTINCT character_id) x_count
             FROM fit_history
             JOIN fitting ON fit_history.fit_id=fitting.id
@@ -258,7 +258,7 @@ impl Queries {
         let res: Vec<Result> = sqlx::query_as(concat!(
             "
             SELECT
-                hull,
+                CAST(hull as BIGINT),
                 COUNT(DISTINCT character_id) x_count
             FROM fit_history
             JOIN fitting ON fit_history.fit_id=fitting.id
@@ -289,7 +289,7 @@ impl Queries {
         let res: Vec<Result> = sqlx::query_as(concat!(
             "
             SELECT
-                hull,
+                CAST(hull as BIGINT),
                 CAST(SUM(last_seen - first_seen) as BIGINT) AS fleet_seconds
             FROM fleet_activity
             WHERE first_seen > $1
