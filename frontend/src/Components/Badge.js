@@ -1,7 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
 import styled, { ThemeContext } from "styled-components";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 export const Badge = styled.span`
   background-color: ${(props) => (props.theme.colors[props.variant] || {}).color || "transparent"};
