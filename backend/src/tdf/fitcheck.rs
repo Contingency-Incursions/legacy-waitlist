@@ -311,8 +311,6 @@ impl<'a> FitChecker<'a> {
                             implants_nok = "Amulet";
                         }
                     }
-                } else if doctrine_fit.name.contains("Amulet") && set_tag != "AMULET" {
-                    implants_nok = "Amulet";
                 }
                 if implants_nok != "" {
                     self.errors.push(format!(
@@ -335,17 +333,13 @@ impl<'a> FitChecker<'a> {
                     self.tags.insert("SAVIOR");
                 } else if doctrine_fit.name.contains(&set_tag.to_title_case())
                     || (set_tag == "WARPSPEED"
-                        && doctrine_fit.name.contains("Amulet"))
+                        && !(doctrine_fit.name.contains("Amulet")))
                     || self.fit.hull == type_id!("Oneiros")
-                    || (set_tag == "AMULET" && doctrine_fit.name.contains("Amulet"))
                 {
                     self.tags.insert(set_tag);
                     // give warning if you have all but slot 10 or wrong slot for that ship
                     if implantmatch::detect_slot10(self.fit.hull, self.pilot.implants).is_none() {
                         self.tags.insert("NO-SLOT10");
-                    }
-                    if set_tag == "AMULET" && doctrine_fit.name.contains("Amulet") {
-                        self.tags.insert("SLOW");
                     }
                 }
             }
