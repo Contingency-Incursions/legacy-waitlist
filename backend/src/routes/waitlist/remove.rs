@@ -19,7 +19,7 @@ async fn remove_fit(
     input: Json<RemoveFitRequest>,
 ) -> Result<&'static str, Madness> {
     let waitlist_entry = sqlx::query!(
-        "SELECT account_id, entry_id FROM waitlist_entry_fit wef JOIN waitlist_entry we ON wef.entry_id=we.id WHERE wef.id=?",
+        "SELECT account_id, entry_id FROM waitlist_entry_fit wef JOIN waitlist_entry we ON wef.entry_id=we.id WHERE wef.id=$1",
         input.id
     )
     .fetch_one(app.get_db())
@@ -35,12 +35,12 @@ async fn remove_fit(
 
     let mut tx = app.get_db().begin().await?;
 
-    sqlx::query!("DELETE FROM waitlist_entry_fit WHERE id = ?", input.id)
+    sqlx::query!("DELETE FROM waitlist_entry_fit WHERE id = $1", input.id)
         .execute(&mut tx)
         .await?;
 
     let remaining = sqlx::query!(
-        "SELECT id FROM waitlist_entry_fit WHERE entry_id=?",
+        "SELECT id FROM waitlist_entry_fit WHERE entry_id=$1",
         waitlist_entry.entry_id
     )
     .fetch_optional(&mut tx)
@@ -48,7 +48,7 @@ async fn remove_fit(
 
     if remaining.is_none() {
         sqlx::query!(
-            "DELETE FROM waitlist_entry WHERE id=?",
+            "DELETE FROM waitlist_entry WHERE id=$1",
             waitlist_entry.entry_id
         )
         .execute(&mut tx)
@@ -74,7 +74,7 @@ async fn remove_x(
     input: Json<RemoveXRequest>,
 ) -> Result<&'static str, Madness> {
     let entry = sqlx::query!(
-        "SELECT id, account_id FROM waitlist_entry WHERE id=?",
+        "SELECT id, account_id FROM waitlist_entry WHERE id=$1",
         input.id
     )
     .fetch_one(app.get_db())
@@ -89,10 +89,10 @@ async fn remove_x(
     .await?;
 
     let mut tx = app.get_db().begin().await?;
-    sqlx::query!("DELETE FROM waitlist_entry_fit WHERE entry_id=?", input.id)
+    sqlx::query!("DELETE FROM waitlist_entry_fit WHERE entry_id=$1", input.id)
         .execute(&mut tx)
         .await?;
-    sqlx::query!("DELETE FROM waitlist_entry WHERE id=?", input.id)
+    sqlx::query!("DELETE FROM waitlist_entry WHERE id=$1", input.id)
         .execute(&mut tx)
         .await?;
     tx.commit().await?;

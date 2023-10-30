@@ -96,8 +96,8 @@ async fn list(
                 implant_set.implants implant_set_implants
                 FROM waitlist_entry_fit wef
             JOIN waitlist_entry we ON wef.entry_id = we.id
-            JOIN `character` char_wef ON wef.character_id = char_wef.id
-            JOIN `character` char_we ON we.account_id = char_we.id
+            JOIN character char_wef ON wef.character_id = char_wef.id
+            JOIN character char_we ON we.account_id = char_we.id
             JOIN fitting ON wef.fit_id = fitting.id
             JOIN implant_set ON wef.implant_set_id = implant_set.id
             ORDER BY we.id ASC, wef.id ASC
@@ -159,7 +159,7 @@ async fn list(
             dna: None,
             implants: None,
             fit_analysis: None,
-            is_alt: record.wef_is_alt > 0,
+            is_alt: record.wef_is_alt == true,
         };
 
         let tags = record

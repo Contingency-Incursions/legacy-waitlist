@@ -37,7 +37,7 @@ pub async fn notify_waitlist_update_and_xup(
         )])
         .await?;
 
-    if let Ok(fleets) = sqlx::query!("SELECT `boss_id` FROM `fleet`")
+    if let Ok(fleets) = sqlx::query!("SELECT boss_id FROM fleet")
         .fetch_all(app.get_db())
         .await
     {

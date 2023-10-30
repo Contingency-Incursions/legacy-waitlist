@@ -13,14 +13,14 @@ members = [
 eve_data_macros = { path = "./eve-data-macros" }
 eve_data_core = { path = "./eve-data-core" }
 
-sqlx = { version = "0.5", features = ["runtime-tokio-rustls", "macros", "chrono"] }
+sqlx = { version = "0.5", features = ["runtime-tokio-rustls", "postgres", "macros", "chrono"] }
 rocket = { version = "0.5.0-rc.1", features = ["json"] }
 lazy_static = "1"
 chrono = "0.4"
 reqwest = { version = "*", default-features = false, features = ["json", "rustls-tls"] }
 tokio = { version = "*", features = ["time"] }
 
-serde = "1"
+serde = "1.0.130"
 serde_json = "*"
 rmp-serde = "0.15"
 yaml-merge-keys = { version = "*", features = ["serde_yaml"] }
@@ -28,15 +28,17 @@ serde_yaml = "*"
 toml = "*"
 branca = "0.10"
 hex = "0.4"
-regex = "*"
-rand = "*"
+regex = "1.5.4"
+rand = "0.8.4"
 thiserror = "*"
 bcrypt = "*"
-zxcvbn = "*"
+zxcvbn = "2.2.0"
 itertools = "*"
-Inflector = "*"
+Inflector = "0.11.4"
 bigdecimal = { version = "*", features = ["serde"] }
+dotenv = "*"
+sentry = "*"
 
 [features]
-default = ["mysql"]
-mysql = ["sqlx/mysql", "sqlx/bigdecimal"]
+default = ["postgres"]
+postgres = ["sqlx/postgres", "sqlx/bigdecimal"]

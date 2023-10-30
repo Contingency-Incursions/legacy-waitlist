@@ -19,14 +19,13 @@ jobs:
         build: ["release", "dev"]
     services:
       database:
-        image: mysql:8
+        image: postgres:16
         env:
-          MYSQL_DATABASE: waitlist
-          MYSQL_USER: waitlist
-          MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
-          MYSQL_RANDOM_ROOT_PASSWORD: true
+          POSTGRES_DB: waitlist
+          POSTGRES_USER: waitlist
+          POSTGRES_PASSWORD: ${{ secrets.PG_PASSWORD }}
         ports:
-          - 3306:3306
+          - 5432:5432
 
     steps:
       - name: Docker Login
@@ -38,14 +37,14 @@ jobs:
 
       - name: Database Debug
         run: |
-          sudo ss -tlpn | grep 3306
+          sudo ss -tlpn
 
       - name: Checkout Repository
         uses: actions/checkout@v3
 
       - name: Docker Build
         working-directory: ./backend
-        run: docker build --network host --build-arg "PROFILE=${{ matrix.build }}" --build-arg "DATABASE_PASSWORD=${{ secrets.MYSQL_PASSWORD }}" -t $COMPONENT .
+        run: docker build --network host --build-arg "PROFILE=${{ matrix.build }}" --build-arg "DATABASE_PASSWORD=${{ secrets.PG_PASSWORD }}" -t $COMPONENT .
 
       - name: Docker Push
         run: |

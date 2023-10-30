@@ -35,14 +35,14 @@ async fn list(
 	        public_reason,
 	        reason,
 	        revoked_at,
-	        issuer.id AS `issued_by_id`,
-	        issuer.name AS `issued_by_name`
+	        issuer.id AS \"issued_by_id\",
+	        issuer.name AS \"issued_by_name\"
         FROM
 	        ban
         JOIN
-	        `character` as issuer ON issued_by=issuer.id
+	        character as issuer ON issued_by=issuer.id
         WHERE
-            revoked_at IS NULL OR revoked_at > ?",
+            revoked_at IS NULL OR revoked_at > $1",
         now
     )
     .fetch_all(app.get_db())
@@ -51,19 +51,19 @@ async fn list(
     let bans = rows
         .into_iter()
         .map(|ban| Ban {
-            id: Some(ban.id),
+            id: Some(ban.id.unwrap()),
             entity: Some(Entity {
-                id: ban.entity_id,
+                id: ban.entity_id.unwrap(),
                 name: ban.entity_name,
-                category: ban.entity_type,
+                category: ban.entity_type.unwrap(),
             }),
-            issued_at: Some(ban.issued_at),
+            issued_at: Some(ban.issued_at.unwrap()),
             issued_by: Some(Character {
-                id: ban.issued_by_id,
-                name: ban.issued_by_name,
+                id: ban.issued_by_id.unwrap(),
+                name: ban.issued_by_name.unwrap(),
                 corporation_id: None,
             }),
-            reason: ban.reason,
+            reason: ban.reason.unwrap(),
             public_reason: ban.public_reason,
             revoked_at: ban.revoked_at,
             revoked_by: None,
@@ -101,9 +101,9 @@ async fn create(
         .await?;
 
     // Stop FCs from banning other FCs
-    // See: https://github.com/the-outuni-project/legacy-waitlist/issues/43
+    // See: https://github.com/Contingency-Incursions/legacy-waitlist/issues/43
     if let Some(admin) = sqlx::query!(
-        "SELECT * FROM admin WHERE character_id=?",
+        "SELECT * FROM admin WHERE character_id=$1",
         e.id
     )
     .fetch_optional(app.get_db())
@@ -123,7 +123,7 @@ async fn create(
     };
 
     sqlx::query!(
-        "INSERT INTO ban (entity_type, entity_id, entity_name, issued_at, issued_by, reason, public_reason, revoked_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO ban (entity_type, entity_id, entity_name, issued_at, issued_by, reason, public_reason, revoked_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)",
         e.category,
         e.id,
         esi_res.name,
@@ -166,7 +166,7 @@ async fn update(
     let now = Utc::now().timestamp();
 
     if let None = sqlx::query!(
-        "SELECT * FROM ban WHERE id=? AND (revoked_at IS NULL OR revoked_at > ?)",
+        "SELECT * FROM ban WHERE id=$1 AND (revoked_at IS NULL OR revoked_at > $2)",
         ban_id,
         now
     )
@@ -190,13 +190,13 @@ async fn update(
         "UPDATE
             ban
         SET
-            reason=?,
-            public_reason=?,
-            revoked_at=?,
-            issued_by=?,
-            issued_at=?
+            reason=$1,
+            public_reason=$2,
+            revoked_at=$3,
+            issued_by=$4,
+            issued_at=$5
         WHERE
-          id=?",
+          id=$6",
         req_body.reason,
         req_body.public_reason,
         expires_at,
@@ -218,7 +218,7 @@ async fn revoke(
 ) -> Result<&'static str, Madness> {
     account.require_access("bans-manage")?;
 
-    if let Some(ban) = sqlx::query!("select * from ban WHERE id=?", ban_id)
+    if let Some(ban) = sqlx::query!("select * from ban WHERE id=$1", ban_id)
         .fetch_optional(app.get_db())
         .await?
     {
@@ -232,7 +232,7 @@ async fn revoke(
 
             let fc_id = ban.revoked_by.unwrap();
 
-            let fc = sqlx::query!("SELECT * FROM `character` WHERE id=?", fc_id)
+            let fc = sqlx::query!("SELECT * FROM character WHERE id=$1", fc_id)
                 .fetch_one(app.get_db())
                 .await?;
             return Err(Madness::BadRequest(format!(
@@ -242,7 +242,7 @@ async fn revoke(
         }
 
         sqlx::query!(
-            "UPDATE ban SET revoked_at=?, revoked_by=? WHERE id=?",
+            "UPDATE ban SET revoked_at=$1, revoked_by=$2 WHERE id=$3",
             now,
             account.id,
             ban_id

@@ -1,7 +1,8 @@
 import React, { useContext } from "react";
 import { NavLink } from "react-router-dom";
 import { AuthContext } from "../contexts";
-import logoImage from "./logo.png";
+import logoDarkImage from "./Logo_Dark.png";
+import logoLightImage from "./Logo_Light.png";
 import styled from "styled-components";
 import { InputGroup, Select, NavButton, AButton } from "../Components/Form";
 import BrowserNotification from "../Components/Event";
@@ -45,7 +46,6 @@ NavBar.LogoLink = styled(NavLink).attrs((props) => ({
 `;
 NavBar.Logo = styled.img`
   width: 150px;
-  filter: ${(props) => props.theme.logo.filter};
 `;
 NavBar.Menu = styled.div`
   display: flex;
@@ -99,7 +99,7 @@ const Teamspeak = () => {
   return (
     <AButton
       title="Join our Teamspeak Server"
-      href={`ts3server://42outunis.com${
+      href={`ts3server://contingencyinc.com${
         authContext?.current ? `?nickname=${authContext.current.name}` : ""
       }`}
     >
@@ -117,7 +117,7 @@ export function Menu({ onChangeCharacter, theme, setTheme, sticker, setSticker }
           <NavBar.Header>
             <MobileNavButton isOpen={isOpenMobileView} setIsOpen={setOpenMobileView} />
             <NavBar.LogoLink to="/">
-              <NavBar.Logo src={logoImage} alt="The Outuni Project" />
+              <NavBar.Logo src={theme == "Light" ? logoLightImage : logoDarkImage} alt="Contingency Incursions" />
             </NavBar.LogoLink>
           </NavBar.Header>
           <NavBar.Menu>
@@ -151,7 +151,7 @@ export function Menu({ onChangeCharacter, theme, setTheme, sticker, setSticker }
               )}
               <InputGroup fixed>
                 <Teamspeak />
-                <AButton title="Discord" href="https://discord.gg/D8pkZhE8DD">
+                <AButton title="Discord" href="https://discord.gg/TmCxUZcn5B">
                   <FontAwesomeIcon icon={faDiscord} />
                 </AButton>
                 <BrowserNotification />

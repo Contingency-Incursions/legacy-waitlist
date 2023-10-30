@@ -12,7 +12,7 @@
       "preLaunchTask": "Build API",
       "args": [
         "--no-default-features",
-        "--features=mysql"
+        "--features=postgres"
       ],
       "cwd": "${workspaceFolder}"
     }

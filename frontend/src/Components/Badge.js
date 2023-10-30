@@ -1,6 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import styled, { ThemeContext } from "styled-components";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 export const Badge = styled.span`
   background-color: ${(props) => (props.theme.colors[props.variant] || {}).color || "transparent"};
@@ -89,6 +90,7 @@ export const icons = {
 
   // Specalist Badges
   LOGI: { type: "shield", color: "green", letter: "L", name: "Logi Specialist" },
+  "EXPIRED LOGI": { type: "shield", color: "neutral", letter: "L", name: "Expired Logi" },
   BASTION: { type: "shield", color: "blue", letter: "B", name: "Bastion Specialist" },
   WEB: { type: "shield", color: "cyan", letter: "W", name: "Web Specialist" },
 
@@ -96,6 +98,8 @@ export const icons = {
   "ELITE-GOLD": { type: "shield", color: "yellow", letter: "E", name: "Elite Gold" },
   ELITE: { type: "shield", color: "neutral", letter: "E", name: "Elite" },
   UNKNOWN: { type: "shield", color: "neutral", letter: "?", name: null },
+  "AT-WAR": {type: "image", href: require('./BadgeImages/Wars.png'),  name: 'Pilot at war'},
+  "FACTION-WAR": {type: "image", href: require('./BadgeImages/Icon_fw.png'), name: 'Pilot in FW'},
 };
 
 const BadgeIcon = ({ type = "UNKNOWN", height = "1.2em" }) => {

@@ -1,7 +1,8 @@
+use rand::seq::SliceRandom;
+
 use crate::core::esi;
 use crate::data;
 use crate::{config::Config, util::madness::Madness};
-use rand::seq::SliceRandom;
 use std::sync::Arc;
 
 pub struct SkillUpdater {
@@ -49,7 +50,7 @@ impl SkillUpdater {
         let days_ago_28 = chrono::Utc::now().timestamp() - 86400 * 28;
 
         let mut to_update = sqlx::query!("
-            SELECT character_id FROM refresh_token JOIN `character` as c ON character_id=c.id WHERE c.last_seen > ?",
+            SELECT character_id FROM refresh_token JOIN character as c ON character_id=c.id WHERE c.last_seen > $1",
             days_ago_28
         )
             .fetch_all(self.get_db())

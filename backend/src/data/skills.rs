@@ -51,7 +51,7 @@ pub async fn load_skills(
         .await?;
 
     let last_known_skills_q = sqlx::query!(
-        "SELECT * FROM skill_current WHERE character_id = ?",
+        "SELECT * FROM skill_current WHERE character_id = $1",
         character_id
     )
     .fetch_all(db)
@@ -73,7 +73,7 @@ pub async fn load_skills(
             skill.active_skill_level as SkillLevel,
         );
 
-        // Security fix: Do not track non-relevant skills. SEE: https://github.com/the-outuni-project/legacy-waitlist/issues/41
+        // Security fix: Do not track non-relevant skills. SEE: https://github.com/Contingency-Incursions/legacy-waitlist/issues/41
         // We still want to return all skills in the results variable as this is useful for the fit checker system.
         // However by using continue below this will stop skills being saved to the database, and from being used on skills pages.
         if !tracked_skills.contains(&skill.skill_id) {
@@ -88,18 +88,20 @@ pub async fn load_skills(
             }
 
             sqlx::query!(
-                "INSERT INTO skill_history (character_id, skill_id, old_level, new_level, logged_at) VALUES (?, ?, ?, ?, ?)",
+                "INSERT INTO skill_history (character_id, skill_id, old_level, new_level, logged_at) VALUES ($1, $2, $3, $4, $5)",
                 character_id, skill.skill_id, *on_record, skill.trained_skill_level, now
             ).execute(&mut tx).await?;
         } else if !last_known_skills.is_empty() {
             sqlx::query!(
-                "INSERT INTO skill_history (character_id, skill_id, old_level, new_level, logged_at) VALUES (?, ?, 0, ?, ?)",
+                "INSERT INTO skill_history (character_id, skill_id, old_level, new_level, logged_at) VALUES ($1, $2, 0, $3, $4)",
                 character_id, skill.skill_id, skill.trained_skill_level, now
             ).execute(&mut tx).await?;
         }
 
         sqlx::query!(
-            "REPLACE INTO skill_current (character_id, skill_id, level) VALUES (?, ?, ?)",
+            "INSERT INTO skill_current (character_id, skill_id, level) VALUES ($1, $2, $3) ON CONFLICT (character_id, skill_id)
+            DO UPDATE
+            SET level = excluded.level;",
             character_id,
             skill.skill_id,
             skill.trained_skill_level

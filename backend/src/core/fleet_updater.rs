@@ -75,7 +75,7 @@ impl FleetUpdater {
 
     async fn update_fleet(&self, fleet_id: i64) -> Result<(), Madness> {
         let fleet = sqlx::query!(
-            "SELECT id, boss_id, boss_system_id, error_count FROM fleet WHERE id=?",
+            "SELECT id, boss_id, boss_system_id, error_count FROM fleet WHERE id=$1",
                 fleet_id
         )
         .fetch_one(self.get_db())
@@ -90,7 +90,7 @@ impl FleetUpdater {
             ) => {
                 // The FC does not have permission to access this fleet. Set error_count = 10 so we stop updating this fleet
                 sqlx::query!(
-                    "UPDATE fleet SET error_count=? WHERE id=?",
+                    "UPDATE fleet SET error_count=$1 WHERE id=$2",
                     10,
                     fleet_id
                 )
@@ -110,15 +110,15 @@ impl FleetUpdater {
                 let now = chrono::Utc::now().timestamp();
                 let mut tx = self.get_db().begin().await?;
 
-                sqlx::query!("DELETE FROM fleet_squad WHERE fleet_id=?", fleet_id)
+                sqlx::query!("DELETE FROM fleet_squad WHERE fleet_id=$1", fleet_id)
                     .execute(&mut tx)
                     .await?;
 
-                sqlx::query!("DELETE FROM fleet WHERE id=?", fleet_id)
+                sqlx::query!("DELETE FROM fleet WHERE id=$1", fleet_id)
                     .execute(&mut tx)
                     .await?;
 
-                sqlx::query!("UPDATE fleet_activity SET last_seen=?,has_left=true WHERE fleet_id=? AND has_left=false", now, fleet_id)
+                sqlx::query!("UPDATE fleet_activity SET last_seen=$1,has_left=true WHERE fleet_id=$2 AND has_left=false", now, fleet_id)
                     .execute(&mut tx)
                     .await?;
 
@@ -131,7 +131,7 @@ impl FleetUpdater {
             Err(e) => {
                 warn!("Fleet {} error counter {}", fleet_id, fleet.error_count + 1);
 
-                sqlx::query!("UPDATE fleet SET error_count=? WHERE id=?", fleet.error_count + 1, fleet_id)
+                sqlx::query!("UPDATE fleet SET error_count=$1 WHERE id=$2", fleet.error_count + 1, fleet_id)
                     .execute(self.get_db())
                     .await?;
 
@@ -164,7 +164,10 @@ impl FleetUpdater {
                         .await?;
 
                     sqlx::query!(
-                        "REPLACE INTO `character` (id, name, last_seen) VALUES (?, ?, ?)",
+                        "INSERT INTO character (id, name, last_seen) VALUES ($1, $2, $3) ON CONFLICT (id)
+                        DO UPDATE
+                        SET name = excluded.name, 
+                        last_seen = excluded.last_seen;",
                         id,
                         character_info.name,
                         now
@@ -185,7 +188,7 @@ impl FleetUpdater {
                 .fetch_all(self.get_db())
                 .await?
                 .into_iter()
-                .map(|r| (r.character_id, r))
+                .map(|r| (r.character_id.unwrap(), r))
                 .collect();
 
 
@@ -194,7 +197,7 @@ impl FleetUpdater {
                 if let Some(pilot_on_wl) = waitlist.get(&id) {
                     changed = true;
 
-                    sqlx::query!("DELETE FROM waitlist_entry_fit WHERE entry_id=?", pilot_on_wl.entry_id)
+                    sqlx::query!("DELETE FROM waitlist_entry_fit WHERE entry_id=$1", pilot_on_wl.entry_id)
                         .execute(&mut tx)
                         .await?;
                 }
@@ -216,7 +219,7 @@ impl FleetUpdater {
             let now = chrono::Utc::now().timestamp();
 
             let mut tx = self.get_db().begin().await?;
-            let in_fleet: HashMap<i64, _> = sqlx::query!("SELECT * FROM fleet_activity WHERE fleet_id=? AND has_left=0", fleet_id)
+            let in_fleet: HashMap<i64, _> = sqlx::query!("SELECT * FROM fleet_activity WHERE fleet_id=$1 AND has_left=0", fleet_id)
                 .fetch_all(&mut tx)
                 .await?
                 .into_iter()
@@ -238,7 +241,7 @@ impl FleetUpdater {
                 //  member.character_id == fleet.boss_id;
 
                 if is_boss == 1 && fleet.boss_system_id.is_none() || fleet.boss_system_id.unwrap() != member.solar_system_id {
-                    sqlx::query!("UPDATE fleet SET boss_system_id=? WHERE id=?", member.solar_system_id, fleet_id)
+                    sqlx::query!("UPDATE fleet SET boss_system_id=$1 WHERE id=$2", member.solar_system_id, fleet_id)
                         .execute(&mut tx)
                         .await?;
 
@@ -250,7 +253,7 @@ impl FleetUpdater {
                     if let Some(in_db) = in_fleet.get(&member.character_id) {
                         if in_db.hull == member.ship_type_id && in_db.is_boss == is_boss {
                             if in_db.last_seen < now - 60 {
-                                sqlx::query!("UPDATE fleet_activity SET last_seen=? WHERE id=?", now, in_db.id)
+                                sqlx::query!("UPDATE fleet_activity SET last_seen=$1 WHERE id=$2", now, in_db.id)
                                     .execute(&mut tx)
                                     .await?;
 
@@ -258,7 +261,7 @@ impl FleetUpdater {
                             }
                         }
                         else {
-                            sqlx::query!("UPDATE fleet_activity SET has_left=1, last_seen=? WHERE id=?", now, in_db.id)
+                            sqlx::query!("UPDATE fleet_activity SET has_left=1, last_seen=$1 WHERE id=$2", now, in_db.id)
                                 .execute(&mut tx)
                                 .await?;
 
@@ -272,7 +275,7 @@ impl FleetUpdater {
 
                     if insert_record {
                         sqlx::query!(
-                            "INSERT INTO fleet_activity (character_id, fleet_id, first_seen, last_seen, is_boss, hull, has_left) VALUES (?, ?, ?, ?, ?, ?, 0)",
+                            "INSERT INTO fleet_activity (character_id, fleet_id, first_seen, last_seen, is_boss, hull, has_left) VALUES ($1, $2, $3, $4, $5, $6, 0)",
                             member.character_id, fleet_id, now, now, is_boss, member.ship_type_id,
                         ).execute(&mut tx).await?;
 

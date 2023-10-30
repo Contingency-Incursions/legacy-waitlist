@@ -4,3 +4,6 @@
 /archive-backend.tar
 /config.toml
 /.env
+/*.code-workspace
+launch copy.json
+tasks copy.json
