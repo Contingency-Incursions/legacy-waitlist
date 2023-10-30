@@ -42,16 +42,16 @@ async fn get_fleet(
         "SELECT
             fleet.id,
             fleet.boss_system_id,
-            fleet.visible as `visible:bool`,
-            fc.id as `boss_id`,
-            fc.name  as `boss_name`,
+            fleet.visible as \"visible:bool\",
+            fc.id as boss_id,
+            fc.name  as boss_name,
             fleet.max_size,
-            COUNT(DISTINCT fa.character_id) as `size`
+            COUNT(DISTINCT fa.character_id) as size
         FROM fleet
-        JOIN `character` as fc ON fc.id=fleet.boss_id
-        LEFT JOIN `fleet_activity` as fa ON fa.fleet_id=fleet.id
-        WHERE fleet.id = ?
-        GROUP BY fleet.id",
+        JOIN character as fc ON fc.id=fleet.boss_id
+        LEFT JOIN fleet_activity as fa ON fa.fleet_id=fleet.id
+        WHERE fleet.id = $1
+        GROUP BY fleet.id, fc.id",
         fleet_id
     )
     .fetch_optional(app.get_db())
@@ -72,7 +72,7 @@ async fn get_fleet(
                 }),
                 None => None
             },
-            size: fleet.size,
+            size: fleet.size.unwrap(),
             size_max: fleet.max_size,
             visible: fleet.visible
         }))
@@ -91,10 +91,10 @@ async fn set_boss(
 ) -> Result<&'static str, Madness> {
     account.require_access("fleet-view")?;
 
-    if let Some(_) = sqlx::query!("SELECT * FROM `fleet` WHERE id=?", fleet_id)
+    if let Some(_) = sqlx::query!("SELECT * FROM fleet WHERE id=$1", fleet_id)
     .fetch_optional(app.get_db())
     .await? {
-        sqlx::query!("UPDATE `fleet` SET boss_id=? WHERE id=?", body.fleet_boss, fleet_id)
+        sqlx::query!("UPDATE fleet SET boss_id=$1 WHERE id=$2", body.fleet_boss, fleet_id)
         .execute(app.get_db())
         .await?;
     }
@@ -114,10 +114,10 @@ async fn set_visibility(
     account.require_access("fleet-view")?;
 
 
-    if let Some(_) = sqlx::query!("SELECT * FROM `fleet` WHERE id=?", fleet_id)
+    if let Some(_) = sqlx::query!("SELECT * FROM fleet WHERE id=$1", fleet_id)
         .fetch_optional(app.get_db())
         .await? {
-            sqlx::query!("UPDATE `fleet` SET visible=? WHERE id=?", body.visible, fleet_id)
+            sqlx::query!("UPDATE fleet SET visible=$1 WHERE id=$2", body.visible, fleet_id)
             .execute(app.get_db())
             .await?;
         }
@@ -137,10 +137,10 @@ async fn set_size(
 ) -> Result<&'static str, Madness> {
     account.require_access("fleet-view")?;
 
-    if let Some(_) = sqlx::query!("SELECT * FROM `fleet` WHERE id=?", fleet_id)
+    if let Some(_) = sqlx::query!("SELECT * FROM fleet WHERE id=$1", fleet_id)
     .fetch_optional(app.get_db())
     .await? {
-        sqlx::query!("UPDATE `fleet` SET max_size=? WHERE id=?", body.max_size, fleet_id)
+        sqlx::query!("UPDATE fleet SET max_size=$1 WHERE id=$2", body.max_size, fleet_id)
         .execute(app.get_db())
         .await?;
     }

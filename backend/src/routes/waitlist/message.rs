@@ -30,7 +30,7 @@ async fn send_message(
     let entry = sqlx::query!(
         "
             SELECT account_id, entry_id, fit_id FROM waitlist_entry_fit wef
-            JOIN waitlist_entry we ON we.id=wef.entry_id WHERE wef.id=?
+            JOIN waitlist_entry we ON we.id=wef.entry_id WHERE wef.id=$1
         ",
         input.id
     )
@@ -38,7 +38,7 @@ async fn send_message(
     .await?;
 
     sqlx::query!(
-        "UPDATE waitlist_entry_fit SET review_comment=? WHERE id=?",
+        "UPDATE waitlist_entry_fit SET review_comment=$1 WHERE id=$2",
         input.message,
         input.id
     )
@@ -46,7 +46,7 @@ async fn send_message(
     .await?;
 
     let user = sqlx::query!(
-        "SELECT name FROM `character` WHERE id=?",
+        "SELECT name FROM character WHERE id=$1",
         account.id
     )
     .fetch_one(app.get_db())

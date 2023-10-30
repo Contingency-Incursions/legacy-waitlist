@@ -45,7 +45,7 @@ async fn fleet_status(
         }
     }).collect();
 
-    let visible_fleets = sqlx::query!("SELECT id FROM fleet WHERE visible=1")
+    let visible_fleets = sqlx::query!("SELECT id FROM fleet WHERE visible=true")
         .fetch_optional(app.get_db())
         .await?;
 

@@ -149,7 +149,7 @@ impl FleetUpdater {
             let characters = character::lookup(self.get_db(), &member_ids).await?;
             for &id in &member_ids {
                 if characters.contains_key(&id) {
-                    sqlx::query!("UPDATE `character` SET `last_seen`= ? WHERE `id`=?", now, id)
+                    sqlx::query!("UPDATE character SET last_seen= $1 WHERE id=$2", now, id)
                         .execute(self.get_db())
                         .await?;
                 }
@@ -219,7 +219,7 @@ impl FleetUpdater {
             let now = chrono::Utc::now().timestamp();
 
             let mut tx = self.get_db().begin().await?;
-            let in_fleet: HashMap<i64, _> = sqlx::query!("SELECT * FROM fleet_activity WHERE fleet_id=$1 AND has_left=0", fleet_id)
+            let in_fleet: HashMap<i64, _> = sqlx::query!("SELECT * FROM fleet_activity WHERE fleet_id=$1 AND has_left=false", fleet_id)
                 .fetch_all(&mut tx)
                 .await?
                 .into_iter()
@@ -231,16 +231,16 @@ impl FleetUpdater {
             let min_pilots_in_fleet: bool = members.len() >= self.config.fleet_updater.min_in_fleet;
 
             for member in &members {
-                let is_boss: i8 = {
+                let is_boss: bool = {
                     if member.character_id == fleet.boss_id {
-                        1
+                        true
                     } else {
-                        0
+                        false
                     }
                 };
                 //  member.character_id == fleet.boss_id;
 
-                if is_boss == 1 && fleet.boss_system_id.is_none() || fleet.boss_system_id.unwrap() != member.solar_system_id {
+                if is_boss == true && fleet.boss_system_id.is_none() || fleet.boss_system_id.unwrap() != member.solar_system_id {
                     sqlx::query!("UPDATE fleet SET boss_system_id=$1 WHERE id=$2", member.solar_system_id, fleet_id)
                         .execute(&mut tx)
                         .await?;
@@ -261,7 +261,7 @@ impl FleetUpdater {
                             }
                         }
                         else {
-                            sqlx::query!("UPDATE fleet_activity SET has_left=1, last_seen=$1 WHERE id=$2", now, in_db.id)
+                            sqlx::query!("UPDATE fleet_activity SET has_left=true, last_seen=$1 WHERE id=$2", now, in_db.id)
                                 .execute(&mut tx)
                                 .await?;
 
@@ -275,7 +275,7 @@ impl FleetUpdater {
 
                     if insert_record {
                         sqlx::query!(
-                            "INSERT INTO fleet_activity (character_id, fleet_id, first_seen, last_seen, is_boss, hull, has_left) VALUES ($1, $2, $3, $4, $5, $6, 0)",
+                            "INSERT INTO fleet_activity (character_id, fleet_id, first_seen, last_seen, is_boss, hull, has_left) VALUES ($1, $2, $3, $4, $5, $6, false)",
                             member.character_id, fleet_id, now, now, is_boss, member.ship_type_id,
                         ).execute(&mut tx).await?;
 
@@ -292,7 +292,7 @@ impl FleetUpdater {
             for (id, pilot) in in_fleet {
                 // Remove pilots from fleet_activity if they are no longer in fleet
                 if !members_map.contains_key(&id) {
-                    sqlx::query!("UPDATE fleet_activity SET has_left=1 WHERE id=?", pilot.id)
+                    sqlx::query!("UPDATE fleet_activity SET has_left=true WHERE id=$1", pilot.id)
                         .execute(&mut tx)
                         .await?;
 

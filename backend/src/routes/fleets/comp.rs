@@ -25,9 +25,9 @@ async fn fleet(
         FROM
             fleet_activity
         JOIN
-            `character` as c ON c.id=character_id
+            character as c ON c.id=character_id
         WHERE
-            fleet_id=? AND has_left=0",
+            fleet_id=$1 AND has_left=false",
         fleet_id
     ).fetch_all(app.get_db())
     .await?

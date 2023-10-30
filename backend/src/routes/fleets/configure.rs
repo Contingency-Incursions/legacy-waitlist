@@ -41,16 +41,16 @@ async fn fleets(
         "SELECT
             fleet.id,
             fleet.boss_system_id,
-            fleet.visible as `visible:bool`,
-            fc.id as `boss_id`,
-            fc.name  as `boss_name`,
+            fleet.visible as \"visible:bool\",
+            fc.id as boss_id,
+            fc.name  as boss_name,
             fleet.max_size,
-            COUNT(DISTINCT fa.character_id) as `size`
+            COUNT(DISTINCT fa.character_id) as size
         FROM
             fleet
-        JOIN `character` as fc ON fc.id=fleet.boss_id
-        LEFT JOIN `fleet_activity` as fa ON fa.fleet_id=fleet.id
-        GROUP BY fleet.id"
+        JOIN character as fc ON fc.id=fleet.boss_id
+        LEFT JOIN fleet_activity as fa ON fa.fleet_id=fleet.id
+        GROUP BY fleet.id, fc.id"
     )
     .fetch_all(app.get_db())
     .await?
@@ -74,7 +74,7 @@ async fn fleets(
                 None => None
             },
             is_listed: row.visible,
-            size: row.size,
+            size: row.size.unwrap(),
             size_max: row.max_size
         }
     })
@@ -98,11 +98,11 @@ async fn close_all(
     for fleet in fleets {
      let mut tx = app.get_db().begin().await?;
 
-        sqlx::query!("DELETE FROM fleet_squad WHERE fleet_id=?", fleet.id)
+        sqlx::query!("DELETE FROM fleet_squad WHERE fleet_id=$1", fleet.id)
             .execute(&mut tx)
             .await?;
 
-        sqlx::query!("DELETE FROM fleet WHERE id=?", fleet.id)
+        sqlx::query!("DELETE FROM fleet WHERE id=$1", fleet.id)
             .execute(&mut tx)
             .await?;
 
@@ -161,14 +161,16 @@ async fn register(
     let mut tx = app.get_db().begin().await?;
 
     sqlx::query!(
-        "DELETE FROM fleet_squad WHERE fleet_id=?",
+        "DELETE FROM fleet_squad WHERE fleet_id=$1",
         basic_info.fleet_id
     )
     .execute(&mut tx)
     .await?;
 
     sqlx::query!(
-        "REPLACE INTO fleet (id, boss_id, max_size) VALUES (?, ?, 40)",
+        "INSERT INTO fleet (id, boss_id, max_size) VALUES ($1, $2, 40) ON CONFLICT (id) DO UPDATE
+        SET max_size = excluded.max_size, 
+        boss_id = excluded.boss_id;",
         basic_info.fleet_id,
         basic_info.fleet_boss_id
     )
@@ -233,7 +235,7 @@ async fn register(
 
                 if let Some(category) = squad.map_to {
                     sqlx::query!(
-                        "INSERT INTO fleet_squad (fleet_id, category, wing_id, squad_id) VALUES (?, ?, ?, ?)",
+                        "INSERT INTO fleet_squad (fleet_id, category, wing_id, squad_id) VALUES ($1, $2, $3, $4)",
                         basic_info.fleet_id,
                         category,
                         new_wing.id,

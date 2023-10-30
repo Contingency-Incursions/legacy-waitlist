@@ -114,7 +114,7 @@ pub async fn set_default_motd(
 
     let mut result = base_motd_template;
 
-    if let Some(fc) = sqlx::query!("SELECT name FROM `character` WHERE id=?", fleet.fleet_boss_id)
+    if let Some(fc) = sqlx::query!("SELECT name FROM character WHERE id=$1", fleet.fleet_boss_id)
         .fetch_optional(db)
         .await? {
             result = result.replace("{fc_id}", &format!("1379//{}", fleet.fleet_boss_id));

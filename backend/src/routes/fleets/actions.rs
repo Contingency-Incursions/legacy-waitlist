@@ -28,7 +28,7 @@ async fn delete_fleet(
     account.require_access("fleet-view")?;
 
     let fleet = sqlx::query!(
-        "SELECT boss_id FROM fleet WHERE id=?", fleet_id
+        "SELECT boss_id FROM fleet WHERE id=$1", fleet_id
     )
     .fetch_one(app.get_db())
     .await?;
@@ -53,15 +53,15 @@ async fn delete_fleet(
 
 
     let mut tx = app.get_db().begin().await?;
-    sqlx::query!("DELETE FROM fleet_squad WHERE fleet_id=?", fleet_id)
+    sqlx::query!("DELETE FROM fleet_squad WHERE fleet_id=$1", fleet_id)
         .execute(&mut tx)
         .await?;
 
-    sqlx::query!("DELETE FROM fleet WHERE id=?", fleet_id)
+    sqlx::query!("DELETE FROM fleet WHERE id=$1", fleet_id)
         .execute(&mut tx)
         .await?;
 
-    sqlx::query!("UPDATE `fleet_activity` SET has_left=1 WHERE fleet_id = ? AND has_left = 0", fleet_id)
+    sqlx::query!("UPDATE fleet_activity SET has_left=true WHERE fleet_id=$1 AND has_left=false", fleet_id)
         .execute(&mut tx)
         .await?;
 
@@ -104,7 +104,7 @@ async fn oh_shit(
         JOIN
             waitlist_entry as we ON we.id=entry_id
         WHERE
-            fit.hull = ? OR fit.hull = ?",
+            fit.hull = $1 OR fit.hull = $2",
         type_id!("Nestor"),
         type_id!("Oneiros")
     )
@@ -112,7 +112,7 @@ async fn oh_shit(
     .await?;
 
     let fleet = sqlx::query!(
-        "SELECT boss_id FROM fleet WHERE id=?", fleet_id
+        "SELECT boss_id FROM fleet WHERE id=$1", fleet_id
     )
     .fetch_one(app.get_db())
     .await?;
@@ -180,7 +180,7 @@ async fn invite_all(
     account.require_access("waitlist-view")?;
 
     let fleet = sqlx::query!(
-        "SELECT boss_id, max_size FROM fleet WHERE id=?", fleet_id
+        "SELECT boss_id, max_size FROM fleet WHERE id=$1", fleet_id
     )
     .fetch_one(app.get_db())
     .await?;
@@ -193,11 +193,11 @@ async fn invite_all(
 
     let pilots = sqlx::query!(
         "
-            SELECT character_id, category, fit.hull, we.account_id FROM waitlist_entry_fit JOIN fitting as fit ON fit.id=fit_id JOIN waitlist_entry as we ON we.id=entry_id WHERE fit.hull=?
+            SELECT character_id, category, fit.hull, we.account_id FROM waitlist_entry_fit JOIN fitting as fit ON fit.id=fit_id JOIN waitlist_entry as we ON we.id=entry_id WHERE fit.hull=$1
             UNION DISTINCT
-            SELECT character_id, category, fit.hull, we.account_id FROM waitlist_entry_fit JOIN fitting as fit ON fit.id=fit_id JOIN waitlist_entry as we ON we.id=entry_id WHERE fit.hull=? OR fit.hull=?
+            SELECT character_id, category, fit.hull, we.account_id FROM waitlist_entry_fit JOIN fitting as fit ON fit.id=fit_id JOIN waitlist_entry as we ON we.id=entry_id WHERE fit.hull=$2 OR fit.hull=$3
             UNION DISTINCT
-            SELECT character_id, category, fit.hull, we.account_id FROM waitlist_entry_fit JOIN fitting as fit ON fit.id=fit_id JOIN waitlist_entry as we ON we.id=entry_id WHERE is_alt=0
+            SELECT character_id, category, fit.hull, we.account_id FROM waitlist_entry_fit JOIN fitting as fit ON fit.id=fit_id JOIN waitlist_entry as we ON we.id=entry_id WHERE is_alt=false
         ",
         type_id!("Nestor"),
         type_id!("Kronos"),
@@ -206,7 +206,7 @@ async fn invite_all(
     .fetch_all(app.get_db())
     .await?;
 
-    let fc = sqlx::query!("SELECT name FROM `character` WHERE id=?", fleet.boss_id)
+    let fc = sqlx::query!("SELECT name FROM character WHERE id=$1", fleet.boss_id)
         .fetch_one(app.get_db())
         .await?;
 
@@ -216,7 +216,7 @@ async fn invite_all(
     let mut invited_characters: Vec<i64> = Vec::new();
 
     for pilot in pilots {
-        if invited_characters.contains(&pilot.character_id) {
+        if invited_characters.contains(&pilot.character_id.unwrap()) {
             continue;   // Character has already been invited
         }
 
@@ -225,7 +225,7 @@ async fn invite_all(
         }
 
         let target_squad = match sqlx::query!(
-            "SELECT category, wing_id, squad_id FROM fleet_squad WHERE fleet_id=? AND category=?",
+            "SELECT category, wing_id, squad_id FROM fleet_squad WHERE fleet_id=$1 AND category=$2",
             fleet_id, pilot.category
         )
         .fetch_optional(app.get_db())
@@ -239,7 +239,7 @@ async fn invite_all(
             .post_204(
                 &format!("/v1/fleets/{}/members", fleet_id),
                 &SquadInvite {
-                    character_id: pilot.character_id,
+                    character_id: pilot.character_id.unwrap(),
                     role: "squad_member",
                     squad_id: target_squad.squad_id,
                     wing_id: target_squad.wing_id,
@@ -258,29 +258,29 @@ async fn invite_all(
         }
 
         invite_count += 1;
-        invited_characters.push(pilot.character_id);
+        invited_characters.push(pilot.character_id.unwrap());
 
         app.sse_client
         .submit(vec![Event::new(
-            &format!("account;{}", pilot.account_id),
+            &format!("account;{}", pilot.account_id.unwrap()),
             "message",
             format!(
                 "{} has invited your {} to fleet.",
                 fc.name,
-                TypeDB::name_of(pilot.hull)?
+                TypeDB::name_of(pilot.hull.unwrap())?
             ),
         )])
         .await?;
     }
 
     let alts = sqlx::query!(
-        "SELECT character_id, category, fit.hull, we.account_id FROM waitlist_entry_fit JOIN fitting as fit ON fit.id=fit_id JOIN waitlist_entry as we ON we.id=entry_id WHERE is_alt=1"
+        "SELECT character_id, category, fit.hull, we.account_id FROM waitlist_entry_fit JOIN fitting as fit ON fit.id=fit_id JOIN waitlist_entry as we ON we.id=entry_id WHERE is_alt=true"
     )
     .fetch_all(app.get_db())
     .await?;
 
     for alt in alts {
-        if invited_characters.contains(&alt.character_id) {
+        if invited_characters.contains(&alt.character_id.unwrap()) {
             continue;   // Character has already been invited
         }
 
@@ -289,7 +289,7 @@ async fn invite_all(
         }
 
         let target_squad = match sqlx::query!(
-            "SELECT category, wing_id, squad_id FROM fleet_squad WHERE fleet_id=? AND category='alt'",
+            "SELECT category, wing_id, squad_id FROM fleet_squad WHERE fleet_id=$1 AND category='alt'",
             fleet_id
         )
         .fetch_optional(app.get_db())
@@ -303,7 +303,7 @@ async fn invite_all(
             .post_204(
                 &format!("/v1/fleets/{}/members", fleet_id),
                 &SquadInvite {
-                    character_id: alt.character_id,
+                    character_id: alt.character_id.unwrap(),
                     role: "squad_member",
                     squad_id: target_squad.squad_id,
                     wing_id: target_squad.wing_id,
@@ -324,16 +324,16 @@ async fn invite_all(
         }
 
         invite_count += 1;
-        invited_characters.push(alt.character_id);
+        invited_characters.push(alt.character_id.unwrap());
 
         app.sse_client
         .submit(vec![Event::new(
-            &format!("account;{}", alt.account_id),
+            &format!("account;{}", alt.account_id.unwrap()),
             "message",
             format!(
                 "{} has invited your {} to fleet.",
                 fc.name,
-                TypeDB::name_of(alt.hull)?
+                TypeDB::name_of(alt.hull.unwrap())?
             ),
         )])
         .await?;

@@ -106,7 +106,7 @@ async fn xup_multi(
     }
 
     // Make sure the waitlist is actually open
-    let visible_fleets = sqlx::query!("SELECT id FROM fleet WHERE visible=1")
+    let visible_fleets = sqlx::query!("SELECT id FROM fleet WHERE visible=true")
         .fetch_optional(app.get_db())
         .await?;
 
@@ -170,15 +170,15 @@ async fn xup_multi(
     // Create the waitlist_entry record
     let entry_id = match sqlx::query!(
         "SELECT id FROM waitlist_entry WHERE account_id=$1",
-        account.id,
+        account.id
     )
     .fetch_optional(&mut tx)
     .await?
     {
         Some(e) => e.id,
         None => {
-            let result = sqlx::query!(
-                "INSERT INTO waitlist_entry (account_id, joined_at) VALUES ($1, $2)",
+            let result = match sqlx::query!(
+                "INSERT INTO waitlist_entry (account_id, joined_at) VALUES ($1, $2) returning id",
                 account.id,
                 now,
             )
