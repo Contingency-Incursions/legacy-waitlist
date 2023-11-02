@@ -10,8 +10,9 @@ import { Menu } from "./Menu";
 import { Tooltip } from 'react-tooltip'
 
 import AnnouncementBanner from "../Components/AnnouncementBanner";
-import theme from "./theme.js";
+import ErrorBoundary from './ErrorBoundary';
 import Footer from "./Footer";
+import theme from "./theme.js";
 
 import 'react-tooltip/dist/react-tooltip.css'
 import "./reset.css";
@@ -114,13 +115,15 @@ export default class App extends React.Component {
                       }}
                     />
                     <AnnouncementBanner />
-                    <Switch>
-                      <Routes />
-                    </Switch>
-                    <ToastDisplay
-                      toasts={this.state.toasts}
-                      setToasts={(toasts) => this.setState({ toasts })}
-                    />
+                    <ErrorBoundary>
+                      <Switch>
+                        <Routes />
+                      </Switch>
+                      <ToastDisplay
+                        toasts={this.state.toasts}
+                        setToasts={(toasts) => this.setState({ toasts })}
+                      />
+                    </ErrorBoundary>
                   </Container>
                 </Router>
                 <Tooltip id="tip" style={{ zIndex: 150 }} />
