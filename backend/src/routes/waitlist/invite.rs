@@ -51,6 +51,7 @@ async fn invite(
     } else {
         xup.wef_category
     };
+
     let squad_info = match sqlx::query!(
         "
             SELECT fleet_id, squad_id, wing_id FROM fleet
@@ -79,7 +80,7 @@ async fn invite(
             .await?
             .len() == 0 {
                 // Pilot does not have an L badge, they are either a Training Nestor or a Retired Logi
-                return Err(Madness::BadRequest("You are not allowed to invite a training Nestor to fleet.".to_string()));    
+                return Err(Madness::BadRequest("You are not allowed to invite a training Nestor to fleet.".to_string()));
             }
         }
     }
@@ -92,7 +93,7 @@ async fn invite(
         wing_id: i64,
     }
     app.esi_client
-        .post(
+        .post_204(
             &format!("/v1/fleets/{}/members/", squad_info.fleet_id),
             &Invite {
                 character_id: xup.wef_character_id,

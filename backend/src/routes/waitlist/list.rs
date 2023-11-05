@@ -34,6 +34,7 @@ struct WaitlistEntry {
 struct WaitlistEntryFit {
     id: i64,
     approved: bool,
+    state: String,
     category: String,
     hull: Hull,
     character: Option<Character>,
@@ -46,11 +47,10 @@ struct WaitlistEntryFit {
     is_alt: bool,
 }
 
-#[get("/api/waitlist?<waitlist_id>")]
+#[get("/api/waitlist")]
 async fn list(
     app: &rocket::State<Application>,
     account: AuthenticatedAccount,
-    waitlist_id: i64,
 ) -> Result<Json<WaitlistResponse>, Madness> {
     let waitlist_categories = data::categories::categories()
         .iter()
@@ -61,10 +61,11 @@ async fn list(
         .map(|cat| (&cat.id, &cat.name))
         .collect();
 
-    let waitlist = sqlx::query!("SELECT is_open FROM waitlist WHERE id = $1", waitlist_id)
+    let visible_fleets = sqlx::query!("SELECT id FROM fleet WHERE visible=true")
         .fetch_optional(app.get_db())
         .await?;
-    if waitlist.is_none() || waitlist.unwrap().is_open == false {
+
+    if visible_fleets.is_none() {
         return Ok(Json(WaitlistResponse {
             open: false,
             waitlist: None,
@@ -79,7 +80,7 @@ async fn list(
                 we.joined_at we_joined_at,
                 we.account_id we_account_id,
                 wef.id wef_id,
-                wef.approved wef_approved,
+                wef.state wef_state,
                 wef.category wef_category,
                 wef.cached_time_in_fleet wef_cached_time_in_fleet,
                 wef.review_comment wef_review_comment,
@@ -99,10 +100,8 @@ async fn list(
             JOIN character char_we ON we.account_id = char_we.id
             JOIN fitting ON wef.fit_id = fitting.id
             JOIN implant_set ON wef.implant_set_id = implant_set.id
-            WHERE we.waitlist_id = $1
             ORDER BY we.id ASC, wef.id ASC
-        ",
-        waitlist_id
+        "
     )
     .fetch_all(app.get_db())
     .await?;
@@ -140,7 +139,8 @@ async fn list(
         let tags = vec![];
         let mut this_fit = WaitlistEntryFit {
             id: record.wef_id,
-            approved: record.wef_approved == true,
+            approved: record.wef_state == "Approved",
+            state: record.wef_state,
             category: waitlist_categories_lookup
                 .get(&record.wef_category)
                 .unwrap()

@@ -1,7 +1,7 @@
 import styled, { css } from "styled-components";
 import { NavLink } from "react-router-dom";
 
-const inputStyle = css`
+export const inputStyle = css`
   position: relative;
   padding: 0 1em;
   font-size: 1em;
@@ -13,6 +13,8 @@ const inputStyle = css`
   color: ${(props) => props.theme.colors[props.variant || "input"].text} !important;
   display: inline-block;
   font: inherit;
+
+  transition: ease-in-out 0.3s;
 
   &.active {
     border-color: ${(props) => props.theme.colors.active};
@@ -46,14 +48,24 @@ const inputStyle = css`
 `;
 
 export const Button = styled.button.attrs((props) => ({
-  className: `${props.active ? "active" : ""} ${props.static ? "static" : ""}`,
+  className: `${props.outline ? "btn-outline" : ""} ${props.active ? "active" : ""} ${props.static ? "static" : ""}`.trim(),
 }))`
   ${inputStyle}
   height: 2.5em;
   cursor: pointer;
+  border-radius: 4px;
 
   &:disabled {
-    opacity: 0.6;
+    opacity: 0.8;
+  }
+
+  &.btn-outline {
+    background: none;
+    border: solid 1.5px ${(props) => props.theme.colors[props.variant || "input"].color};
+    transition: ease-in-out 0.3s;
+    &:hover, &:active {
+      border: solid 1.5px ${(props) => props.theme.colors[props.variant || "input"].accent}!important;
+    }
   }
 `;
 
@@ -205,3 +217,61 @@ export const Highlight = styled.b`
 	cursor: pointer;
 	color:  ${(props) => props.theme.colors.highlight.active};
 `;
+
+
+const SwitchDOM = styled.label`
+  position: relative;
+  display: inline-block;
+  width: 54px;
+  height: 28px;
+
+  input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+
+    &:checked + .slider {
+      background-color: ${(props) => props.theme.colors[props.variant].color};
+
+      &:before {
+        transform: translateX(26px);
+      }
+    }
+  }
+
+  span {
+    background-color: ${props => props.theme.colors.accent2};
+    border-radius: 34px;
+    cursor: pointer;
+    position: absolute;
+    bottom: 0;
+    top: 0;
+    left: 0;
+    right: 0;
+    transition: .4s;
+
+    &:before {
+      background-color: white;
+      border-radius: 50%;
+      content: "";
+      position: absolute;
+      bottom: 4px;
+      left: 4px;
+      height: 20px;
+      width: 20px;
+      transition: .4s;
+    }
+  }
+`;
+
+export const Switch = ({ id, checked = false, variant = 'primary', onChange }) => {
+  return (
+    <SwitchDOM htmlFor={id} variant={variant}>
+      <input type="checkbox"
+        checked={checked}
+        onChange={_ => onChange(!checked)}
+      />
+      <span className='slider round' />
+    </SwitchDOM>
+  )
+}

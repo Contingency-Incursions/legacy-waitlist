@@ -273,6 +273,23 @@ impl ESIRawClient {
 
         Self::log_response_error(response).await
     }
+
+    pub async fn put<E: Serialize + ?Sized>(
+        &self,
+        url: &str,
+        input: &E,
+        access_token: &str,
+    ) -> Result<reqwest::Response, ESIError> {
+        let response = self
+            .http
+            .put(url)
+            .bearer_auth(access_token)
+            .json(input)
+            .send()
+            .await?;
+
+        Self::log_response_error(response).await
+    }
 }
 
 impl ESIClient {
@@ -474,7 +491,7 @@ impl ESIClient {
         Ok(())
     }
 
-    pub async fn post<E: Serialize + ?Sized>(
+    pub async fn post_204<E: Serialize + ?Sized>(
         &self,
         path: &str,
         input: &E,
@@ -484,6 +501,31 @@ impl ESIClient {
         let access_token = self.access_token(character_id, scope).await?;
         let url = format!("https://esi.evetech.net{}", path);
         self.raw.post::<E>(&url, input, &access_token).await?;
+        Ok(())
+    }
+
+    pub async fn post<E: Serialize + ?Sized, D: serde::de::DeserializeOwned>(
+        &self,
+        path: &str,
+        input: &E,
+        character_id: i64,
+        scope: ESIScope,
+    ) -> Result<D, ESIError> {
+        let access_token = self.access_token(character_id, scope).await?;
+        let url = format!("https://esi.evetech.net{}", path);
+        return Ok(self.raw.post::<E>(&url, input, &access_token).await?.json().await?);
+    }
+
+    pub async fn put<E: Serialize + ?Sized>(
+        &self,
+        path: &str,
+        input: &E,
+        character_id: i64,
+        scope: ESIScope,
+    ) -> Result<(), ESIError> {
+        let access_token = self.access_token(character_id, scope).await?;
+        let url = format!("https://esi.evetech.net{}", path);
+        self.raw.put::<E>(&url, input, &access_token).await?;
         Ok(())
     }
 }
@@ -500,7 +542,9 @@ pub mod fleet_members {
     pub struct ESIFleetMember {
         pub character_id: i64,
         pub ship_type_id: TypeID,
+        pub solar_system_id: i64,
         pub squad_id: i64,
+        pub wing_id: i64
     }
 
     pub async fn get(

@@ -3,7 +3,7 @@ import _ from "lodash";
 const globals = {
   font: {
     family:
-      '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"',
+      'Roboto, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji"',
     monospaceFamily:
       'SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
   },
@@ -45,9 +45,9 @@ const theme = {
         disabled: "#574500",
       },
       danger: {
-        color: "#960627",
+        color: "#a52424",
         text: "white",
-        accent: "#960627",
+        accent: "#b11212",
         disabled: "#330a12",
       },
       primary: {

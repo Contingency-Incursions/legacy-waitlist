@@ -1,7 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
 import styled, { ThemeContext } from "styled-components";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 export const Badge = styled.span`
   background-color: ${(props) => (props.theme.colors[props.variant] || {}).color || "transparent"};
@@ -104,13 +103,11 @@ export const icons = {
 
 const BadgeIcon = ({ type = "UNKNOWN", height = "1.2em" }) => {
   const badge = icons[type] ?? icons["UNKNOWN"];
-  if(badge.type == 'shield'){
-    return <Shield {...badge} h={height} title={badge.name} />
-  } else if(badge.type == 'icon') {
-    return <span title={badge.name}><FontAwesomeIcon icon={badge.icon} /></span>
-  } else {
-    return <img src={badge.href} title={badge.name} alt={badge.name} style={{ height }} />
-  }
+  return badge.type === "shield" ? (
+    <Shield {...badge} h={height} title={badge.name} />
+  ) : (
+    <img src={badge.href} alt={badge.name} style={{ height }} data-tooltip-id="tip" data-tooltip-html={badge.name} />
+  );
 };
 
 BadgeIcon.propTypes = {
@@ -122,7 +119,7 @@ export default BadgeIcon;
 export function Shield({ color, letter, title, h = "1.2em" }) {
   const theme = React.useContext(ThemeContext);
   return (
-    <span title={title}>
+    <span data-tooltip-id="tip" data-tooltip-html={title}>
       <svg
         style={{ height: h, filter: `drop-shadow(0px 1px 1px ${theme.colors.shadow})` }}
         viewBox="0 0 26.5 27.8"

@@ -176,7 +176,10 @@ CREATE TABLE character_note (
 CREATE TABLE fleet (
   id BIGINT NOT NULL PRIMARY KEY,
   boss_id BIGINT NOT NULL,
-  is_updating BOOLEAN,
+  boss_system_id BIGINT,
+  max_size BIGINT NOT NULL,
+  visible BOOLEAN NOT NULL DEFAULT FALSE,
+  error_count BIGINT NOT NULL DEFAULT 0,
   CONSTRAINT fleet_boss_id FOREIGN KEY (boss_id) REFERENCES character (id)
 );
 
@@ -189,23 +192,11 @@ CREATE TABLE fleet_squad (
   CONSTRAINT fleet_squad_fleet_id FOREIGN KEY (fleet_id) REFERENCES fleet (id)
 );
 
-CREATE TABLE waitlist (
-  id BIGSERIAL NOT NULL PRIMARY KEY,
-  name VARCHAR(255) NOT NULL,
-  is_open BOOLEAN NOT NULL,
-  is_archived BOOLEAN NOT NULL
-);
-
--- We need to add a waitlist to the database, otherwise some features won't work
-INSERT INTO waitlist (name, is_open, is_archived) VALUES ('TDF HQ', FALSE, FALSE);
-
 CREATE TABLE waitlist_entry (
   id BIGINT NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-  waitlist_id BIGINT NOT NULL,
   account_id BIGINT NOT NULL,
   joined_at BIGINT NOT NULL,
   UNIQUE (waitlist_id, account_id),
-  CONSTRAINT waitlist_entry_waitlist_id FOREIGN KEY (waitlist_id) REFERENCES waitlist (id),
   CONSTRAINT waitlist_entry_account_id FOREIGN KEY (account_id) REFERENCES character (id)
 );
 
@@ -215,7 +206,7 @@ CREATE TABLE waitlist_entry_fit (
   entry_id BIGINT NOT NULL,
   fit_id BIGINT NOT NULL,
   implant_set_id BIGINT NOT NULL,
-  approved BOOLEAN NOT NULL,
+  state VARCHAR(10) NOT NULL DEFAULT 'pending',
   tags VARCHAR(255) NOT NULL,
   category VARCHAR(10) NOT NULL,
   fit_analysis TEXT,
@@ -225,7 +216,8 @@ CREATE TABLE waitlist_entry_fit (
   CONSTRAINT waitlist_entry_fit_character_id FOREIGN KEY (character_id) REFERENCES character (id),
   CONSTRAINT waitlist_entry_fit_entry_id FOREIGN KEY (entry_id) REFERENCES waitlist_entry (id),
   CONSTRAINT waitlist_entry_fit_fit_id FOREIGN KEY (fit_id) REFERENCES fitting (id),
-  CONSTRAINT waitlist_entry_fit_implant_set_id FOREIGN KEY (implant_set_id) REFERENCES implant_set (id)
+  CONSTRAINT waitlist_entry_fit_implant_set_id FOREIGN KEY (implant_set_id) REFERENCES implant_set (id),
+  CONSTRAINT fit_state CHECK (state IN ('pending', 'approved', 'rejected'))
 );
 
 CREATE TABLE wiki_user (

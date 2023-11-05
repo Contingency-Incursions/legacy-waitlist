@@ -157,7 +157,7 @@ CREATE TABLE `fleet_activity` (
   `last_seen` bigint NOT NULL,
   `hull` int NOT NULL,
   `has_left` tinyint NOT NULL,
-  `is_boss` tinyint NOT NULL,
+  `is_boss` boolean NOT NULL,
   PRIMARY KEY (`id`),
   KEY `character_id` (`character_id`),
   KEY `ix_fleet_activity_fleet_id` (`fleet_id`),
@@ -201,12 +201,14 @@ CREATE TABLE `character_note` (
 
 CREATE TABLE `fleet` (
   `id` bigint NOT NULL,
-  `boss_id` bigint NOT NULL,
-  `is_updating` tinyint DEFAULT NULL,
+  `boss_id` NOT NULL bigint,
+  `boss_system_id` BIGINT,
+  `max_size` BIGINT NOT NULL,
+  `visible` BOOL NOT NULL DEFAULT FALSE,
+  `error_count` BIGINT NOT NULL DEFAULT(0)
   PRIMARY KEY (`id`),
   KEY `boss_id` (`boss_id`),
-  CONSTRAINT `fleet_ibfk_1` FOREIGN KEY (`boss_id`) REFERENCES `character` (`id`),
-  CONSTRAINT `fleet_chk_1` CHECK ((`is_updating` in (0,1)))
+  CONSTRAINT `fleet_ibfk_1` FOREIGN KEY (`boss_id`) REFERENCES `character` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `fleet_squad` (
@@ -218,28 +220,13 @@ CREATE TABLE `fleet_squad` (
   CONSTRAINT `fleet_squad_ibfk_1` FOREIGN KEY (`fleet_id`) REFERENCES `fleet` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE `waitlist` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) NOT NULL,
-  `is_open` tinyint NOT NULL,
-  `is_archived` tinyint NOT NULL,
-  PRIMARY KEY (`id`),
-  CONSTRAINT `waitlist_chk_1` CHECK ((`is_open` in (0,1))),
-  CONSTRAINT `waitlist_chk_2` CHECK ((`is_archived` in (0,1)))
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- We need to add a waitlist to the database, otherwise some features wont work
-INSERT INTO waitlist (name, is_open, is_archived) values ("TDF HQ", 0, 0);
-
 CREATE TABLE `waitlist_entry` (
   `id` bigint NOT NULL AUTO_INCREMENT,
-  `waitlist_id` bigint NOT NULL,
   `account_id` bigint NOT NULL,
   `joined_at` bigint NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `waitlist_id` (`waitlist_id`,`account_id`),
+  UNIQUE KEY `account_id`,
   KEY `account_id` (`account_id`),
-  CONSTRAINT `waitlist_entry_ibfk_1` FOREIGN KEY (`waitlist_id`) REFERENCES `waitlist` (`id`),
   CONSTRAINT `waitlist_entry_ibfk_2` FOREIGN KEY (`account_id`) REFERENCES `character` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -249,7 +236,7 @@ CREATE TABLE `waitlist_entry_fit` (
   `entry_id` bigint NOT NULL,
   `fit_id` bigint NOT NULL,
   `implant_set_id` bigint NOT NULL,
-  `approved` tinyint NOT NULL,
+  `state` VARCHAR(10) NOT NULL DEFAULT 'pending',
   `tags` varchar(255) NOT NULL,
   `category` varchar(10) NOT NULL,
   `fit_analysis` text,
@@ -265,7 +252,7 @@ CREATE TABLE `waitlist_entry_fit` (
   CONSTRAINT `waitlist_entry_fit_ibfk_2` FOREIGN KEY (`entry_id`) REFERENCES `waitlist_entry` (`id`),
   CONSTRAINT `waitlist_entry_fit_ibfk_3` FOREIGN KEY (`fit_id`) REFERENCES `fitting` (`id`),
   CONSTRAINT `waitlist_entry_fit_ibfk_4` FOREIGN KEY (`implant_set_id`) REFERENCES `implant_set` (`id`),
-  CONSTRAINT `waitlist_entry_fit_chk_1` CHECK ((`approved` in (0,1)))
+  CONSTRAINT `fit_state` CHECK (`state` in ('pending', 'approved', 'rejected'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `wiki_user` (

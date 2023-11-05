@@ -20,8 +20,6 @@ struct DnaXup {
 
 #[derive(Debug, Deserialize)]
 struct XupRequest {
-    waitlist_id: i64,
-
     character_id: i64,
     eft: String,
     is_alt: bool,
@@ -94,7 +92,6 @@ async fn get_time_in_fleet(db: &crate::DB, character_id: i64) -> Result<i64, sql
 async fn xup_multi(
     app: &Application,
     account: AuthenticatedAccount,
-    waitlist_id: i64,
     xups: Vec<(i64, Fitting)>,
     is_alt: bool,
 ) -> Result<(), Madness> {
@@ -109,14 +106,11 @@ async fn xup_multi(
     }
 
     // Make sure the waitlist is actually open
-    if sqlx::query!(
-        "SELECT id FROM waitlist WHERE id=$1 AND is_open=true",
-        waitlist_id
-    )
-    .fetch_optional(app.get_db())
-    .await?
-    .is_none()
-    {
+    let visible_fleets = sqlx::query!("SELECT id FROM fleet WHERE visible=true")
+        .fetch_optional(app.get_db())
+        .await?;
+
+    if visible_fleets.is_none() {
         return Err(Madness::BadRequest("Waitlist is closed".to_string()));
     }
 
@@ -175,9 +169,8 @@ async fn xup_multi(
 
     // Create the waitlist_entry record
     let entry_id = match sqlx::query!(
-        "SELECT id FROM waitlist_entry WHERE account_id=$1 AND waitlist_id=$2",
-        account.id,
-        waitlist_id
+        "SELECT id FROM waitlist_entry WHERE account_id=$1",
+        account.id
     )
     .fetch_optional(&mut tx)
     .await?
@@ -185,8 +178,7 @@ async fn xup_multi(
         Some(e) => e.id,
         None => {
             let result = match sqlx::query!(
-                "INSERT INTO waitlist_entry (waitlist_id, account_id, joined_at) VALUES ($1, $2, $3) returning id",
-                waitlist_id,
+                "INSERT INTO waitlist_entry (account_id, joined_at) VALUES ($1, $2) returning id",
                 account.id,
                 now,
             )
@@ -252,9 +244,12 @@ async fn xup_multi(
 
         // Add the fit to the waitlist
         sqlx::query!("
-            INSERT INTO waitlist_entry_fit (character_id, entry_id, fit_id, category, approved, tags, implant_set_id, fit_analysis, cached_time_in_fleet, is_alt)
+            INSERT INTO waitlist_entry_fit (character_id, entry_id, fit_id, category, state, tags, implant_set_id, fit_analysis, cached_time_in_fleet, is_alt)
             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-        ", character_id, entry_id, fit_id, fit_checked.category, fit_checked.approved, tags, implant_set_id, fit_analysis, this_pilot_data.time_in_fleet, is_alt)
+        ", character_id, entry_id, fit_id, fit_checked.category, match fit_checked.approved {
+            true => "approved",
+            false => "pending"
+        }, tags, implant_set_id, fit_analysis, this_pilot_data.time_in_fleet, is_alt)
         .execute(&mut tx).await?;
 
         // Log the x'up
@@ -268,7 +263,7 @@ async fn xup_multi(
     tx.commit().await?;
 
     // Let people and listeners know what just happened
-    super::notify::notify_waitlist_update_and_xup(app, waitlist_id).await?;
+    super::notify::notify_waitlist_update_and_xup(app, 1).await?;
 
     Ok(())
 }
@@ -294,7 +289,7 @@ async fn xup(
         xups.push((dna_xup.character_id, fit));
     }
 
-    xup_multi(app, account, input.waitlist_id, xups, input.is_alt).await?;
+    xup_multi(app, account, xups, input.is_alt).await?;
 
     Ok("OK")
 }
