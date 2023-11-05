@@ -52,7 +52,10 @@ const WaitTime = ({ joined_at }) => {
     }
   }, [])
 
-  const totalSeconds = time - joined_at;
+  let totalSeconds = time - joined_at;
+  if(totalSeconds < 0){
+    totalSeconds = 0;
+  }
   var hours = Math.floor(totalSeconds / 3600);
   var minutes = Math.floor((totalSeconds - (hours * 3600)) / 60);
 

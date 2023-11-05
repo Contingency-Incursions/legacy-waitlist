@@ -31,39 +31,6 @@ async fn fleet(
     let character_ids: Vec<_> = in_fleet.iter().map(|member| member.character_id).collect();
     let mut characters = crate::data::character::lookup(app.get_db(), &character_ids).await?;
 
-    // let category_lookup: HashMap<_, _> = crate::data::categories::categories()
-    //     .iter()
-    //     .map(|c| (&c.id as &str, &c.name))
-    //     .collect();
-
-    // let squads: HashMap<i64, String> = sqlx::query!(
-    //     "SELECT squad_id, category FROM fleet_squad WHERE fleet_id = $1",
-    //     fleet_id
-    // )
-    // .fetch_all(app.get_db())
-    // .await?
-    // .into_iter()
-    // .map(|squad| (squad.squad_id, squad.category))
-    // .collect();
-
-    // Ok(Json(FleetMembersResponse {
-    //     members: in_fleet
-    //         .into_iter()
-    //         .map(|member| FleetMembersMember {
-    //             id: member.character_id,
-    //             name: characters.remove(&member.character_id).map(|f| f.name),
-    //             ship: Hull {
-    //                 id: member.ship_type_id,
-    //                 name: TypeDB::name_of(member.ship_type_id).unwrap(),
-    //             },
-    //             wl_category: squads
-    //                 .get(&member.squad_id)
-    //                 .and_then(|s| category_lookup.get(s.as_str()))
-    //                 .map(|s| s.to_string()),
-    //         })
-    //         .collect(),
-    // }))
-
     let fleet_members = in_fleet
     .into_iter()
     .map(|r| FleetMember {
