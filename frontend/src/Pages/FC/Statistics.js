@@ -141,6 +141,31 @@ function FleetTimeByMonth({ data }) {
   );
 }
 
+function FleetTimeByDay({ data }) {
+  const series = separateDataLabels(data);
+  return (
+    <ThemedLine
+      data={{
+        labels: series.labels,
+        datasets: [
+          {
+            label: "Hours",
+            data: series.data.map((seconds) => Math.round(seconds / 3600)),
+          },
+        ],
+      }}
+      options={{
+        plugins: {
+          title: {
+            display: true,
+            text: "Fleet uptime per day",
+          },
+        },
+      }}
+    />
+  );
+}
+
 function PilotsByMonth({ data }) {
   const series = separateDataLabels(data);
   return (
@@ -319,6 +344,9 @@ export function Statistics() {
     <Row>
       <Graph>
         <FleetTimeByMonth data={statsData.fleet_seconds_by_month} />
+      </Graph>
+      <Graph>
+        <FleetTimeByDay data={statsData.fleet_seconds_by_fleet_by_day} />
       </Graph>
       <Graph>
         <PilotsByMonth data={statsData.pilots_by_month} />
