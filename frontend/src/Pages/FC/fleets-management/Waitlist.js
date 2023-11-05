@@ -20,6 +20,7 @@ const Waitlist = ({ fleetId, xup }) => {
     )
   }
 
+  console.log(xup)
   const temp = xup?.waitlist[0];
 
   return  (

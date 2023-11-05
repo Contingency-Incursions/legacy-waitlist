@@ -1,7 +1,7 @@
 import styled, { css } from "styled-components";
 import { NavLink } from "react-router-dom";
 
-const inputStyle = css`
+export const inputStyle = css`
   position: relative;
   padding: 0 1em;
   font-size: 1em;

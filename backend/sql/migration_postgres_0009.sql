@@ -17,5 +17,6 @@ DROP TABLE IF EXISTS waitlist;
 
 -- Drop the check constraint, change column name, and add new check constraint for waitlist_entry_fit table
 ALTER TABLE waitlist_entry_fit DROP CONSTRAINT IF EXISTS waitlist_entry_fit_chk_1;
-ALTER TABLE waitlist_entry_fit RENAME COLUMN approved TO state;
+ALTER TABLE waitlist_entry_fit DROP COLUMN approved;
+ALTER TABLE waitlist_entry_fit ADD COLUMN state VARCHAR(10) NOT NULL DEFAULT 'pending';
 ALTER TABLE waitlist_entry_fit ADD CONSTRAINT fit_state CHECK (state IN ('pending', 'approved', 'rejected'));

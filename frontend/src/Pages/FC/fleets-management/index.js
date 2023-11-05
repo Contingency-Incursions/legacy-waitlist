@@ -12,7 +12,7 @@ import { EventContext } from '../../../contexts';
 
 const FleetsManagementPage = () => {
   const eventContext = useContext(EventContext);
-  const [ xup, refresh ] = useApi(`/api/waitlist`);
+  const [ xup, refresh ] = useApi(`/api/v2/fleets/waitlist`);
   const url = useParams();
 
   useEffect(() => {

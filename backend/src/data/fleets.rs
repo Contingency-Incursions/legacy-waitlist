@@ -37,6 +37,22 @@ pub async fn load_default_squads()
         Squad {
             name: "Alts".to_string(),
             map_to: Some("alt".to_string())
+        },
+        Squad {
+            name: "Box 1".to_string(),
+            map_to: None
+        },
+        Squad {
+            name: "Box 2".to_string(),
+            map_to: None
+        },
+        Squad {
+            name: "Box 3".to_string(),
+            map_to: None
+        },
+        Squad {
+            name: "Box 4".to_string(),
+            map_to: None
         }
     ];
 
