@@ -1,5 +1,5 @@
 /* eslint-disable eqeqeq */
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useMemo } from "react";
 import { useApi } from "../../../api";
 import styled from "styled-components";
 import Fleet from "./Comp/Fleet";
@@ -32,14 +32,21 @@ const FleetComps = ({ fleetId }) => {
     }
   }, [refresh, eventContext])
 
+  let myFleet = useMemo(() => {
+    return fleets?.find(fleet => fleet.id == fleetId)
+  },
+  [fleets])
+
   return (
     <FleetCompDOM count={fleets?.length <= 2 ? fleets.length : 2}>
-      {fleets?.map((fleet, key) => <Fleet
-        fleetId={fleet.id}
-        myFleet={fleet.id == fleetId}
-        fleetBoss={fleet.boss}
-        key={key}
-      /> )}
+      {myFleet && (
+      <Fleet
+        fleetId={myFleet.id}
+        myFleet={myFleet.id}
+        fleetBoss={myFleet.boss}
+      />
+      )}
+
     </FleetCompDOM>
   )
 }

@@ -1,6 +1,6 @@
-import { useContext, useState } from "react";
+import { useContext, useState, useMemo } from "react";
 import { AuthContext, ToastContext } from "../../../contexts";
-
+import { useApi } from "../../../api";
 import { Box } from "../../../Components/Box";
 import { Button, Buttons, Label } from "../../../Components/Form";
 import ConfigureSquadsForm from "./ConfigureSquadsForm";
@@ -42,6 +42,29 @@ const RegisterFleetBtn = ({ refreshFunction }) => {
   const [ pending, isPending ] = useState(false);
   const [ defaultSquads, isDefaultSquads ] = useState(true);
   const [ defaultMotd, isDefaultMotd ] = useState(true);
+  const [ squadMappings, setSquadMappings ] = useState({});
+  const [ fleet ] = useApi(`/api/fleet/info?character_id=${authContext?.current?.id}`);
+  const [ data ] = useApi('/api/categories');
+
+  // Flatten fleet squads into single array
+  let squads = useMemo(() => {
+    let squads = [];
+    fleet?.wings.forEach(wing => {
+      wing?.squads.map(squad => {
+        squads.push({ 
+          label: `${wing.name} > ${squad.name}`,
+          id: squad.id,
+          wing_id: wing.id
+        })
+      });
+    });
+
+    return squads;
+  }, [fleet]);
+
+  let categories = useMemo(() => {
+    return data?.categories;
+  })
 
   // Only fleet admins: Instructor/Leadership should see this
   if (!authContext?.access['fleet-invite']) {
@@ -65,7 +88,12 @@ const RegisterFleetBtn = ({ refreshFunction }) => {
 
     if (!defaultSquads) {
       // todo: this needs to load in data from the wizard
-      json.squads = null;
+      json.squads = Object.keys(squadMappings).map(category => {
+        return {
+          category: category,
+          ...squadMappings[category]
+        }
+      })
     }
 
     errorToaster(
@@ -109,7 +137,14 @@ const RegisterFleetBtn = ({ refreshFunction }) => {
               </Label>
             </FormGroup>
 
-            { !defaultSquads && <ConfigureSquadsForm characterId={authContext?.current?.id} /> }
+            { 
+            !defaultSquads && <ConfigureSquadsForm 
+            squads={squads} 
+            categories={categories} 
+            squadMappings={squadMappings} 
+            setSquadMappings={setSquadMappings} 
+            /> 
+            }
 
             <Buttons style={{ width: '100%' }}>
               <Button variant='primary'>

@@ -1,5 +1,4 @@
-import { useEffect, useState, useMemo } from 'react';
-import { useApi } from "../../../api";
+import { useEffect } from 'react';
 import { Label, Select } from "../../../Components/Form";
 import styled from "styled-components";
 
@@ -13,55 +12,55 @@ const DOM = styled.div`
   flex-shrink: 10;
 `;
 
-const SquadSelect = ({ options, name }) => {
-  const [ selected, SetSelected ] = useState();
-  
-  useEffect(() => {
-    SetSelected(options.find(option => option?.label.toLowerCase().includes(name.toLowerCase())));
-  }, [options]);
+const SquadSelect = ({ options, category, squadMappings, setSquadMappings }) => {
+  const handleSelect = (evt) => { 
+    setSquadMappings({
+      ...squadMappings,
+      [category.id]: options.find(o => o.label == evt.target.value)
+    })
+  };
 
   return (
     <FormGroup>
-      <Label htmlFor={name}>
-        {name}
+      <Label htmlFor={category.name}>
+        {category.name}
       </Label>
-      <Select>
+      <Select value={squadMappings[category.id]?.label}  onChange={handleSelect}>
         {options?.map((squad, key) => {
-          return <option value={undefined} key={key}>{squad.label}</option>
+          return <option value={squad.label} key={key}>{squad.label}</option>
         })}
       </Select>
     </FormGroup>
   )
 }
 
-const ConfigureSquadsForm = ({ characterId }) => {
-  const [ data ] = useApi('/api/categories');
-  const [ fleet ] = useApi(`/api/fleet/info?character_id=${characterId}`);
-
-  // Flatten fleet squads into single array
-  let squads = useMemo(() => {
-    let squads = [];
-    fleet?.wings.forEach(wing => {
-      wing?.squads.map(squad => {
-        squads.push({ 
-          label: `${wing.name} > ${squad.name}`,
-          id: squad.id,
-          wing_id: wing.id
-        })
-      });
-    });
-
-    return squads;
-  }, [fleet]);
-
-  // console.log(data, squads)
-
+const ConfigureSquadsForm = ({ squads, categories, squadMappings, setSquadMappings }) => {
+  
+  useEffect(() => {
+    let mappings = {};
+    for (const category of categories){
+      let found_option = squads.find(option => {
+        if(category.auto_detect_names !== null && category.auto_detect_names !== undefined){
+          return category.auto_detect_names.find((a) => option?.label.toLowerCase().includes(a.toLowerCase()));
+        } else {
+          return option?.label.toLowerCase().includes(category.name.toLowerCase())
+        }
+      })
+      mappings[category.id] = found_option;
+    }
+    setSquadMappings({
+      ...squadMappings,
+      ...mappings
+    })
+  }, [squads, categories, setSquadMappings]);
 
   return (
     <DOM>
-      {data?.categories.map((category, key) => <SquadSelect 
-        {...category}
+      {categories?.map((category, key) => <SquadSelect 
+        category={category}
         options={squads}
+        squadMappings={squadMappings}
+        setSquadMappings={setSquadMappings}
         key={key}
       />)}
     </DOM>

@@ -22,10 +22,20 @@ struct FleetSummary {
 }
 
 #[derive(Debug, Deserialize, Serialize)]
+struct SquadMappings {
+    category: String,
+    id: i64,
+    wing_id: i64,
+    label: String
+}
+
+#[derive(Debug, Deserialize, Serialize)]
 struct FleetRegistration {
     default_motd: bool,
     default_squads: bool,
-    boss_id: i64
+    boss_id: i64,
+    #[serde(default)]
+    squads: Vec<SquadMappings>
 }
 
 
@@ -249,7 +259,18 @@ async fn register(
     }
     else
     {
-        // todo: map existing squads
+        let squads = &body.squads;
+        for squad in &body.squads {
+            sqlx::query!(
+                "INSERT INTO fleet_squad (fleet_id, category, wing_id, squad_id) VALUES ($1, $2, $3, $4)",
+                basic_info.fleet_id,
+                squad.category,
+                squad.wing_id,
+                squad.id
+            )
+            .execute(&mut tx)
+            .await?;
+        }
     }
 
     // All squads are created and mapped, so it's time to commit our DB changes

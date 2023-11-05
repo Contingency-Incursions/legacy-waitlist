@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import { Badge as BaseBadge } from "../../../../Components/Badge";
+import { useMemo } from "react";
 
 const Badge = styled(BaseBadge)`
   border-radius: 12px;
@@ -38,7 +39,7 @@ const Tabs = styled.div`
   }
 `;
 
-const Navs = ({ categories = [], tab, variant = 'success', onClick }) => {
+const Navs = ({ categories = [], tab, variant = 'success', onClick, fits = [] }) => {
   const Button = ({ name, count }) => {
     return <button className={name === tab ? 'active' : null} onClick={_ => onClick(name)}>
       {name}
@@ -48,14 +49,17 @@ const Navs = ({ categories = [], tab, variant = 'success', onClick }) => {
     </button>
   }
 
-  categories.splice(0, 1, "All");
+  let nav_categories = useMemo(() => {
+
+    return ['All'].concat(...categories);
+  },[ categories])
 
   return (
     <Tabs variant={variant}>
-      { categories?.map((category, key) => {
-        let count = 0;
+      { nav_categories?.map((category, key) => {
 
-        // some sort of counter function
+        let count = category == 'All' ? fits.length : fits.filter(fit => fit.category === category).length;
+
 
         return <Button name={category} count={count} key={key} />
       })}

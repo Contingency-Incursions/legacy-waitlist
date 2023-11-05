@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, useMemo } from "react";
 import { EventContext } from "../../../../contexts";
 import { useApi } from "../../../../api";
 import Navs from "./Navs";
@@ -36,22 +36,26 @@ const Fleet = ({ fleetBoss, fleetId, myFleet = false }) => {
     }
   }, [eventContext, fleetId, refresh])
 
-  let fleet = {};
-  pilots?.forEach(p => {
-    if (!fleet[p.hull.id]) {
-      fleet[p.hull.id] = {
-        id: p.hull.id,
-        name: p.hull.name,
-        pilots: [{
-          id: p.character.id,
-          name: p.character.name
-        }]
+  let fleet = useMemo(() => {
+    let _fleet = {}
+    pilots?.forEach(p => {
+      if (!_fleet[p.hull.id]) {
+        _fleet[p.hull.id] = {
+          id: p.hull.id,
+          name: p.hull.name,
+          pilots: [{
+            id: p.character.id,
+            name: p.character.name
+          }]
+        }
       }
-    }
-    else {
-      fleet[p.hull.id].pilots.push(p.character)
-    }
-  })
+      else {
+        _fleet[p.hull.id].pilots.push(p.character)
+      }
+    })
+    return _fleet
+  }, [pilots]);
+
 
   const categories = {
     all: { id: 'all', name: 'All', ships: []},
@@ -81,6 +85,7 @@ const Fleet = ({ fleetBoss, fleetId, myFleet = false }) => {
     if (b.pilots.length > a.pilots.length) return 1;
     return a.name.localeCompare(b.name);
   });
+
 
   return (
     <div>

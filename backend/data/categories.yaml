@@ -5,6 +5,9 @@
 categories:
   - id: logi
     name: Logistics
+    auto_detect_names: 
+    - Logi
+    - Logistics
   - id: cqc
     name: CQC
   - id: sniper
@@ -15,6 +18,9 @@ categories:
     name: Starter
   - id: alt
     name: Alts
+    auto_detect_names:
+    - Alts
+    - Alt
 
 rules:
   # Logi

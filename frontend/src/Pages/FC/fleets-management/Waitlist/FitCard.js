@@ -5,8 +5,7 @@ import ShowInfo from "./Buttons/ShowInfo";
 import styled from "styled-components";
 import ViewProfile from "./Buttons/ViewProfile";
 import ViewSkills from "./Buttons/ViewSkills";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCheck } from "@fortawesome/free-solid-svg-icons";
+import Invite from "./Buttons/Invite";
 import FitModal from "./FitModal";
 import RejectFit from "./Buttons/RejectFit";
 import MessagePilot from "./Buttons/MessagePilot";
@@ -178,6 +177,9 @@ const FitCard = ({ fit }) => {
     ];
 
     tags = tags.filter(tag => ALLOWED_TAGS.includes(tag));
+    if(fit?.is_alt){
+      tags.push('ALT');
+    }
 
     return (
       <ContentContainerDOM>
@@ -199,10 +201,7 @@ const FitCard = ({ fit }) => {
           <ViewProfile {...character} />
           <MessagePilot fitId={id} />
           <RejectFit fitId={id} isRejected={fit.state === 'rejected'} />
-
-          <button>
-            <FontAwesomeIcon fixedWidth icon={faCheck} />
-          </button>
+          <Invite fitId={id} isRejected={fit.state === 'rejected'} />
         </div>
       </ContentContainerDOM>
     )
