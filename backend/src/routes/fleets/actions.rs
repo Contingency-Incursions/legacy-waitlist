@@ -177,7 +177,7 @@ async fn invite_all(
     app: &rocket::State<Application>,
     fleet_id: i64
 ) -> Result<&'static str, Madness> {
-    account.require_access("waitlist-view")?;
+    account.require_access("fleet-view")?;
 
     let fleet = sqlx::query!(
         "SELECT boss_id, max_size FROM fleet WHERE id=$1", fleet_id

@@ -22,7 +22,7 @@ const Fits = styled.div`
   }
 `;
 
-const Flightstrip = ({ id, character, fits, fleet_time, joined_at }) => {
+const Flightstrip = ({ id, character, fits, fleet_time, joined_at, bossId }) => {
   return (
     <FlightstripDOM>
       <Account {...character} fleet_time={fleet_time} />
@@ -30,7 +30,7 @@ const Flightstrip = ({ id, character, fits, fleet_time, joined_at }) => {
       <WaitTime joined_at={joined_at} />
 
       <Fits>
-        {fits?.map((fit, key) => <FitCard fit={fit} bossId={character.id} key={key} /> )}
+        {fits?.map((fit, key) => <FitCard fit={fit} bossId={bossId} key={key} /> )}
       </Fits>
     </FlightstripDOM>
   )

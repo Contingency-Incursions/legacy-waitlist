@@ -89,7 +89,7 @@ export function Pilot() {
       <Content>
         <b>Login Required!</b>
         <p>
-          This page will let you see your own TOP Fleet statistics like x-up&apos;s, fleet times and
+          This page will let you see your own CI Fleet statistics like x-up&apos;s, fleet times and
           skill changes.
         </p>
       </Content>

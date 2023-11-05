@@ -48,7 +48,7 @@ const Account = ({ id, name, fleet_time }) => {
           <div className="details-wrapper">
             <BadgeIcon type="INSTRUCTOR" />
             { fleet_time?.total < 1 && (
-              <FontAwesomeIcon fixedWidth icon={faExclamationTriangle} data-tooltip-id="tip" data-tooltip-html="New to TOP" />
+              <FontAwesomeIcon fixedWidth icon={faExclamationTriangle} data-tooltip-id="tip" data-tooltip-html="New to CI" />
             )}
             { fleet_time?.bastion < 1 && (<Badge variant="danger">New Bastion</Badge>)}
             <TotalFleetTime hours={fleet_time?.hours} />

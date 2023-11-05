@@ -3,6 +3,7 @@ import styled from "styled-components";
 import Navs from "./Waitlist/Navs";
 import Spinner from "../../../Components/Spinner";
 import Flightstrip from "./Waitlist/FlightStrip";
+import { useApi } from "../../../api";
 
 const WaitlistDOM = styled.div`
   border-top: 1px solid ${(props) => props.theme.colors.accent1};
@@ -11,6 +12,11 @@ const WaitlistDOM = styled.div`
 
 const Waitlist = ({ fleetId, xup }) => {
   const [ tab, selectTab ] = useState('All');
+  const [ settings ] = useApi(`/api/v2/fleets/${fleetId}`);
+
+  let bossId = useMemo(() => {
+    return settings?.boss?.id;
+  }, [settings])
 
   
   let filteredFits = useMemo(() => {
@@ -47,7 +53,7 @@ const Waitlist = ({ fleetId, xup }) => {
   return  (
     <WaitlistDOM>
       <Navs categories={xup?.categories} tab={tab} onClick={selectTab} fits={fits} />
-      {filteredFits?.map((waitlist, key) =>       <Flightstrip {...waitlist} key={key} />)}
+      {filteredFits?.map((waitlist, key) =>       <Flightstrip {...waitlist} bossId={bossId} key={key} />)}
     </WaitlistDOM>
   )
 }
