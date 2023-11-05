@@ -40,7 +40,7 @@ async fn query(
 
     let search_like = format!("%{}%", query);
     let results = sqlx::query!(
-        "SELECT id, name FROM character WHERE name LIKE $1",
+        "SELECT id, name FROM character WHERE name ILIKE $1",
         search_like
     )
     .fetch_all(app.get_db())
