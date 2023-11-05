@@ -18,7 +18,7 @@ const FleetsManagementPage = () => {
   useEffect(() => {
     if (!eventContext) return;
 
-    eventContext.addEventListener("waitlist", refresh);
+    eventContext.addEventListener("waitlist_update", refresh);
     return () => eventContext.removeEventListener("waitlist", refresh);
   }, [eventContext, refresh])
 

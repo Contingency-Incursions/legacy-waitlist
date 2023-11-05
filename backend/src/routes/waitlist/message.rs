@@ -52,7 +52,7 @@ async fn send_message(
     .fetch_one(app.get_db())
     .await?;
 
-    super::notify::notify_waitlist_update(app, 1).await?;
+    super::notify::notify_waitlist_update(app).await?;
     app.sse_client
         .submit(vec![Event::new_json(
             &format!("account;{}", entry.account_id),

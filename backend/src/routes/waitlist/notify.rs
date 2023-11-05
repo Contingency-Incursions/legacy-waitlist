@@ -5,21 +5,16 @@ use crate::{
 use serde::Serialize;
 
 #[derive(Debug, Serialize)]
-struct WaitlistUpdate {
-    waitlist_id: i64,
-}
-
-#[derive(Debug, Serialize)]
 struct Message {
     message: &'static str,
 }
 
-pub async fn notify_waitlist_update(app: &Application, waitlist_id: i64) -> Result<(), SSEError> {
+pub async fn notify_waitlist_update(app: &Application) -> Result<(), SSEError> {
     app.sse_client
         .submit(vec![Event::new_json(
             "waitlist",
-            "waitlist",
-            &WaitlistUpdate { waitlist_id },
+            "waitlist_update",
+            "waitlist_update",
         )])
         .await?;
     Ok(())
@@ -27,13 +22,12 @@ pub async fn notify_waitlist_update(app: &Application, waitlist_id: i64) -> Resu
 
 pub async fn notify_waitlist_update_and_xup(
     app: &Application,
-    waitlist_id: i64,
 ) -> Result<(), SSEError> {
     app.sse_client
         .submit(vec![Event::new_json(
             "waitlist",
-            "waitlist",
-            &WaitlistUpdate { waitlist_id },
+            "waitlist_update",
+            "waitlist_update",
         )])
         .await?;
 

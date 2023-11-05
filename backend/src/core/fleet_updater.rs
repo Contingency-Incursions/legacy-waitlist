@@ -308,15 +308,10 @@ impl FleetUpdater {
 
         // Send an SSE Broadcast to ALL to notify users that pilots have been removed from the waitlist.
         if waitlist_changed {
-            #[derive(Debug, Serialize)]
-            struct WaitlistUpdate {
-                waitlist_id: i64
-            }
-
             self.sse_client.submit(vec![sse::Event::new_json(
                 "waitlist",
                 "waitlist_update",
-                &WaitlistUpdate { waitlist_id: 1 }
+                "waitlist_update"
             )])
             .await?;
         }

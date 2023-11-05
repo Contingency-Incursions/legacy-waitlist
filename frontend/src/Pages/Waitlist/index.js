@@ -77,7 +77,7 @@ function useWaitlist(waitlistId) {
   const eventContext = React.useContext(EventContext);
 
   const [waitlistData, refreshFn] = useApi(
-    waitlistId ? `/api/waitlist?waitlist_id=${waitlistId}` : null
+    waitlistId ? `/api/waitlist` : null
   );
 
   // Listen for events
@@ -86,10 +86,7 @@ function useWaitlist(waitlistId) {
 
     const [updateFn, clearUpdateFn] = coalesceCalls(refreshFn, 2000);
     const handleEvent = function (event) {
-      var data = JSON.parse(event.data);
-      if (data.waitlist_id === waitlistId) {
-        updateFn();
-      }
+      updateFn();
     };
     eventContext.addEventListener("waitlist_update", handleEvent);
     eventContext.addEventListener("visibility", updateFn);

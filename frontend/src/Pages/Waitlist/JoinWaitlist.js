@@ -72,12 +72,11 @@ const Box = styled(BaseBox)`
 
 
 
-async function submitFit({ character_id, fits, waitlist_id, is_alt }) {
+async function submitFit({ character_id, fits, is_alt }) {
   await apiCall("/api/waitlist/xup", {
     json: {
       eft: fits,
       character_id,
-      waitlist_id: parseInt(waitlist_id),
       is_alt,
     },
   });
@@ -96,11 +95,6 @@ const JoinWaitlist = ({ hasFits }) => {
   const [ validatedFits, setValidatedFits ] = useState(undefined);
   const [ isMarauder, setMarauder ] = useState(false);
 
-  const waitlist_id = queryParams.get("wl");
-  if (!waitlist_id) {
-    return <em>Missing waitlist information</em>;
-  }
-
   const reset = () => {
     setAlt(false);
     setBadFits(null);
@@ -114,7 +108,6 @@ const JoinWaitlist = ({ hasFits }) => {
       submitFit({
         character_id: authContext.current.id,
         fits,
-        waitlist_id,
         is_alt: alt,
       })
         .then(() => {

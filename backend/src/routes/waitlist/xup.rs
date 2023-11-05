@@ -263,7 +263,7 @@ async fn xup_multi(
     tx.commit().await?;
 
     // Let people and listeners know what just happened
-    super::notify::notify_waitlist_update_and_xup(app, 1).await?;
+    super::notify::notify_waitlist_update_and_xup(app).await?;
 
     Ok(())
 }

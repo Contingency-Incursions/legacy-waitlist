@@ -57,7 +57,7 @@ async fn remove_fit(
 
     tx.commit().await?;
 
-    super::notify::notify_waitlist_update(app, 1).await?;
+    super::notify::notify_waitlist_update(app).await?;
 
     Ok("OK")
 }
@@ -97,7 +97,7 @@ async fn remove_x(
         .await?;
     tx.commit().await?;
 
-    super::notify::notify_waitlist_update(app, 1).await?;
+    super::notify::notify_waitlist_update(app).await?;
 
     Ok("OK")
 }
