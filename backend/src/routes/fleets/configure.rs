@@ -35,7 +35,7 @@ struct FleetRegistration {
     default_squads: bool,
     boss_id: i64,
     #[serde(default)]
-    squads: Vec<SquadMappings>
+    squads: Option<Vec<SquadMappings>>
 }
 
 
@@ -259,7 +259,7 @@ async fn register(
     }
     else
     {
-        for squad in &body.squads {
+        for squad in body.squads.as_ref().unwrap() {
             sqlx::query!(
                 "INSERT INTO fleet_squad (fleet_id, category, wing_id, squad_id) VALUES ($1, $2, $3, $4)",
                 basic_info.fleet_id,

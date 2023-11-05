@@ -46,6 +46,9 @@ const ConfigureSquadsForm = ({ squads, categories, squadMappings, setSquadMappin
           return option?.label.toLowerCase().includes(category.name.toLowerCase())
         }
       })
+      if(found_option === null || found_option === undefined){
+        found_option = squads[0];
+      }
       mappings[category.id] = found_option;
     }
     setSquadMappings({
