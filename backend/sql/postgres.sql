@@ -196,7 +196,7 @@ CREATE TABLE waitlist_entry (
   id BIGINT NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
   account_id BIGINT NOT NULL,
   joined_at BIGINT NOT NULL,
-  UNIQUE (waitlist_id, account_id),
+  UNIQUE (account_id),
   CONSTRAINT waitlist_entry_account_id FOREIGN KEY (account_id) REFERENCES character (id)
 );
 
