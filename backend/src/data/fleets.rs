@@ -1,5 +1,7 @@
-use crate::core::esi::{ESIClient, ESIError, ESIScope};
+use crate::{core::esi::{ESIClient, ESIError, ESIScope, self, fleet_members::ESIFleetMember}, util::madness::Madness};
+use eve_data_core::TypeDB;
 use serde::{Deserialize, Serialize};
+use crate::util::types::System;
 
 #[derive(Debug)]
 pub struct Wing {
@@ -124,7 +126,7 @@ pub async fn delete_all_wings(
 pub async fn set_default_motd(
     db: &crate::DB,
     esi_client: &ESIClient,
-    fleet: &FleetInfo,
+    fleet: &FleetInfo
 ) -> Result<(), ESIError> {
     let base_motd_template = std::fs::read_to_string("./data/motd.dat").expect("Could not load motd.dat");
 
@@ -137,7 +139,22 @@ pub async fn set_default_motd(
             result = result.replace("{fc_name}", &format!("{}", fc.name));
         }
 
-    // replace {system_id} and {system_name} with....
+        let members: Vec<ESIFleetMember> = esi::fleet_members::get(esi_client, fleet.fleet_id, fleet.fleet_boss_id).await?.into_iter().collect();
+        let mut boss_system_id: Option<i64> = None;
+        for member in &members {
+            if member.character_id == fleet.fleet_boss_id {
+                boss_system_id = Some(member.solar_system_id);
+                break;
+            }
+        }
+
+        let boss_system_name = match TypeDB::name_of_system(boss_system_id.unwrap()) {
+            Ok(name) => name.to_string(),
+            _ => "Unknown".to_string()
+        };
+
+        result = result.replace("{fc_system_id}", &format!("{}", boss_system_id.unwrap()));
+        result = result.replace("{fc_system_name}", &format!("{}", boss_system_name));
 
 
     #[derive(Debug, Serialize)]

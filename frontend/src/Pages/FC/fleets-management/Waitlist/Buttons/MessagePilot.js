@@ -61,7 +61,9 @@ const MessagePilot = ({ fitId }) => {
 
   return (
     <>
-      <Button type="submit" variant="primary" onClick={_ => setOpen(true)}>
+      <Button type="submit" variant="primary"         
+      data-tooltip-id="tip"
+        data-tooltip-html={`Message pilot`} onClick={_ => setOpen(true)}>
         <FontAwesomeIcon fixedWidth icon={faComment} />
       </Button>
 

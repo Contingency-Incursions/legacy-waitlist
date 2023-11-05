@@ -1,6 +1,6 @@
 use crate::{
     app::Application,
-    core::{auth::{AuthenticatedAccount, authorize_character}, esi::{ESIScope, ESIError}, sse::Event},
+    core::{auth::{AuthenticatedAccount, authorize_character}, esi::{ESIScope, ESIError, self}, sse::Event},
     util::{
         madness::Madness,
         types::{Character, Empty, System},
@@ -259,7 +259,6 @@ async fn register(
     }
     else
     {
-        let squads = &body.squads;
         for squad in &body.squads {
             sqlx::query!(
                 "INSERT INTO fleet_squad (fleet_id, category, wing_id, squad_id) VALUES ($1, $2, $3, $4)",
