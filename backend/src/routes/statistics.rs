@@ -21,12 +21,21 @@ macro_rules! year_month {
 
 #[derive(PartialEq, Eq, PartialOrd, Ord, Debug, Clone, Copy)]
 struct YearMonth(pub i32, pub i32);
+#[derive(PartialEq, Eq, PartialOrd, Ord, Debug, Clone, Copy)]
+struct YearMonthDay(pub i32, pub i32, pub i32);
 
 impl std::fmt::Display for YearMonth {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{:04}-{:02}", self.0, self.1)
     }
 }
+
+impl std::fmt::Display for YearMonthDay {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:04}-{:02}-{:02}", self.0, self.1, self.2)
+    }
+}
+
 
 impl YearMonth {
     fn parse(input: &str) -> YearMonth {
@@ -54,6 +63,39 @@ impl Serialize for YearMonth {
         serializer.serialize_str(&formatted)
     }
 }
+
+impl YearMonthDay {
+    fn parse(input: &str) -> YearMonthDay {
+        let mut pieces = input.split('-');
+        let first = pieces
+            .next()
+            .expect("First piece always there")
+            .parse()
+            .expect("Should parse");
+        let second = pieces
+            .next()
+            .expect("Second piece better be there")
+            .parse()
+            .expect("Should parse");
+        let third = pieces
+        .next()
+        .expect("Third piece better be there")
+        .parse()
+        .expect("Should parse");
+    YearMonthDay(first, second, third)
+    }
+}
+
+impl Serialize for YearMonthDay {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        let formatted = format!("{}", self);
+        serializer.serialize_str(&formatted)
+    }
+}
+
 
 fn filter_into_other_1d(source: BTreeMap<String, f64>, threshold: f64) -> BTreeMap<String, f64> {
     let sum: f64 = source.values().sum();
@@ -210,6 +252,42 @@ impl Queries {
         Ok(result)
     }
 
+    
+    async fn fleet_seconds_by_fleet_by_day(
+        db: &crate::DB,
+    ) -> Result<BTreeMap<YearMonthDay, BTreeMap<i64, f64>>, sqlx::Error> {
+        #[derive(sqlx::FromRow)]
+        struct Result {
+            date: String,
+            fleet_id: i64,
+            fleet_time: i64,
+        }
+
+        let res: Vec<Result> = sqlx::query_as(concat!(
+            "
+            SELECT
+                to_char(to_timestamp(first_seen), 'YYYY-MM-DD') as date,
+                fleet_id,
+                CAST((max(last_seen) - min(first_seen)) as BIGINT) AS fleet_time
+            FROM fleet_activity
+            GROUP BY 1, 2
+            Order by 1
+        "
+        ))
+        .fetch_all(db)
+        .await?;
+
+        let mut result = BTreeMap::new();
+        for row in res {
+            result
+                .entry(YearMonthDay::parse(&row.date))
+                .or_insert_with(BTreeMap::new)
+                .insert(row.fleet_id as i64, row.fleet_time as f64);
+        }
+
+        Ok(result)
+    }
+
     async fn xes_by_hull_by_month(
         db: &crate::DB,
     ) -> Result<BTreeMap<YearMonth, BTreeMap<TypeID, f64>>, sqlx::Error> {
@@ -315,6 +393,15 @@ impl Displayer {
         Ok(filter_into_other_2d(translate_hulls_2d(source)?, 0.01))
     }
 
+    fn build_fleet_seconds_by_fleet_by_day(
+        source: &BTreeMap<YearMonthDay, BTreeMap<i64, f64>>,
+    ) -> BTreeMap<YearMonthDay, f64> {
+        source
+            .iter()
+            .map(|(day, values)| (*day, values.values().sum()))
+            .collect()
+    }
+
     fn build_xes_by_hull_by_month(
         source: &BTreeMap<YearMonth, BTreeMap<TypeID, f64>>,
     ) -> Result<BTreeMap<YearMonth, BTreeMap<String, f64>>, Madness> {
@@ -405,6 +492,7 @@ impl Displayer {
 #[derive(Serialize)]
 struct StatsResponse {
     fleet_seconds_by_hull_by_month: BTreeMap<YearMonth, BTreeMap<String, f64>>,
+    fleet_seconds_by_fleet_by_day: BTreeMap<YearMonthDay, f64>,
     xes_by_hull_by_month: BTreeMap<YearMonth, BTreeMap<String, f64>>,
     fleet_seconds_by_month: BTreeMap<YearMonth, f64>,
     pilots_by_month: BTreeMap<YearMonth, f64>,
@@ -427,11 +515,13 @@ async fn statistics(
     let xes_by_hull_month = Queries::xes_by_hull_by_month(app.get_db()).await?;
     let xes_by_hull_28d = Queries::xes_by_hull_28d(app.get_db()).await?;
     let seconds_by_hull_28d = Queries::fleet_seconds_by_hull_28d(app.get_db()).await?;
+    let seconds_by_fleet_by_day = Queries::fleet_seconds_by_fleet_by_day(app.get_db()).await?;
 
     Ok(Json(StatsResponse {
         fleet_seconds_by_hull_by_month: Displayer::build_fleet_seconds_by_hull_by_month(
             &seconds_by_hull_month,
         )?,
+        fleet_seconds_by_fleet_by_day: Displayer::build_fleet_seconds_by_fleet_by_day(&seconds_by_fleet_by_day),
         xes_by_hull_by_month: Displayer::build_xes_by_hull_by_month(&xes_by_hull_month)?,
         fleet_seconds_by_month: Displayer::build_fleet_seconds_by_month(&seconds_by_hull_month),
         pilots_by_month: Displayer::build_pilots_by_month(&seconds_by_character_month),
