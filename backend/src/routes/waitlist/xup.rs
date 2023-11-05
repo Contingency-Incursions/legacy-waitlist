@@ -248,7 +248,7 @@ async fn xup_multi(
             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
         ", character_id, entry_id, fit_id, fit_checked.category, match fit_checked.approved {
             true => "approved",
-            false => "rejected"
+            false => "pending"
         }, tags, implant_set_id, fit_analysis, this_pilot_data.time_in_fleet, is_alt)
         .execute(&mut tx).await?;
 

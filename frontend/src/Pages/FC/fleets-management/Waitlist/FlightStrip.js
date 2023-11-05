@@ -30,7 +30,7 @@ const Flightstrip = ({ id, character, fits, fleet_time, joined_at }) => {
       <WaitTime joined_at={joined_at} />
 
       <Fits>
-        {fits?.map((fit, key) => <FitCard fit={fit} key={key} /> )}
+        {fits?.map((fit, key) => <FitCard fit={fit} bossId={character.id} key={key} /> )}
       </Fits>
     </FlightstripDOM>
   )

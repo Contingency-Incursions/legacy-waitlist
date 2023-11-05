@@ -5,6 +5,7 @@ import ShowInfo from "./Buttons/ShowInfo";
 import styled from "styled-components";
 import ViewProfile from "./Buttons/ViewProfile";
 import ViewSkills from "./Buttons/ViewSkills";
+import ApproveFit from "./Buttons/ApproveFit";
 import Invite from "./Buttons/Invite";
 import FitModal from "./FitModal";
 import RejectFit from "./Buttons/RejectFit";
@@ -128,7 +129,7 @@ const FitState = ({ state, review_comment }) => {
 
 const IMAGE_SERVER_URL = 'https://images.evetech.net/';
 
-const FitCard = ({ fit }) => {
+const FitCard = ({ fit, bossId }) => {
   const BadgeContainer = ({ tags }) => {
     const badges = [
       'LOGI',
@@ -167,7 +168,7 @@ const FitCard = ({ fit }) => {
     )
   }
 
-  const ContentContainer = ({ character, fit_analysis, id, tags }) => {
+  const ContentContainer = ({ character, fit_analysis, id, tags, bossId }) => {
     const ALLOWED_TAGS = [
       'NO-EM-806',
       'SLOW',
@@ -201,7 +202,13 @@ const FitCard = ({ fit }) => {
           <ViewProfile {...character} />
           <MessagePilot fitId={id} />
           <RejectFit fitId={id} isRejected={fit.state === 'rejected'} />
-          <Invite fitId={id} isRejected={fit.state === 'rejected'} />
+          {fit.state !== 'approved' && (
+            <ApproveFit fitId={id} />
+          )}
+          {fit.state === 'approved' && (
+            <Invite fitId={id} bossId={bossId} isRejected={fit.state === 'rejected'} />
+          )}
+
         </div>
       </ContentContainerDOM>
     )
@@ -210,7 +217,7 @@ const FitCard = ({ fit }) => {
   return (
     <FitCardDOM variant={FitState(fit)}>
       <ImageContainer character={fit?.character} hull={fit.hull} />
-      <ContentContainer {...fit} />
+      <ContentContainer {...fit} bossId={bossId} />
       <div className='grey' />
     </FitCardDOM>
   )
