@@ -32,20 +32,14 @@ const FleetComps = ({ fleetId }) => {
     }
   }, [refresh, eventContext])
 
-  let myFleet = useMemo(() => {
-    return fleets?.find(fleet => fleet.id == fleetId)
-  },
-  [fleets])
-
   return (
     <FleetCompDOM count={fleets?.length <= 2 ? fleets.length : 2}>
-      {myFleet && (
-      <Fleet
-        fleetId={myFleet.id}
-        myFleet={myFleet.id}
-        fleetBoss={myFleet.boss}
-      />
-      )}
+      {fleets?.map((fleet, key) => <Fleet
+      fleetId={fleet.id}
+      myFleet={fleet.id == fleetId}
+      fleetBoss={fleet.boss}
+      key={key}
+      />)}
 
     </FleetCompDOM>
   )

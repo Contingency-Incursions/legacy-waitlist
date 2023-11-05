@@ -46,8 +46,6 @@ CREATE TABLE admin (
   CONSTRAINT admin_character FOREIGN KEY (granted_by_id) REFERENCES character (id)
 );
 
-INSERT INTO admin values (666532715, "Leadership", 666532715, 666532715);
-
 CREATE TABLE alt_character (
   account_id BIGINT NOT NULL,
   alt_id BIGINT NOT NULL,
