@@ -68,7 +68,6 @@ const Fleet = ({ fleetBoss, fleetId, myFleet = false }) => {
 
   Object.keys(fleet).forEach(key => {
     categories.all.ships.push(fleet[key]);
-    debugger;
     if (rules_dict[key]) {
       let cat = rules_dict[key]
       if(categories[cat] !== undefined && categories[cat] !== null){
