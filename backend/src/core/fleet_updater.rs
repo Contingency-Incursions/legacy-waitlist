@@ -196,10 +196,20 @@ impl FleetUpdater {
             for &id in &member_ids {
                 if let Some(pilot_on_wl) = waitlist.get(&id) {
                     changed = true;
-
-                    sqlx::query!("DELETE FROM waitlist_entry_fit WHERE entry_id=$1", pilot_on_wl.entry_id)
+                    if pilot_on_wl.is_alt.unwrap() == true {
+                        sqlx::query!("DELETE FROM waitlist_entry_fit WHERE character_id=$1", pilot_on_wl.character_id)
                         .execute(&mut tx)
                         .await?;
+                    } else {
+                        sqlx::query!(
+                            "DELETE FROM waitlist_entry_fit WHERE entry_id=$1 AND is_alt = false",
+                            pilot_on_wl.entry_id
+                        )
+                        .execute(&mut tx)
+                        .await?;
+                    }
+
+
                 }
             }
             sqlx::query!("DELETE FROM waitlist_entry WHERE id NOT IN (SELECT entry_id FROM waitlist_entry_fit)")

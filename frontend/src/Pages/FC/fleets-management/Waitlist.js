@@ -26,10 +26,17 @@ const Waitlist = ({ fleetId, xup }) => {
       return xup?.waitlist;
     }
     let fits_filtered = structuredClone(xup.waitlist);
-    fits_filtered = fits_filtered.map(account => {
-      account.fits = account.fits.filter(fit => fit.category === tab)
-      return account
-    })
+    if(tab == 'Alts') {
+      fits_filtered = fits_filtered.map(account => {
+        account.fits = account.fits.filter(fit => fit.is_alt === true)
+        return account
+      })
+    } else {
+      fits_filtered = fits_filtered.map(account => {
+        account.fits = account.fits.filter(fit => fit.category === tab)
+        return account
+      })
+    }
     return fits_filtered.filter(account => account.fits.length > 0);
   },
   [xup, tab])

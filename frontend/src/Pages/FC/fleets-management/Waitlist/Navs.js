@@ -57,10 +57,14 @@ const Navs = ({ categories = [], tab, variant = 'success', onClick, fits = [] })
   return (
     <Tabs variant={variant}>
       { nav_categories?.map((category, key) => {
-
-        let count = category == 'All' ? fits.length : fits.filter(fit => fit.category === category).length;
-
-
+        let count = 0;
+        if(category == 'All'){
+          count = fits.length
+        } else if(category == 'Alts'){
+          count = fits.filter(fit => fit.is_alt === true).length
+        } else {
+          count = fits.filter(fit => fit.category === category).length
+        }
         return <Button name={category} count={count} key={key} />
       })}
     </Tabs>
