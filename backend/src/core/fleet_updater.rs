@@ -250,7 +250,7 @@ impl FleetUpdater {
                 };
                 //  member.character_id == fleet.boss_id;
 
-                if (is_boss == true && fleet.boss_system_id.is_none()) || (fleet.boss_system_id.unwrap() != member.solar_system_id) {
+                if (is_boss == true && (fleet.boss_system_id.is_none() || fleet.boss_system_id.unwrap() != member.solar_system_id)) {
                     sqlx::query!("UPDATE fleet SET boss_system_id=$1 WHERE id=$2", member.solar_system_id, fleet_id)
                         .execute(&mut tx)
                         .await?;
