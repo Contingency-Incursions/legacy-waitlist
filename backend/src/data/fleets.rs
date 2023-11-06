@@ -37,6 +37,10 @@ pub async fn load_default_squads()
             map_to: Some("sniper".to_string())
         },
         Squad {
+            name: "Starter".to_string(),
+            map_to: Some("starter".to_string())
+        },
+        Squad {
             name: "Alts".to_string(),
             map_to: Some("alt".to_string())
         },
