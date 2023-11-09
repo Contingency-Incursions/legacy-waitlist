@@ -59,7 +59,7 @@ function Link({ href, children, ...props }) {
   return (
     <LinkStyle>
       {href.startsWith("/") ? (
-        <NavLink exact to={href}>
+        <NavLink to={href}>
           {children}
         </NavLink>
       ) : (

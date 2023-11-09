@@ -2,7 +2,7 @@ import styled from "styled-components";
 import Account from "./AccountInformation";
 import { WaitTime } from "./Timestamps";
 import FitCard from "./FitCard";
-
+import { useMemo } from "react";
 
 const FlightstripDOM = styled.div`
   box-sizing: border-box;
@@ -22,15 +22,37 @@ const Fits = styled.div`
   }
 `;
 
-const Flightstrip = ({ id, character, fits, fleet_time, joined_at, bossId }) => {
+const Flightstrip = ({ id, character, fits, joined_at, bossId, tab }) => {
+  let show = useMemo(() => {
+    if(!fits) return false;
+    if(tab == 'All'){
+      return fits.length > 0;
+    }
+    if(tab == 'Alts') {
+      return fits.filter(fit => fit.is_alt === true).length > 0;
+    } else {
+      return fits.filter(fit => fit.category === tab).length > 0;
+    }
+  },
+  [fits, tab])
+
+  let fleet_time = useMemo(() => {
+    let time = 0;
+    fits.forEach((fit) => {
+      if(fit.hours_in_fleet > time){
+        time = fit.hours_in_fleet;
+      }
+    })
+    return time;
+  })
   return (
-    <FlightstripDOM>
+    <FlightstripDOM style={{display: show ? 'grid': 'none'}}>
       <Account {...character} fleet_time={fleet_time} />
 
       <WaitTime joined_at={joined_at} />
 
       <Fits>
-        {fits?.map((fit, key) => <FitCard fit={fit} bossId={bossId} key={key} /> )}
+        {fits?.map((fit) => <FitCard fit={fit} bossId={bossId} key={fit.id} tab={tab} /> )}
       </Fits>
     </FlightstripDOM>
   )

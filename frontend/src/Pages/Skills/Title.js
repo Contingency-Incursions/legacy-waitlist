@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { useHistory, useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button, Buttons } from "../../Components/Form";
 import SkillsHelp from "./SkillsHelp";
 import { useEffect } from "react";
@@ -23,7 +23,7 @@ const StarterHulls = ['Megathron', 'Apocalypse Navy Issue'];
 
 const Title = ({ hull, mastery }) => {
   const queryParams = new URLSearchParams(useLocation().search);
-  const history = useHistory();
+  const history = useNavigate();
 
   const onClick = (mastery) => {
     queryParams.set("mastery", mastery);

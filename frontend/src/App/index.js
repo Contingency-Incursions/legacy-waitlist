@@ -1,10 +1,10 @@
 import React from "react";
-import { BrowserRouter as Router, Switch } from "react-router-dom";
+import { BrowserRouter } from "react-router-dom";
 import { processAuth } from "../Pages/Auth";
 import { ToastDisplay } from "../Components/Toast";
 import { AuthContext, ToastContext, EventContext } from "../contexts";
 import { ThemeProvider, createGlobalStyle } from "styled-components";
-import { Routes } from "./routes";
+import { WaitlistRoutes } from "./routes";
 import { Container } from "react-awesome-styled-grid";
 import { Menu } from "./Menu";
 import { Tooltip } from 'react-tooltip'
@@ -63,10 +63,11 @@ export default class App extends React.Component {
         this.setState({ eventErrors: 0 });
       });
       events.addEventListener("error", (err) => {
-        events.close();
-        setTimeout(() => {
-          this.setState({ events: null, eventErrors: this.state.eventErrors + 1 });
-        }, this.state.eventErrors * 5000 + Math.random() * 10000);
+        console.error("SSE ERROR")
+        // events.close();
+        // setTimeout(() => {
+        //   this.setState({ events: null, eventErrors: this.state.eventErrors + 1 });
+        // }, this.state.eventErrors * 5000 + Math.random() * 10000);
       });
       this.setState({ events });
     }
@@ -95,7 +96,7 @@ export default class App extends React.Component {
           <ToastContext.Provider value={this.addToast}>
             <EventContext.Provider value={this.state.events}>
               <AuthContext.Provider value={this.state.auth}>
-                <Router>
+                <BrowserRouter>
                   <Container style={{ height: "auto", minHeight: `calc(100vh - 70px)` }}>
                     <Menu
                       onChangeCharacter={(char) => this.changeCharacter(char)}
@@ -116,16 +117,14 @@ export default class App extends React.Component {
                     />
                     <AnnouncementBanner />
                     <ErrorBoundary>
-                      <Switch>
-                        <Routes />
-                      </Switch>
+                    <WaitlistRoutes />
                       <ToastDisplay
                         toasts={this.state.toasts}
                         setToasts={(toasts) => this.setState({ toasts })}
                       />
                     </ErrorBoundary>
                   </Container>
-                </Router>
+                </BrowserRouter>
                 <Tooltip id="tip" style={{ zIndex: 150 }} />
                 <Footer />
               </AuthContext.Provider>

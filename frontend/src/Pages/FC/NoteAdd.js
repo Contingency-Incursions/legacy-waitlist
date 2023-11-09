@@ -1,5 +1,5 @@
 import React from "react";
-import { useHistory, useLocation } from "react-router";
+import { useNavigate, useLocation } from "react-router";
 import { apiCall, errorToaster, useApi } from "../../api";
 import { Button, InputGroup, Textarea } from "../../Components/Form";
 import { PageTitle } from "../../Components/Page";
@@ -23,7 +23,7 @@ export function NoteAdd() {
 
   const queryParams = new URLSearchParams(useLocation().search);
   var characterId = parseInt(queryParams.get("character_id"));
-  const history = useHistory();
+  const history = useNavigate();
 
   const [pilot] = useApi(characterId ? `/api/pilot/info?character_id=${characterId}` : null);
 

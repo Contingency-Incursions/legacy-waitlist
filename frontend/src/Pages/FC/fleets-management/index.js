@@ -8,8 +8,6 @@ import FleetComps from './FleetComps';
 import Waitlist from './Waitlist';
 import { EventContext } from '../../../contexts';
 
-
-
 const FleetsManagementPage = () => {
   const eventContext = useContext(EventContext);
   const [ xup, refresh ] = useApi(`/api/v2/fleets/waitlist`);
@@ -19,9 +17,10 @@ const FleetsManagementPage = () => {
     if (!eventContext) return;
 
     eventContext.addEventListener("waitlist_update", refresh);
-    return () => eventContext.removeEventListener("waitlist", refresh);
+    return () => eventContext.removeEventListener("waitlist_update", refresh);
   }, [eventContext, refresh])
 
+  console.log("Reloading index");
   return (
     <>
       <FleetSettings fleetId={url?.fleetId} xups={xup?.waitlist} />

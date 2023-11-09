@@ -17,7 +17,7 @@ import { usePageTitle } from "../../Util/title";
 function GuideCard({ icon, slug, name, children }) {
   return (
     <CardMargin>
-      <NavLink style={{ textDecoration: "inherit", color: "inherit" }} exact to={`/fc/${slug}`}>
+      <NavLink style={{ textDecoration: "inherit", color: "inherit" }} to={`/fc/${slug}`}>
         <Card
           title={
             <>

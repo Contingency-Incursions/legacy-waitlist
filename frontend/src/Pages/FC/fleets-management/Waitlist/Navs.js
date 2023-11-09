@@ -50,22 +50,29 @@ const Navs = ({ categories = [], tab, variant = 'success', onClick, fits = [] })
   }
 
   let nav_categories = useMemo(() => {
-
     return ['All'].concat(...categories);
   },[ categories])
 
+  let counts = useMemo(() => {
+    let counts = {};
+    nav_categories.forEach(category => {
+      let count = 0;
+      if(category == 'All'){
+        count = fits.length
+      } else if(category == 'Alts'){
+        count = fits.filter(fit => fit.is_alt === true).length
+      } else {
+        count = fits.filter(fit => fit.category === category).length
+      }
+      counts[category] = count;
+    })
+    return counts;
+  },[nav_categories])
+
   return (
     <Tabs variant={variant}>
-      { nav_categories?.map((category, key) => {
-        let count = 0;
-        if(category == 'All'){
-          count = fits.length
-        } else if(category == 'Alts'){
-          count = fits.filter(fit => fit.is_alt === true).length
-        } else {
-          count = fits.filter(fit => fit.category === category).length
-        }
-        return <Button name={category} count={count} key={key} />
+      { nav_categories?.map((category) => {
+        return <Button name={category} count={counts[category]} key={category} />
       })}
     </Tabs>
   )

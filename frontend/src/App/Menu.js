@@ -34,7 +34,7 @@ NavBar.Header = styled.div`
 `;
 
 NavBar.LogoLink = styled(NavLink).attrs((props) => ({
-  activeClassName: "active",
+  activeclassname: "active",
 }))`
   margin-right: 2em;
   flex-grow: 0;
@@ -54,7 +54,7 @@ NavBar.Menu = styled.div`
   flex-grow: 1;
 `;
 NavBar.Link = styled(NavLink).attrs((props) => ({
-  activeClassName: "active",
+  activeclassname: "active",
 }))`
   padding: 1em;
   color: ${(props) => props.theme.colors.accent4};
@@ -143,7 +143,7 @@ export function Menu({ onChangeCharacter, theme, setTheme, sticker, setSticker }
                           </option>
                         ))}
                       </Select>
-                      <NavButton exact to="/auth/start/alt">
+                      <NavButton to="/auth/start/alt">
                         <FontAwesomeIcon fixedWidth icon={faUserPlus} />
                       </NavButton>
                     </InputGroup>
@@ -158,11 +158,11 @@ export function Menu({ onChangeCharacter, theme, setTheme, sticker, setSticker }
                 <BrowserNotification />
                 <ThemeSelect theme={theme} setTheme={setTheme} />
                 {whoami ? (
-                  <NavButton exact to="/auth/logout" variant="secondary">
+                  <NavButton to="/auth/logout" variant="secondary">
                     Log out
                   </NavButton>
                 ) : (
-                  <NavButton exact to="/auth/start" variant="primary">
+                  <NavButton to="/auth/start" variant="primary">
                     Log in
                   </NavButton>
                 )}

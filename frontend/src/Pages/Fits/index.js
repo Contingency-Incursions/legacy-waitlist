@@ -2,19 +2,17 @@ import { useApi } from "../../api";
 import { InputGroup, Button, Buttons, AButton } from "../../Components/Form";
 import { Fitout, ImplantOut } from "./FittingSortDisplay";
 import { PageTitle } from "../../Components/Page";
-import { useLocation, useHistory } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { usePageTitle } from "../../Util/title";
 import { InfoNote } from "../../Components/NoteBox";
 
 export function Fits() {
   const queryParams = new URLSearchParams(useLocation().search);
-  const history = useHistory();
+  const navigate = useNavigate();
   var tier = queryParams.get("Tier") || "Starter";
   const setTier = (newTier) => {
     queryParams.set("Tier", newTier);
-    history.push({
-      search: queryParams.toString(),
-    });
+    navigate({search: queryParams.toString()})
   };
 
   return <FitsDisplay tier={tier} setTier={setTier} />;

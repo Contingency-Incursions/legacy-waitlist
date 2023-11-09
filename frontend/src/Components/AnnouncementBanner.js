@@ -2,7 +2,7 @@ import React, { useEffect, useReducer, useRef } from "react";
 import styled from "styled-components";
 import { apiCall } from "../api";
 import { AuthContext, EventContext } from "../contexts";
-import { useHistory } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { options } from "../Pages/FC/announcements/page-options";
 import { CharacterName } from "./EntityLinks";
 import { timeTillNow } from "../Util/time";
@@ -84,10 +84,10 @@ const AnnouncementBanner = () => {
 
   // Forces the UI to re-render when React-Router changes the page
   // this allows us to display/filter out announcements appropriately
-  const history = useHistory();
+  const location = useLocation();
   useEffect(() => {
-    return history.listen((location) => setPathname(location?.pathname));
-  }, [history]);
+    setPathname(location?.pathname);
+  }, [location]);
 
   // Update announcements when a payload is received from the SSE server
   const handleAnnouncment = (evt) => {

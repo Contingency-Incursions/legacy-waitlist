@@ -27,7 +27,7 @@ const ExternalLink = styled.a`
 `;
 
 const Links = styled(NavLink).attrs((props) => ({
-  activeClassName: "active",
+  activeclassname: "active",
 }))`
   padding: 1em;
   color: ${(props) => props.theme.colors.accent4};
@@ -102,10 +102,10 @@ export function MobileNavButton({ isOpen, setIsOpen }) {
 export function NavLinks({ whoami }) {
   return (
     <>
-      <Links exact to="/">
+      <Links to="/">
         Waitlist
       </Links>
-      <Links exact to="/fits">
+      <Links to="/fits">
         Fits
       </Links>
       <ExternalLink href={`https://wiki.${window.location.host}`} target="_blank">
@@ -113,29 +113,29 @@ export function NavLinks({ whoami }) {
       </ExternalLink>
       {whoami && (
         <>
-          <Links exact to="/pilot">
+          <Links to="/pilot">
             Pilot
           </Links>
-          <Links exact to="/skills">
+          <Links to="/skills">
             Skills
           </Links>
         </>
       )}
-      <Links exact to="/isk-h/calc">
+      <Links to="/isk-h/calc">
         ISK/h
       </Links>
       {whoami && whoami.access["fleet-view"] && (
-        <Links exact to="/fc/fleets">
+        <Links to="/fc/fleets">
           Fleets
         </Links>
       )}
       {whoami && whoami.access["waitlist-tag:HQ-FC"] && (
-        <Links exact to="/fc">
+        <Links to="/fc">
           FC
         </Links>
       )}
       {whoami && whoami.access["search"] && (
-        <Links exact to="/fc/search">
+        <Links to="/fc/search">
           Search
         </Links>
       )}

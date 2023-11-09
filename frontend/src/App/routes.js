@@ -1,6 +1,6 @@
 import { useContext } from "react";
 
-import { Route, Switch } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import { AuthContext } from "../contexts";
 
 import { AuthStart, AuthCallback, AuthLogout } from "../Pages/Auth";
@@ -26,8 +26,10 @@ import { E401, E403, E404 } from "../Pages/Errors";
 import FleetsIndexPage from "../Pages/FC/fleets";
 import FleetsManagementPage from "../Pages/FC/fleets-management";
 
-const AuthenticatedRoute = ({ component, loginRequired = false, access = null }) => {
+function AuthenticatedRoute(props) {
   const authContext = useContext(AuthContext);
+  let { component, loginRequired = false, access = null } = props;
+
 
   if (!loginRequired && !access) {
     return component; // Page doesn't require authentication
@@ -43,102 +45,50 @@ const AuthenticatedRoute = ({ component, loginRequired = false, access = null })
 
   // All auth checks OK
   return component;
-};
+}
 
-export function Routes() {
+export function WaitlistRoutes() {
+  const authContext = useContext(AuthContext);
+  
   return (
-    <Switch>
-      <Route exact path="/">
-        {<AuthenticatedRoute component={<Waitlist />} loginRequired />}
-      </Route>
+    <Routes>
+    <Route path="/" element={<AuthenticatedRoute component={<Waitlist />} loginRequired authContext={authContext} />} />
 
-      <Route exact path="/fits">
-        <Fits />
-      </Route>
-      <Route exact path="/isk-h">
-        <ISKh />
-      </Route>
-      <Route exact path="/isk-h/calc">
-        <ISKhCalc />
-      </Route>
-      <Route exact path="/pilot">
-        <Pilot />
-      </Route>
-      <Route exact path="/skills">
-        <AuthenticatedRoute component={<Skills />} />
-      </Route>
-      <Route exact path="/skills/plans">
-        <AuthenticatedRoute component={<Plans />} loginRequired />
-      </Route>
+      <Route path="/fits" element={<Fits />}/>
+      <Route path="/isk-h" element={<ISKh />}/>
+      <Route path="/isk-h/calc" element={<ISKhCalc />}/>
+      <Route path="/pilot" element={ <Pilot />}/>
+      <Route path="/skills" element={<AuthenticatedRoute component={<Skills />} />} />
+      <Route path="/skills/plans" element={<AuthenticatedRoute component={<Plans />} loginRequired />}/>
 
-      {/* Fleet Commander Routes */}
-      <Route exact path="/fc">
-        {/* 'fleet-view' allows any FC to use this route */}
-        <AuthenticatedRoute component={<FCMenu />} access="waitlist-tag:HQ-FC" />
-      </Route>
-      <Route exact path="/fc/announcements">
-        <AuthenticatedRoute component={<AnnouncementsPage />} access="waitlist-tag:HQ-FC" />
-      </Route>
-      <Route exact path="/fc/badges">
-        <AuthenticatedRoute component={<BadgesPage />} access="badges-manage" />
-      </Route>
-      <Route exact path="/fc/bans">
-        <AuthenticatedRoute component={<BansPage />} access="bans-manage" />
-      </Route>
-      <Route exact path="/fc/commanders">
-        <AuthenticatedRoute component={<CommandersPage />} access="commanders-view" />
-      </Route>
-      <Route exact path="/fc/fleet">
-        <AuthenticatedRoute component={<Fleet />} access="fleet-view" />
-      </Route>
-      <Route exact path="/fc/fleet/register">
-        <AuthenticatedRoute component={<FleetRegister />} access="fleet-view" />
-      </Route>
-      <Route exact path="/fc/fleet/history">
-        <AuthenticatedRoute component={<FleetCompHistory />} access="fleet-history-view" />
-      </Route>
-      <Route exact path="/fc/notes/add">
-        <AuthenticatedRoute component={<NoteAdd />} access="notes-add" />
-      </Route>
-      <Route exact path="/fc/search">
-        <AuthenticatedRoute component={<Search />} access="waitlist-tag:HQ-FC" />
-      </Route>
-      <Route exact path="/fc/stats">
-        <AuthenticatedRoute component={<Statistics />} access="stats-view" />
-      </Route>
-      <Route exact path="/fc/reports">
-        <AuthenticatedRoute component={<ReportsPage />} access="reports-view" />
-      </Route>
 
-      {/* V2 Fleet pages */}
-      <Route exact path="/fc/fleets">
-        <AuthenticatedRoute component={<FleetsIndexPage />} access="fleet-view" />
-      </Route>
+      <Route path="/fc" element={<AuthenticatedRoute component={<FCMenu />} access="waitlist-tag:HQ-FC" />}/>
+      <Route path="/fc/announcements" element={<AuthenticatedRoute component={<AnnouncementsPage />} access="waitlist-tag:HQ-FC" />}/>
+      <Route path="/fc/badges" element={<AuthenticatedRoute component={<BadgesPage />} access="badges-manage" />}/>
+      <Route path="/fc/bans" element={<AuthenticatedRoute component={<BansPage />} access="bans-manage" />} />
+      <Route path="/fc/commanders" element={<AuthenticatedRoute component={<CommandersPage />} access="commanders-view" />}/>
+      <Route path="/fc/fleet" element={<AuthenticatedRoute component={<Fleet />} access="fleet-view" />}/>
+      <Route path="/fc/fleet/register" element={<AuthenticatedRoute component={<FleetRegister />} access="fleet-view" />}/>
+      <Route path="/fc/fleet/history" element={<AuthenticatedRoute component={<FleetCompHistory />} access="fleet-history-view" />}/>
+      <Route path="/fc/notes/add" element={<AuthenticatedRoute component={<NoteAdd />} access="notes-add" />} />
+      <Route path="/fc/search" element={<AuthenticatedRoute component={<Search />} access="waitlist-tag:HQ-FC" />}/>
+      <Route path="/fc/stats" element={<AuthenticatedRoute component={<Statistics />} access="stats-view" />} />
+      <Route path="/fc/reports" element={<AuthenticatedRoute component={<ReportsPage />} access="reports-view" />}/>
 
-      <Route exact path="/fc/fleets/:fleetId">
-        <AuthenticatedRoute component={<FleetsManagementPage />} access="fleet-view" />
-      </Route>
 
-      {/* Auth Routes: Login, Callback, Logout */}
-      <Route exact path="/auth/start">
-        <AuthStart />
-      </Route>
-      <Route exact path="/auth/start/fc">
-        <AuthStart fc={true} alt={true} />
-      </Route>
-      <Route exact path="/auth/start/alt">
-        <AuthStart alt={true} />
-      </Route>
-      <Route exact path="/auth/cb">
-        <AuthCallback />
-      </Route>
-      <Route exact path="/auth/logout">
-        <AuthLogout />
-      </Route>
+      <Route path="/fc/fleets" element={<AuthenticatedRoute component={<FleetsIndexPage />} access="fleet-view" />} /> 
 
-      <Route path="*">
-        <E404 />
-      </Route>
-    </Switch>
+      <Route path="/fc/fleets/:fleetId" element={<AuthenticatedRoute component={<FleetsManagementPage />} access="fleet-view" />} />
+
+
+      <Route path="/auth/start" element={<AuthStart />} />
+      <Route path="/auth/start/fc" element={<AuthStart fc={true} alt={true} />} />
+      <Route path="/auth/start/alt" element={<AuthStart alt={true} />} />
+      <Route path="/auth/cb" element={<AuthCallback />} />
+      <Route path="/auth/logout" element={<AuthLogout />} />
+
+      <Route path="*" element={<E404 />} />
+    </Routes>
+
   );
 }

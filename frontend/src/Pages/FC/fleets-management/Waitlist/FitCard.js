@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import BadgeIcon from "../../../../Components/Badge";
 import RemoveFit from "./Buttons/RemoveFit";
 import ShowInfo from "./Buttons/ShowInfo";
@@ -129,7 +129,7 @@ const FitState = ({ state, review_comment }) => {
 
 const IMAGE_SERVER_URL = 'https://images.evetech.net/';
 
-const FitCard = ({ fit, bossId }) => {
+const FitCard = ({ fit, bossId, tab }) => {
   const BadgeContainer = ({ tags }) => {
     const badges = [
       'LOGI',
@@ -213,9 +213,22 @@ const FitCard = ({ fit, bossId }) => {
       </ContentContainerDOM>
     )
   }
-  console.log(fit)
+
+  let show = useMemo(() => {
+    if(!fit) return false;
+    if(tab == 'All'){
+      return true;
+    }
+    if(tab == 'Alts') {
+      return fit.is_alt === true;
+    } else {
+      return fit.category === tab;
+    }
+  },
+  [fit, tab])
+
   return (
-    <FitCardDOM variant={FitState(fit)}>
+    <FitCardDOM variant={FitState(fit)} style={{ display: show ? 'flex' : 'none'}}>
       <ImageContainer character={fit?.character} hull={fit.hull} />
       <ContentContainer {...fit} bossId={bossId} />
       <div className='grey' />

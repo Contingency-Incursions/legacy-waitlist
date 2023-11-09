@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { useApi } from "../../api";
-import { useHistory, useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useMemo } from "react";
 
 const ShipsContainer = styled.div`
@@ -47,7 +47,7 @@ const ShipsContainer = styled.div`
 const Tabs = ({ selectedHull, ships }) => {
   const [ data ] = useApi(`/api/module/preload`);
   const queryParams = new URLSearchParams(useLocation().search);
-  const history = useHistory();
+  const history = useNavigate();
 
   const items = {};
   Object.keys(data ?? {})?.forEach((key) => {
