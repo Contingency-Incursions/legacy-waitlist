@@ -5,7 +5,7 @@ import { useMemo } from "react";
 const Badge = styled(BaseBadge)`
   border-radius: 12px;
   margin-left: 5px;
-  font-size: 10px;
+  font-size: 13px;
 `;
 
 const Tabs = styled.div`
@@ -43,7 +43,7 @@ const Navs = ({ categories = [], tab, variant = 'success', onClick, fits = [] })
   const Button = ({ name, count }) => {
     return <button className={name === tab ? 'active' : null} onClick={_ => onClick(name)}>
       {name}
-      <Badge variant="secondary">
+      <Badge variant="primary">
         {count ?? '-' }
       </Badge>
     </button>

@@ -12,6 +12,7 @@ const WaitlistDOM = styled.div`
 
 const Waitlist = ({ fleetId, xup }) => {
   const [ tab, setTab ] = useState('All');
+  const [inviteCounts, setInviteCounts] = useState({});
   const [ settings ] = useApi(`/api/v2/fleets/${fleetId}`);
 
   let bossId = useMemo(() => {
@@ -40,7 +41,15 @@ const Waitlist = ({ fleetId, xup }) => {
   return  (
     <WaitlistDOM>
       <Navs categories={xup?.categories} tab={tab} onClick={handleSelect} fits={fits} />
-      {xup?.waitlist?.map((waitlist) =>       <Flightstrip {...waitlist} bossId={bossId} key={waitlist.id} tab={tab} />)}
+      {xup?.waitlist?.map((waitlist) =>       
+      <Flightstrip 
+      {...waitlist} 
+      bossId={bossId} 
+      key={waitlist.id} 
+      tab={tab} 
+      inviteCounts={inviteCounts} 
+      setInviteCounts={setInviteCounts} 
+      />)}
     </WaitlistDOM>
   )
 }

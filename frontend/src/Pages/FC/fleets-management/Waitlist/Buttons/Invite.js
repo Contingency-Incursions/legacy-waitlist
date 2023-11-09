@@ -1,4 +1,4 @@
-import { useContext, useState, useReducer } from "react"
+import { useContext, useState } from "react"
 import { apiCall, errorToaster } from "../../../../../api";
 import { ToastContext } from "../../../../../contexts"
 import { Button } from "./Button";
@@ -11,9 +11,8 @@ async function invite(id, character_id) {
   });
 }
 
-const InviteButton = ({ fitId, isRejected, bossId }) => {
+const InviteButton = ({ fitId, isRejected, bossId, inviteCounts, onInvite }) => {
   const [ pending, isPending ] = useState(false);
-  const [invite_attempts, inviteIncrement] = useReducer((i) => i + 1, 0);
   const toastContext = useContext(ToastContext);
 
   const handleClick = () => {
@@ -23,9 +22,14 @@ const InviteButton = ({ fitId, isRejected, bossId }) => {
       invite(fitId, bossId)
       .finally(_ => {
         isPending(false);
-        inviteIncrement();
+        onInvite({...inviteCounts, [fitId]: (inviteCounts[fitId] + 1)});
       })
     );
+  }
+
+  if(inviteCounts[fitId] === undefined){
+    onInvite({...inviteCounts, [fitId]: 0});
+    console.log(inviteCounts)
   }
 
 
@@ -38,7 +42,7 @@ const InviteButton = ({ fitId, isRejected, bossId }) => {
         disabled={isRejected || pending}
         onClick={handleClick}
       >
-         <FontAwesomeIcon fixedWidth icon={!pending ? faPaperPlane : faSpinner} spin={pending} /> {invite_attempts}
+         <FontAwesomeIcon fixedWidth icon={!pending ? faPaperPlane : faSpinner} spin={pending} /> {inviteCounts[fitId]}
       </Button>
     </>
   )

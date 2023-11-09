@@ -22,7 +22,7 @@ const Fits = styled.div`
   }
 `;
 
-const Flightstrip = ({ id, character, fits, joined_at, bossId, tab }) => {
+const Flightstrip = ({ id, character, fits, joined_at, bossId, tab, inviteCounts, setInviteCounts }) => {
   let show = useMemo(() => {
     if(!fits) return false;
     if(tab == 'All'){
@@ -52,7 +52,7 @@ const Flightstrip = ({ id, character, fits, joined_at, bossId, tab }) => {
       <WaitTime joined_at={joined_at} />
 
       <Fits>
-        {fits?.map((fit) => <FitCard fit={fit} bossId={bossId} key={fit.id} tab={tab} /> )}
+        {fits?.map((fit) => <FitCard fit={fit} bossId={bossId} key={fit.id} tab={tab} inviteCounts={inviteCounts} onInvite={setInviteCounts} /> )}
       </Fits>
     </FlightstripDOM>
   )

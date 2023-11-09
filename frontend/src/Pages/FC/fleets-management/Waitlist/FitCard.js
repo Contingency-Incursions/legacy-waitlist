@@ -129,7 +129,7 @@ const FitState = ({ state, review_comment }) => {
 
 const IMAGE_SERVER_URL = 'https://images.evetech.net/';
 
-const FitCard = ({ fit, bossId, tab }) => {
+const FitCard = ({ fit, bossId, tab, inviteCounts, onInvite }) => {
   const BadgeContainer = ({ tags }) => {
     const badges = [
       'LOGI',
@@ -168,7 +168,7 @@ const FitCard = ({ fit, bossId, tab }) => {
     )
   }
 
-  const ContentContainer = ({ character, fit_analysis, id, tags, bossId }) => {
+  const ContentContainer = ({ character, fit_analysis, id, tags, bossId, inviteCounts, onInvite }) => {
     const ALLOWED_TAGS = [
       'NO-EM-806',
       'SLOW',
@@ -206,7 +206,7 @@ const FitCard = ({ fit, bossId, tab }) => {
             <ApproveFit fitId={id} />
           )}
           {fit.state === 'approved' && (
-            <Invite fitId={id} bossId={bossId} isRejected={fit.state === 'rejected'} />
+            <Invite fitId={id} bossId={bossId} isRejected={fit.state === 'rejected'} inviteCounts={inviteCounts} onInvite={onInvite} />
           )}
 
         </div>
@@ -230,7 +230,7 @@ const FitCard = ({ fit, bossId, tab }) => {
   return (
     <FitCardDOM variant={FitState(fit)} style={{ display: show ? 'flex' : 'none'}}>
       <ImageContainer character={fit?.character} hull={fit.hull} />
-      <ContentContainer {...fit} bossId={bossId} />
+      <ContentContainer {...fit} bossId={bossId} inviteCounts={inviteCounts} onInvite={onInvite} />
       <div className='grey' />
     </FitCardDOM>
   )

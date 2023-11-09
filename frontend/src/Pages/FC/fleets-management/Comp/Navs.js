@@ -4,7 +4,7 @@ import { Badge as BaseBadge } from "../../../../Components/Badge";
 const Badge = styled(BaseBadge)`
   border-radius: 12px;
   margin-left: 5px;
-  font-size: 10px;
+  font-size: 13px;
 `;
 
 const Tabs = styled.div`
@@ -46,7 +46,7 @@ const Navs = ({ categories = [], activeTab, tabVariant = 'primary', onClick }) =
   const Button = ({ id, name, count }) => {
     return <button className={id === activeTab ? 'active' : null} onClick={_ => onClick(id)}>
       {name}
-      <Badge variant="secondary">
+      <Badge variant="primary">
         {count ?? '-' }
       </Badge>
     </button>
