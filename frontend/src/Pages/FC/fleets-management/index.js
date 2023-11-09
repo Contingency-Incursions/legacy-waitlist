@@ -20,7 +20,6 @@ const FleetsManagementPage = () => {
     return () => eventContext.removeEventListener("waitlist_update", refresh);
   }, [eventContext, refresh])
 
-  console.log("Reloading index");
   return (
     <>
       <FleetSettings fleetId={url?.fleetId} xups={xup?.waitlist} />

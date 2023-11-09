@@ -63,11 +63,10 @@ export default class App extends React.Component {
         this.setState({ eventErrors: 0 });
       });
       events.addEventListener("error", (err) => {
-        console.error("SSE ERROR")
-        // events.close();
-        // setTimeout(() => {
-        //   this.setState({ events: null, eventErrors: this.state.eventErrors + 1 });
-        // }, this.state.eventErrors * 5000 + Math.random() * 10000);
+        events.close();
+        setTimeout(() => {
+          this.setState({ events: null, eventErrors: this.state.eventErrors + 1 });
+        }, this.state.eventErrors * 5000 + Math.random() * 10000);
       });
       this.setState({ events });
     }

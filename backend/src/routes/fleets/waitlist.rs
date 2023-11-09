@@ -1,4 +1,4 @@
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::{BTreeMap, BTreeSet, btree_map::Entry};
 
 use rocket::serde::json::{Json, Value};
 use serde::Serialize;
@@ -22,12 +22,20 @@ struct WaitlistResponse {
 }
 
 #[derive(Debug, Serialize)]
+struct FleetHours {
+    total: i64,
+    bastion: i64
+}
+
+
+#[derive(Debug, Serialize)]
 struct WaitlistEntry {
     id: i64,
     fits: Vec<WaitlistEntryFit>,
     character: Option<Character>,
     joined_at: i64,
     can_remove: bool,
+    fleet_time: FleetHours
 }
 
 #[derive(Debug, Serialize)]
@@ -46,6 +54,29 @@ struct WaitlistEntryFit {
     fit_analysis: Option<Value>,
     is_alt: bool,
 }
+
+async fn get_time_in_fleet(db: &crate::DB, character_id: i64) -> Result<FleetHours, sqlx::Error> {
+    let result = sqlx::query!(
+        "select
+        hull,
+        cast(sum(last_seen - first_seen) as bigint) as seconds
+        from fleet_activity fa
+        left join alt_character ac on ac.alt_id = fa.character_id
+        where ac.account_id = $1 or fa.character_id = $1
+        group by hull"
+    , character_id)
+    .fetch_all(db)
+    .await?;
+
+    let total_time: i64 = result.iter().map(|rec| rec.seconds.unwrap()).sum();
+    let bastion_time: i64 = result.iter().filter(|r| r.hull == 28659 || r.hull == 28661).map(|rec| rec.seconds.unwrap()).sum();
+    let fleet_time = FleetHours{
+        total: total_time / 3600,
+        bastion: bastion_time / 3600
+    };
+    Ok(fleet_time)
+}
+
 
 #[get("/api/v2/fleets/waitlist")]
 async fn fleet_waitlist(
@@ -107,23 +138,30 @@ async fn fleet_waitlist(
     for record in records {
         let x_is_ours = record.we_account_id == account.id;
 
-        let entry = entries
-            .entry(record.we_id)
-            .or_insert_with(|| WaitlistEntry {
-                id: record.we_id,
-                fits: Vec::new(),
-                character: if x_is_ours || account.access.contains("waitlist-view") {
-                    Some(Character {
-                        id: record.char_we_id,
-                        name: record.char_we_name.clone(),
-                        corporation_id: None,
-                    })
-                } else {
-                    None
-                },
-                joined_at: record.we_joined_at,
-                can_remove: x_is_ours || account.access.contains("waitlist-manage"),
-            });
+        match entries.entry(record.we_id) {
+            Entry::Vacant(entry) => {
+                entry.insert(
+                WaitlistEntry {
+                    id: record.we_id,
+                    fits: Vec::new(),
+                    character: if x_is_ours || account.access.contains("waitlist-view") {
+                        Some(Character {
+                            id: record.char_we_id,
+                            name: record.char_we_name.clone(),
+                            corporation_id: None,
+                        })
+                    } else {
+                        None
+                    },
+                    joined_at: record.we_joined_at,
+                    can_remove: x_is_ours || account.access.contains("waitlist-manage"),
+                    fleet_time: get_time_in_fleet(app.get_db(), record.char_we_id).await?
+                });
+            },
+            Entry::Occupied(_entry) => (),
+        };
+
+        let entry = entries.get_mut(&record.we_id).unwrap();
 
         let tags = vec![];
         let mut this_fit = WaitlistEntryFit {
@@ -192,7 +230,6 @@ async fn fleet_waitlist(
 
         entry.fits.push(this_fit);
     }
-
     Ok(Json(WaitlistResponse {
         open: true,
         categories: waitlist_categories,

@@ -22,7 +22,7 @@ const Fits = styled.div`
   }
 `;
 
-const Flightstrip = ({ id, character, fits, joined_at, bossId, tab, inviteCounts, setInviteCounts }) => {
+const Flightstrip = ({ id, character, fleet_time, fits, joined_at, bossId, tab, inviteCounts, setInviteCounts }) => {
   let show = useMemo(() => {
     if(!fits) return false;
     if(tab == 'All'){
@@ -36,18 +36,9 @@ const Flightstrip = ({ id, character, fits, joined_at, bossId, tab, inviteCounts
   },
   [fits, tab])
 
-  let fleet_time = useMemo(() => {
-    let time = 0;
-    fits.forEach((fit) => {
-      if(fit.hours_in_fleet > time){
-        time = fit.hours_in_fleet;
-      }
-    })
-    return time;
-  })
   return (
     <FlightstripDOM style={{display: show ? 'grid': 'none'}}>
-      <Account {...character} fleet_time={fleet_time} />
+      <Account {...character} fleet_time={fleet_time} bastion_x={fits.filter(fit => fit.hull.name == "Paladin" || fit.hull.name == "Kronos").length > 0} />
 
       <WaitTime joined_at={joined_at} />
 

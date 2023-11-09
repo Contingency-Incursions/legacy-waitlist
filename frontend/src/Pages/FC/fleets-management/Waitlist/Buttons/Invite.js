@@ -29,7 +29,6 @@ const InviteButton = ({ fitId, isRejected, bossId, inviteCounts, onInvite }) => 
 
   if(inviteCounts[fitId] === undefined){
     onInvite({...inviteCounts, [fitId]: 0});
-    console.log(inviteCounts)
   }
 
 
