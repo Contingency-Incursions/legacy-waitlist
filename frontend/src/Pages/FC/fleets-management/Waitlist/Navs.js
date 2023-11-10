@@ -6,6 +6,8 @@ const Badge = styled(BaseBadge)`
   border-radius: 12px;
   margin-left: 5px;
   font-size: 13px;
+  font-family: ${(props) => props.theme.font.family};
+  font-weight: 400;
 `;
 
 const Tabs = styled.div`
