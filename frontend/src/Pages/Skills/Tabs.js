@@ -47,7 +47,7 @@ const ShipsContainer = styled.div`
 const Tabs = ({ selectedHull, ships }) => {
   const [ data ] = useApi(`/api/module/preload`);
   const queryParams = new URLSearchParams(useLocation().search);
-  const history = useNavigate();
+  const navigate = useNavigate();
 
   const items = {};
   Object.keys(data ?? {})?.forEach((key) => {
@@ -66,7 +66,7 @@ const Tabs = ({ selectedHull, ships }) => {
 
   const onClick = (hull) => {
     queryParams.set("hull", hull);
-    history.push({
+    navigate({
       search: queryParams.toString()
     })
   }

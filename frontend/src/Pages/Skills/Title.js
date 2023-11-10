@@ -23,11 +23,11 @@ const StarterHulls = ['Megathron', 'Apocalypse Navy Issue'];
 
 const Title = ({ hull, mastery }) => {
   const queryParams = new URLSearchParams(useLocation().search);
-  const history = useNavigate();
+  const navigate = useNavigate();
 
   const onClick = (mastery) => {
     queryParams.set("mastery", mastery);
-    history.push({
+    navigate({
       search: queryParams.toString()
     });
   }
