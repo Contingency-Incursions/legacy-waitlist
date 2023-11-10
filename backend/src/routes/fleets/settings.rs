@@ -49,8 +49,8 @@ async fn get_fleet(
             COUNT(DISTINCT fa.character_id) as size
         FROM fleet
         JOIN character as fc ON fc.id=fleet.boss_id
-        LEFT JOIN fleet_activity as fa ON fa.fleet_id=fleet.id
-        WHERE fleet.id = $1 and fa.has_left = false
+        LEFT JOIN fleet_activity as fa ON fa.fleet_id=fleet.id and fa.has_left = false
+        WHERE fleet.id = $1
         GROUP BY fleet.id, fc.id",
         fleet_id
     )
