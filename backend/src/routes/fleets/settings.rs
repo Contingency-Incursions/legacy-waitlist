@@ -94,7 +94,7 @@ async fn set_boss(
     if let Some(_) = sqlx::query!("SELECT * FROM fleet WHERE id=$1", fleet_id)
     .fetch_optional(app.get_db())
     .await? {
-        sqlx::query!("UPDATE fleet SET boss_id=$1 WHERE id=$2", body.fleet_boss, fleet_id)
+        sqlx::query!("UPDATE fleet SET boss_id=$1, error_count=0 WHERE id=$2", body.fleet_boss, fleet_id)
         .execute(app.get_db())
         .await?;
     }
