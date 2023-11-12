@@ -6,7 +6,7 @@ import { Button } from "./components";
 import { Card, Details, Feature } from "./components";
 import { CharacterName } from "../../../../Components/EntityLinks";
 
-const FleetBoss = ({ fleetBoss = {}, fleetId, fleetSystem }) => {
+const FleetBoss = ({ fleetBoss = {}, fleetId, fleetSystem, error_count }) => {
   const authContext = useContext(AuthContext);
   const toastContext = useContext(ToastContext);
 
@@ -39,12 +39,18 @@ const FleetBoss = ({ fleetBoss = {}, fleetId, fleetSystem }) => {
         <Details>
           <p>Fleet Boss</p>
           <div>
-            <CharacterName
+            {(!error_count || error_count < 10) && (<CharacterName
               id={fleetBoss.id ?? 1}
               avatar={false}
               name={fleetBoss.name ?? ''}
               noLink={!fleetBoss.id}
-            />
+            />)}
+            {error_count && error_count >= 10 && (
+              <>
+                <p>Fleet error, please reset boss</p>
+              </>
+            )}
+
             <Button onClick={handleClick} />
           </div>
         </Details>

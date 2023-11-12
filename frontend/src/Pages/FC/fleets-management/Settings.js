@@ -125,7 +125,7 @@ const FleetSettings = ({ fleetId, xups }) => {
 
   return (
     <SettingsDOM>
-      <FleetBoss fleetBoss={settings?.boss} fleetSystem={settings?.boss_system} fleetId={fleetId} />
+      <FleetBoss fleetBoss={settings?.boss} fleetSystem={settings?.boss_system} error_count={settings?.error_count} fleetId={fleetId} />
       <FleetVisibilty visible={settings?.visible} fleetId={fleetId} />
       <FleetSize size={settings?.size} max_size={settings?.size_max} fleetId={fleetId} />
       <WaitlistSummary xups={xups} />

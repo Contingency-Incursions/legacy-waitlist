@@ -12,7 +12,8 @@ struct FleetSettings {
     boss_system: Option<System>,
     size: i64,
     size_max: i64,
-    visible: bool
+    visible: bool,
+    error_count: i64
 }
 
 #[derive(Debug, Deserialize)]
@@ -46,6 +47,7 @@ async fn get_fleet(
             fc.id as boss_id,
             fc.name  as boss_name,
             fleet.max_size,
+            fleet.error_count,
             COUNT(DISTINCT fa.character_id) as size
         FROM fleet
         JOIN character as fc ON fc.id=fleet.boss_id
@@ -74,7 +76,8 @@ async fn get_fleet(
             },
             size: fleet.size.unwrap(),
             size_max: fleet.max_size,
-            visible: fleet.visible
+            visible: fleet.visible,
+            error_count: fleet.error_count
         }))
     }
 

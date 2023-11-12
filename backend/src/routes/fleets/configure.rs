@@ -18,7 +18,8 @@ struct FleetSummary {
     boss_system: Option<System>,
     is_listed: bool,
     size: i64,
-    size_max: i64
+    size_max: i64,
+    error_count: i64
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -55,6 +56,7 @@ async fn fleets(
             fc.id as boss_id,
             fc.name  as boss_name,
             fleet.max_size,
+            fleet.error_count,
             COUNT(DISTINCT fa.character_id) as size
         FROM
             fleet
@@ -85,7 +87,8 @@ async fn fleets(
             },
             is_listed: row.visible,
             size: row.size.unwrap(),
-            size_max: row.max_size
+            size_max: row.max_size,
+            error_count: row.error_count
         }
     })
     .collect();
