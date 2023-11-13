@@ -88,6 +88,7 @@ impl FleetUpdater {
                 | esi::ESIError::MissingScope
                 | esi::ESIError::WithMessage(403, _)
             ) => {
+
                 // The FC does not have permission to access this fleet. Set error_count = 10 so we stop updating this fleet
                 sqlx::query!(
                     "UPDATE fleet SET error_count=$1 WHERE id=$2",
@@ -97,6 +98,7 @@ impl FleetUpdater {
                 .execute(self.get_db())
                 .await?;
 
+                sentry::capture_message(&format!("Access denied for fleet {}. Fleet {} will no longer be updated.", fleet_id, fleet_id), sentry::Level::Warning);
                 warn!("Access denied for fleet {}. Fleet {} will no longer be updated.", fleet_id, fleet_id);
 
                 return Ok(());
@@ -104,6 +106,7 @@ impl FleetUpdater {
             Err(
                 esi::ESIError::WithMessage(404, _)
             ) => {
+                sentry::capture_message(&format!("Fleet {} no longer exists. Removing it from the database.", fleet_id), sentry::Level::Warning);
                 // Fleet no longer exists we need to remove it from the database
                 warn!("Fleet {} no longer exists. Removing it from the database.", fleet_id);
 
@@ -129,6 +132,7 @@ impl FleetUpdater {
                 return Ok(());
             }
             Err(e) => {
+                sentry::capture_error(&e);
                 warn!("Fleet {} error counter {}", fleet_id, fleet.error_count + 1);
 
                 sqlx::query!("UPDATE fleet SET error_count=$1 WHERE id=$2", fleet.error_count + 1, fleet_id)
