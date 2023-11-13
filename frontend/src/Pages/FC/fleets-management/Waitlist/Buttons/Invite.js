@@ -1,4 +1,4 @@
-import { useContext, useState } from "react"
+import { useContext, useState, useMemo } from "react"
 import { apiCall, errorToaster } from "../../../../../api";
 import { ToastContext } from "../../../../../contexts"
 import { Button } from "./Button";
@@ -22,15 +22,19 @@ const InviteButton = ({ fitId, isRejected, bossId, inviteCounts, onInvite }) => 
       invite(fitId, bossId)
       .finally(_ => {
         isPending(false);
-        onInvite({...inviteCounts, [fitId]: (inviteCounts[fitId] + 1)});
+        onInvite({...inviteCounts, [fitId]: (localInviteCount + 1)});
       })
     );
   }
 
-  if(inviteCounts[fitId] === undefined){
-    onInvite({...inviteCounts, [fitId]: 0});
-  }
-
+  const localInviteCount = useMemo(() => {
+    if(inviteCounts[fitId] === undefined){
+      return 0;
+    } else {
+      return inviteCounts[fitId]
+    }
+  
+  }, [inviteCounts])
 
   return (
     <>
@@ -41,7 +45,7 @@ const InviteButton = ({ fitId, isRejected, bossId, inviteCounts, onInvite }) => 
         disabled={isRejected || pending}
         onClick={handleClick}
       >
-         <FontAwesomeIcon fixedWidth icon={!pending ? faPaperPlane : faSpinner} spin={pending} /> {inviteCounts[fitId]}
+         <FontAwesomeIcon fixedWidth icon={!pending ? faPaperPlane : faSpinner} spin={pending} /> {localInviteCount}
       </Button>
     </>
   )
