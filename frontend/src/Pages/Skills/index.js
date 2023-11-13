@@ -32,8 +32,7 @@ const Skills = () => {
   />
 }
 
-const SkillsModal = ({ character, hull, open, setOpen }) => {
-  const [ skills ] = useApi(`/api/skills?character_id=${character.id}`);
+const SkillsModal = ({ character, hull, open, setOpen, skills }) => {
   const [ mastery, setMastery ] = useState('elite');
 
   return (

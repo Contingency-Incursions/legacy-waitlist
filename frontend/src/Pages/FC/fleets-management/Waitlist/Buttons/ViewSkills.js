@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStream } from "@fortawesome/free-solid-svg-icons";
 import { SkillsModal } from "../../../../Skills";
 
-const ViewSkills = ({ character }) => {
+const ViewSkills = ({ character, skills }) => {
   const [ open, setOpen ] = useState(false);
 
   return (
@@ -17,7 +17,7 @@ const ViewSkills = ({ character }) => {
         <FontAwesomeIcon fixedWidth icon={faStream} />
       </Button>
 
-      <SkillsModal character={character} hull={'Eos'} open={open} setOpen={setOpen} />
+      <SkillsModal character={character} hull={'Eos'} open={open} setOpen={setOpen} skills={skills} />
     </>
   )
 }

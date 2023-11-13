@@ -10,6 +10,7 @@ import Invite from "./Buttons/Invite";
 import FitModal from "./FitModal";
 import RejectFit from "./Buttons/RejectFit";
 import MessagePilot from "./Buttons/MessagePilot";
+import { useApi } from "../../../../api";
 
 const FitCardDOM = styled.div`
   display: flex;
@@ -130,6 +131,7 @@ const FitState = ({ state, review_comment }) => {
 const IMAGE_SERVER_URL = 'https://images.evetech.net/';
 
 const FitCard = ({ fit, bossId, tab, inviteCounts, onInvite }) => {
+  const [skills] = useApi(`/api/skills?character_id=${fit.character.id}`);
   const BadgeContainer = ({ tags }) => {
     const badges = [
       'LOGI',
@@ -147,7 +149,7 @@ const FitCard = ({ fit, bossId, tab, inviteCounts, onInvite }) => {
       </BadgeContainerDOM>
     )
   }
-  const ImageContainer = ({ character, hull }) => {
+  const ImageContainer = ({ character, hull, skills }) => {
     const [ open, setOpen ] = useState(false);
     return (
       <ImageContainerDOM>
@@ -163,12 +165,12 @@ const FitCard = ({ fit, bossId, tab, inviteCounts, onInvite }) => {
           alt={character?.name ?? 'Unknown Pilot'}
           onClick={_ => setOpen(true)}
         />
-        <FitModal fit={fit} open={open} setOpen={setOpen} />
+        <FitModal fit={fit} open={open} setOpen={setOpen} skills={skills} />
       </ImageContainerDOM>
     )
   }
 
-  const ContentContainer = ({ character, fit_analysis, id, tags, bossId, inviteCounts, onInvite }) => {
+  const ContentContainer = ({ character, fit_analysis, id, tags, bossId, inviteCounts, onInvite, skills }) => {
     const ALLOWED_TAGS = [
       'NO-EM-806',
       'SLOW',
@@ -198,7 +200,7 @@ const FitCard = ({ fit, bossId, tab, inviteCounts, onInvite }) => {
 
           <RemoveFit fitId={id} />
           <ShowInfo {...character} />
-          <ViewSkills character={character} hull={fit?.hull} />
+          <ViewSkills character={character} hull={fit?.hull} skills={skills} />
           <ViewProfile {...character} />
           <MessagePilot fitId={id} />
           <RejectFit fitId={id} isRejected={fit.state === 'rejected'} />
@@ -229,8 +231,8 @@ const FitCard = ({ fit, bossId, tab, inviteCounts, onInvite }) => {
 
   return (
     <FitCardDOM variant={FitState(fit)} style={{ display: show ? 'flex' : 'none'}}>
-      <ImageContainer character={fit?.character} hull={fit.hull} />
-      <ContentContainer {...fit} bossId={bossId} inviteCounts={inviteCounts} onInvite={onInvite} />
+      <ImageContainer character={fit?.character} hull={fit.hull} skills={skills} />
+      <ContentContainer {...fit} bossId={bossId} inviteCounts={inviteCounts} onInvite={onInvite} skills={skills} />
       <div className='grey' />
     </FitCardDOM>
   )

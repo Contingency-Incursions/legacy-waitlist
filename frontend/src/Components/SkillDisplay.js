@@ -1,4 +1,3 @@
-import { useApi } from "../api";
 import { Badge } from "./Badge";
 import { InputGroup, Button, Buttons, AButton } from "./Form";
 import { Col, Row } from "react-awesome-styled-grid";
@@ -159,9 +158,7 @@ export function SkillList({ mySkills, shipName, filterMin }) {
 
 export function Legend() {}
 
-export function SkillDisplay({ characterId, ship, setShip = null, filterMin = false }) {
-  const [skills] = useApi(`/api/skills?character_id=${characterId}`);
-
+export function SkillDisplay({ ship, skills, setShip = null, filterMin = false }) {
   return (
     <>
       {setShip != null && (

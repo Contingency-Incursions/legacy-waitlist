@@ -23,7 +23,7 @@ async function rejectFit(id, review_comment) {
   });
 }
 
-const FitModal = ({ fit, open, setOpen }) => {
+const FitModal = ({ fit, open, setOpen, skills }) => {
   const toastContext = useContext(ToastContext);
   const [ acceptPending, isAcceptPending ] = useState(false);
   const [ rejectPending, isRejectPending ] = useState(false);
@@ -69,7 +69,7 @@ const FitModal = ({ fit, open, setOpen }) => {
         { fit.tags.includes("STARTER") && (
           <>
             <Title>Starter Skills</Title>
-            <SkillDisplay characterId={fit.character.id} ship={fit.hull.name} filterMin />
+            <SkillDisplay characterId={fit.character.id} ship={fit.hull.name} filterMin skills={skills} />
           </>
         )}
       </Box>

@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { ToastContext, AuthContext } from "../../contexts";
-import { apiCall, errorToaster } from "../../api";
+import { apiCall, errorToaster, useApi } from "../../api";
 import { TimeDisplay } from "./TimeDisplay.js";
 import BadgeIcon, { Badge, icons } from "../../Components/Badge";
 import { Modal } from "../../Components/Modal";
@@ -126,6 +126,7 @@ XCardDOM.ReviewComment = styled.div`
 
 function ShipDisplay({ fit, onAction }) {
   const [modalOpen, setModalOpen] = React.useState(false);
+  const [skills] = useApi(`/api/skills?character_id=${fit.character.id}`);
 
   const namePrefix = fit.character ? `${fit.character.name}'s ` : "";
   if (fit.dna && fit.hull) {
@@ -142,6 +143,7 @@ function ShipDisplay({ fit, onAction }) {
                     characterId={fit.character.id}
                     ship={fit.hull.name}
                     filterMin={true}
+                    skills={skills}
                   />
                 </>
               ) : null}

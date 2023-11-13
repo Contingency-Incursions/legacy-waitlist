@@ -13,6 +13,7 @@ const WaitlistDOM = styled.div`
 const Waitlist = ({ fleetId, xup }) => {
   const [ tab, setTab ] = useState('All');
   const [inviteCounts, setInviteCounts] = useState({});
+  const [skills, setSkills] = useState({});
   const [ settings ] = useApi(`/api/v2/fleets/${fleetId}`);
 
   let bossId = useMemo(() => {
@@ -49,6 +50,8 @@ const Waitlist = ({ fleetId, xup }) => {
       tab={tab} 
       inviteCounts={inviteCounts} 
       setInviteCounts={setInviteCounts} 
+      skills={skills}
+      setSkills={setSkills}
       />)}
     </WaitlistDOM>
   )
