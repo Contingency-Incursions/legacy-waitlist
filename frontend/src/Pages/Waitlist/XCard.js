@@ -124,16 +124,12 @@ XCardDOM.ReviewComment = styled.div`
   color: ${(props) => props.theme.colors.secondary.text};
 `;
 
-function ShipDisplay({ fit, onAction }) {
-  const [modalOpen, setModalOpen] = React.useState(false);
+function ShipModalDisplay({fit, setModalOpen}) {
   const [skills] = useApi(`/api/skills?character_id=${fit.character.id}`);
 
-  const namePrefix = fit.character ? `${fit.character.name}'s ` : "";
-  if (fit.dna && fit.hull) {
-    return (
-      <>
-        {modalOpen ? (
-          <Modal open={true} setOpen={setModalOpen}>
+  return (
+    <>
+    <Modal open={true} setOpen={setModalOpen}>
             <Box>
               <FitDisplay fit={fit} />
               {fit.tags.includes("STARTER") ? (
@@ -149,6 +145,18 @@ function ShipDisplay({ fit, onAction }) {
               ) : null}
             </Box>
           </Modal>
+    </>
+  )
+}
+
+function ShipDisplay({ fit, onAction }) {
+  const [modalOpen, setModalOpen] = React.useState(false);
+  const namePrefix = fit.character ? `${fit.character.name}'s ` : "";
+  if (fit.dna && fit.hull) {
+    return (
+      <>
+        {modalOpen ? (
+          <ShipModalDisplay fit={fit} setModalOpen={setModalOpen} />
         ) : null}
         <a onClick={(evt) => setModalOpen(true)}>
           <img
