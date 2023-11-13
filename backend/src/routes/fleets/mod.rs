@@ -4,6 +4,7 @@ mod comp;
 mod notify;
 mod settings;
 mod waitlist;
+mod historic;
 
 pub fn routes() -> Vec<rocket::Route> {
     [
@@ -11,7 +12,8 @@ pub fn routes() -> Vec<rocket::Route> {
         configure::routes(),
         comp::routes(),
         settings::routes(),
-        waitlist::routes()
+        waitlist::routes(),
+        historic::routes()
     ]
     .concat()
 }

@@ -37,7 +37,7 @@ itertools = "*"
 Inflector = "0.11.4"
 bigdecimal = { version = "*", features = ["serde"] }
 dotenv = "*"
-sentry = "*"
+sentry = {version = "*", features = ["debug-images"] }
 
 [features]
 default = ["postgres"]
