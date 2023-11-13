@@ -208,7 +208,7 @@ export function XCard({ entry, fit, onAction }) {
     }
   });
 
-  const approvalFlag = fit.approved ? null : (
+  const approvalFlag = fit.state == 'approved' ? null : (
     <span title="Pending approval">
       <FontAwesomeIcon icon={faExclamationTriangle} />
     </span>
