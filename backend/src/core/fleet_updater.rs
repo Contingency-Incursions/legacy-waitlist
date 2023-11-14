@@ -131,6 +131,12 @@ impl FleetUpdater {
 
                 return Ok(());
             }
+            Err(
+                esi::ESIError::WithMessage(500, _)
+            ) => {
+                warn!("Fleet {} 500 Error on CCP end", fleet_id);
+                return Ok(());
+            }
             Err(e) => {
                 sentry::capture_error(&e);
                 warn!("Fleet {} error counter {}", fleet_id, fleet.error_count + 1);
