@@ -74,7 +74,7 @@ const Fleet = ({ fleetBoss, fleetId, myFleet = false }) => {
       bastion: { id: 'bastion', name: 'Marauders', ships: []},
       sniper: {id: 'sniper', name: 'Sniper', ships: []},
       starter: {id: 'starter', name: 'Starter', ships: []},
-      alts: {id: 'alts', name: 'Alts', ships: []},
+      alt: {id: 'alt', name: 'Alts', ships: []},
       boxer: {id: 'boxer', name: 'Boxers', ships: []},
       off_grid: {id: 'off_grid', name: 'Off Grid', ships: []}
     }
