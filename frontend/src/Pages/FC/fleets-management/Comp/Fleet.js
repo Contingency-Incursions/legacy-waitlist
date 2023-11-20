@@ -15,9 +15,7 @@ const HullContainerDOM = styled.div`
 
 const Fleet = ({ fleetBoss, fleetId, myFleet = false }) => {
   const eventContext = useContext(EventContext);
-  const [ activeTab, selectTab ] = useState('all');
-
-  const [ rules ] = useApi('/api/categories/rules');
+  const [ activeTab, selectTab ] = useState('on_grid');
   const [ pilots, refresh ] = useApi(`/api/v2/fleets/${fleetId}/comp`);
 
   useEffect(() => {
@@ -45,48 +43,75 @@ const Fleet = ({ fleetBoss, fleetId, myFleet = false }) => {
           name: p.hull.name,
           pilots: [{
             id: p.character.id,
-            name: p.character.name
+            name: p.character.name,
+            badges: p.position.badges,
+            squad: p.position.squad,
+            wing: p.position.wing,
+            is_alt: p.position.is_alt
           }]
         }
       }
       else {
-        _fleet[p.hull.id].pilots.push(p.character)
+        _fleet[p.hull.id].pilots.push({
+          id: p.character.id,
+          name: p.character.name,
+          badges: p.position.badges,
+          squad: p.position.squad,
+          wing: p.position.wing,
+          is_alt: p.position.is_alt
+        })
       }
     })
     return _fleet
   }, [pilots]);
 
 
-  const categories = {
-    all: { id: 'all', name: 'All', ships: []},
-    logi: { id: 'logi', name: 'Logistics', ships: []},
-    cqc: { id: 'cqc', name: 'CQC', ships: []},
-    bastion: { id: 'bastion', name: 'Marauders', ships: []},
-  };
-
-  let rules_dict = Object.fromEntries(rules ?? []);
-
-  Object.keys(fleet).forEach(key => {
-    categories.all.ships.push(fleet[key]);
-    if (rules_dict[key]) {
-      let cat = rules_dict[key]
-      if(categories[cat] !== undefined && categories[cat] !== null){
-        categories[cat].ships.push(fleet[key]);
-      }
+  const categories = useMemo(() => {
+    let _categories = {
+      on_grid: { id: 'on_grid', name: 'On Grid', ships: []},
+      logi: { id: 'logi', name: 'Logistics', ships: []},
+      cqc: { id: 'cqc', name: 'CQC', ships: []},
+      bastion: { id: 'bastion', name: 'Marauders', ships: []},
+      sniper: {id: 'sniper', name: 'Sniper', ships: []},
+      starter: {id: 'starter', name: 'Starter', ships: []},
+      alts: {id: 'alts', name: 'Alts', ships: []},
+      boxer: {id: 'boxer', name: 'Boxers', ships: []},
+      off_grid: {id: 'off_grid', name: 'Off Grid', ships: []}
     }
-  })
+    Object.keys(_categories).forEach(key => {
+      let category = _categories[key];
+      Object.keys(fleet).forEach(ship_key => {
+        let ship = structuredClone(fleet[ship_key]);
+        if(category.id == 'on_grid' || category.id == 'off_grid'){
+          ship.pilots = ship.pilots.filter((p) => p.wing == category.name)
+        } else {
+          ship.pilots = ship.pilots.filter((p) => p.squad == category.id)
+        }
+        if(ship.pilots.length > 0){
+          _categories[key].ships.push(ship);
+        }
+      })
+    })
+    return _categories;
+  }, [fleet])
 
 
-  let hulls = [];
-  if (categories[activeTab]) {
-    hulls = categories[activeTab].ships;
-  }
 
-  hulls = hulls.sort((a, b) => {
-    if (a.pilots.length > b.pilots.length) return -1;
-    if (b.pilots.length > a.pilots.length) return 1;
-    return a.name.localeCompare(b.name);
-  });
+  let hulls = useMemo(() => {
+    let _hulls = []
+    if (categories[activeTab]) {
+      _hulls = categories[activeTab].ships;
+    }
+    _hulls = _hulls.sort((a, b) => {
+      if (a.pilots.length > b.pilots.length) return -1;
+      if (b.pilots.length > a.pilots.length) return 1;
+      return a.name.localeCompare(b.name);
+    });
+    return _hulls;
+  }, [activeTab, categories])
+
+
+
 
 
   return (
@@ -107,12 +132,12 @@ const Fleet = ({ fleetBoss, fleetId, myFleet = false }) => {
       />
 
       <HullContainerDOM>
-      { hulls.map((hull, key) => {
+      { hulls.map((hull) => {
         return <Ship
           typeId={hull.id}
           name={hull.name}
           characters={hull.pilots}
-          key={key}
+          key={hull.pilots}
         />
       })}
       </HullContainerDOM>

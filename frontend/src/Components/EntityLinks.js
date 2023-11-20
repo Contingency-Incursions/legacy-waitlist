@@ -24,6 +24,7 @@ const A = styled.a`
     color: ${(props) => props.theme.colors.highlight.active};
     transition: ease-in-out 0.15s;
   }
+  padding-right: 5px;
 
   & + svg {
     margin-left: 5px;
