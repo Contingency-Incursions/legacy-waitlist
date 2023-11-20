@@ -43,8 +43,6 @@ const Tabs = styled.div`
 
 
 const Navs = ({ categories = [], activeTab, tabVariant = 'primary', onClick }) => {
-  categories = categories?.filter(cat => cat.id !== 'alt');
-
   const Button = ({ id, name, count }) => {
     return <button className={id === activeTab ? 'active' : null} onClick={_ => onClick(id)}>
       {name}
