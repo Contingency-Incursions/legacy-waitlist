@@ -39,12 +39,12 @@ notes:
       The EM-806 implant is required, the RA-706 and HS-906 are recommended all other implants are optional. Consider checking the regional market for event drugs which improve your armour HP or resists.
 
   ## Vindicators
-  - name: CI Vindicator Elite Amulet
+  - name: CI Web Specialist Vindicator Amulet
     description: >
-      You need to be a Web Specialist to use this ship after 130h.
-  - name: CI Vindicator Elite
+      You need to be a Web Specialist to use this ship after 130h. You can opt to swap the MJD for a 4th web, but the MJD must remain in your cargo if you need to switch
+  - name: CI Web Specialist Vindicator
     description: >
-      You need to be a Web Specialist to use this ship after 130h.
+      You need to be a Web Specialist to use this ship after 130h. You can opt to swap the MJD for a 4th web, but the MJD must remain in your cargo if you need to switch
 
   - name: CI Vindicator T1 Antigank
     description: >

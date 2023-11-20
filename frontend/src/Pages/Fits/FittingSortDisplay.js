@@ -211,7 +211,7 @@ function ShipDisplay({ fit, id, note }) {
                 <Markdown>{note}</Markdown>
               </Note>
             ) : null}
-            {fit.name.toLowerCase().indexOf("hybrid") !== -1 ? (
+            {fit.name.toLowerCase().indexOf("amulet") !== -1 ? (
               <Note variant={"danger"}>
                 <p>This fit requires slot 1-5 Amulet implants. Click the implant button above for details.</p>
               </Note>
