@@ -36,9 +36,18 @@ const Flightstrip = ({ id, character, fleet_time, fits, joined_at, bossId, tab, 
   },
   [fits, tab])
 
+  const tags = useMemo(() => {
+    return [...new Set(fits.map(fit => fit.tags).reduce((a, b) => a.concat(b), []))];
+  }, [fits])
+
   return (
     <FlightstripDOM style={{display: show ? 'grid': 'none'}}>
-      <Account {...character} fleet_time={fleet_time} bastion_x={fits.filter(fit => fit.hull.name == "Paladin" || fit.hull.name == "Kronos").length > 0} />
+      <Account 
+      {...character} 
+      fleet_time={fleet_time} 
+      bastion_x={fits.filter(fit => fit.hull.name == "Paladin" || fit.hull.name == "Kronos" || fit.hull.name == 'Vargur').length > 0} 
+      tags={tags}
+      />
 
       <WaitTime joined_at={joined_at} />
 

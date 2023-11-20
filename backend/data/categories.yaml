@@ -32,6 +32,8 @@ rules:
     category: logi
   - item: Nestor
     category: logi
+  - item: Loki
+    category: logi
   # Bastion
   - item: Bastion Module I
     category: bastion

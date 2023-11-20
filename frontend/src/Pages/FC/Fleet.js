@@ -16,7 +16,7 @@ import { usePageTitle } from "../../Util/title";
 import _ from "lodash";
 
 const marauders = ["Paladin", "Kronos"];
-const logi = ["Nestor", "Guardian", "Oneiros"];
+const logi = ["Nestor", "Guardian", "Oneiros", "Loki"];
 const bad = ["Megathron", "Nightmare"];
 
 async function setWaitlistOpen(waitlistId, isOpen) {

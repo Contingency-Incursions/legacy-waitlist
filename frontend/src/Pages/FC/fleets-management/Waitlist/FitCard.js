@@ -134,7 +134,6 @@ const FitCard = ({ fit, bossId, tab, inviteCounts, onInvite }) => {
   const [skills] = useApi(`/api/skills?character_id=${fit.character.id}`);
   const BadgeContainer = ({ tags }) => {
     const badges = [
-      'LOGI',
       'BASTION',
       'WEB',
       'ELITE',
@@ -176,7 +175,9 @@ const FitCard = ({ fit, bossId, tab, inviteCounts, onInvite }) => {
       'SLOW',
       'STARTER',
       'UPGRADE-HOURS-REACHED',
-      'ELITE-HOURS-REACHED'
+      'ELITE-HOURS-REACHED',
+      "AT-WAR",
+      "FACTION-WAR"
     ];
 
     tags = tags.filter(tag => ALLOWED_TAGS.includes(tag));

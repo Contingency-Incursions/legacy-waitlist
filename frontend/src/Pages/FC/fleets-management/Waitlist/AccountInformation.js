@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { Badge } from "../../../../Components/Badge";
+import BadgeIcon, { Badge } from  "../../../../Components/Badge";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faExclamationTriangle } from "@fortawesome/free-solid-svg-icons";
 import { TotalFleetTime } from "./Timestamps";
@@ -38,7 +38,19 @@ const AccountDOM = styled.div`
   }
 `;
 
-const Account = ({ id, name, fleet_time, bastion_x }) => {
+const Account = ({ id, name, fleet_time, bastion_x, tags }) => {
+
+  const badges = [
+    'LEADERSHIP',
+    'INSTRUCTOR',
+    "HQ-FC",
+    'TRAINEE',
+    'LOGI',
+    'RETIRED-LOGI'
+  ];
+
+  tags = tags.filter(tag => badges.includes(tag));
+
   return (
     <AccountDOM>
       <div>
@@ -46,7 +58,9 @@ const Account = ({ id, name, fleet_time, bastion_x }) => {
         <div>
           <p>{name}</p>
           <div className="details-wrapper">
-            {/* <BadgeIcon type="INSTRUCTOR" /> */}
+          {tags.map((tag) => (
+                <BadgeIcon type={tag} key={tag} />
+          ))}
             { fleet_time?.total < 1 && (
               <FontAwesomeIcon fixedWidth icon={faExclamationTriangle} data-tooltip-id="tip" data-tooltip-html="New to CI" />
             )}

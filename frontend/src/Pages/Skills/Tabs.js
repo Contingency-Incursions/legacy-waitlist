@@ -87,7 +87,7 @@ const Tabs = ({ selectedHull, ships }) => {
       ];
 
       var keys = Object.keys(ships ?? {});
-      keys = keys.filter((k) => !k.startsWith('_'));
+      keys = keys.filter((k) => !k.startsWith('_') && !k.startsWith('Loki'));
       keys = keys.sort((a,b) => sort_order.indexOf(a) - sort_order.indexOf(b))
       return keys;
     },

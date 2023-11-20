@@ -132,7 +132,7 @@ function ShipModalDisplay({fit, setModalOpen}) {
     <Modal open={true} setOpen={setModalOpen}>
             <Box>
               <FitDisplay fit={fit} />
-              {fit.tags.includes("STARTER") ? (
+              {(fit.tags.includes("STARTER") || fit.tags.includes("STARTER-SKILLS")) ? (
                 <>
                   <Title>Starter skills</Title>
                   <SkillDisplay
