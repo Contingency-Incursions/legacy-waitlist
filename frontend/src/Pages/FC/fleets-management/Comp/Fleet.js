@@ -132,12 +132,12 @@ const Fleet = ({ fleetBoss, fleetId, myFleet = false }) => {
       />
 
       <HullContainerDOM>
-      { hulls.map((hull) => {
+      { hulls.map((hull, key) => {
         return <Ship
           typeId={hull.id}
           name={hull.name}
           characters={hull.pilots}
-          key={hull.pilots}
+          key={key}
         />
       })}
       </HullContainerDOM>
