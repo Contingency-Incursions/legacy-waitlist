@@ -44,7 +44,7 @@ jobs:
 
       - name: Docker Build
         working-directory: ./backend
-        run: docker build --network host --build-arg "--build-arg "DATABASE_PASSWORD=${{ secrets.PG_PASSWORD }}" -t $COMPONENT .
+        run: docker build --network host --build-arg "DATABASE_PASSWORD=${{ secrets.PG_PASSWORD }}" -t $COMPONENT .
 
       - name: Docker Push
         run: |
