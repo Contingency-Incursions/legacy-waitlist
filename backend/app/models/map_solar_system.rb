@@ -1,0 +1,2 @@
+class MapSolarSystem < ApplicationRecord
+end

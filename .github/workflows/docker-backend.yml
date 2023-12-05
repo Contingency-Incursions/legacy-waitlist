@@ -16,7 +16,7 @@ jobs:
       packages: write    
     strategy:
       matrix:
-        build: ["release", "dev"]
+        build: ["release"]
     services:
       database:
         image: postgres:16
@@ -44,7 +44,7 @@ jobs:
 
       - name: Docker Build
         working-directory: ./backend
-        run: docker build --network host --build-arg "PROFILE=${{ matrix.build }}" --build-arg "DATABASE_PASSWORD=${{ secrets.PG_PASSWORD }}" -t $COMPONENT .
+        run: docker build --network host --build-arg "--build-arg "DATABASE_PASSWORD=${{ secrets.PG_PASSWORD }}" -t $COMPONENT .
 
       - name: Docker Push
         run: |
