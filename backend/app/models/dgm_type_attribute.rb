@@ -1,2 +1,0 @@
-class DgmTypeAttribute < ApplicationRecord
-end

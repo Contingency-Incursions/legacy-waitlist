@@ -1,0 +1,22 @@
+{
+  "version": "2.0.0",
+  "options": {
+    "env": {
+      "DATABASE_ENGINE": "postgresql",
+      "DATABASE_URL": "postgres://postgres:mz1Evn26jQqVVT1C]ZjrGJjtw.K^BN@localhost:5433/waitlist_dev"
+    },
+    "cwd": "${workspaceFolder}"
+  },
+  "tasks": [
+    {
+      "label": "Build API",
+      "type": "shell",
+      "command": "cargo",
+      "args": [
+        "build",
+        "--no-default-features",
+        "--features=postgres"
+      ],
+    }
+  ]
+}
