@@ -196,6 +196,7 @@ GEM
       psych (>= 4.0.0)
     reline (0.4.0)
       io-console (~> 0.5)
+    ruby-prof (1.6.3-x64-mingw-ucrt)
     ruby2_keywords (0.0.5)
     rubyzip (2.3.2)
     stringio (3.0.9)
@@ -230,6 +231,7 @@ DEPENDENCIES
   rack (~> 3)
   rack-cors
   rails (~> 7.1)
+  ruby-prof
   rubyzip
   tzinfo-data
   zxcvbn-ruby

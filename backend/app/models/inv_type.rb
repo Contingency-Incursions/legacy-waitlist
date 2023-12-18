@@ -16,7 +16,7 @@ class InvType < ApplicationRecord
       'high'
     elsif cached_effects.find {|e| e.effectID == 2663}.present? # Rig
       'rig'
-    elsif cached_group.groupID == 18 # Drone
+    elsif cached_group.categoryID == 18 # Drone
       'drone'
     else
       nil

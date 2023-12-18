@@ -64,5 +64,10 @@ module BackendNew
     }
 
     config.good_job.enable_cron = true
+    config.good_job.execution_mode = :external
+
+    if Rails.env.development?
+      config.middleware.use Rack::RubyProf, :path => './tmp/profile'
+    end
   end
 end

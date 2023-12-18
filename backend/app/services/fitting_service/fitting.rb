@@ -64,44 +64,31 @@ module FittingService
       def from_dna(dna)
         pieces = dna.split(':')
         hull = pieces.first.to_i # assumes the first element of dna is an integer
-        modules = Hash.new(0)
-        cargo = Hash.new(0)
 
-        lines = []
-        pieces[1..-1].each do |piece|
+        line_data = pieces[1..-1].map do |piece|
           next if piece.empty?
-
-          type_id_str, count_str = piece.split(';', 2)
-          type_id = type_id_str.chomp('_').to_i
-
+          type_id, count_str = piece.split(';', 2)
+          type_id = type_id.chomp('_').to_i
           count = count_str ? count_str.to_i : 1
+          is_cargo = piece.end_with?('_')
+          [type_id, count, is_cargo]
+        end.compact
 
-          lines << [type_id, count, type_id_str]
-        end
+        type_ids = line_data.map { |type, _, _| type }
+        db_types = InvTypesService.load_types(type_ids, with_groups: true)
 
-        db_types = InvTypesService.load_types(lines.map{|l| l[0]}, with_groups: true)
-
-        lines.each do |line|
-          is_cargo = if line[2].end_with?('_')
-                       true
-                     else
-                       loaded_type = db_types[line[0]]
-                       loaded_type&.is_always_cargo
-                     end
-
+        modules, cargo = line_data.each_with_object([Hash.new(0), Hash.new(0)]) do |(type_id, count, is_cargo), (modules, cargo)|
+          is_cargo ||= db_types[type_id]&.is_always_cargo
           if is_cargo
-            cargo[line[0]] += line[1]
+            cargo[type_id] += count
           else
-            modules[line[0]] += line[1]
+            modules[type_id] += count
           end
         end
 
-
         { hull: hull, modules: modules, cargo: cargo }
-        # Assuming that the Fitting model has attributes :hull, :modules, :cargo
       rescue => e
         raise FitError, "Parse error: #{e.message}"
-        # Assuming FitError is a defined error you want to raise in case of error
       end
 
       def to_dna(fit)

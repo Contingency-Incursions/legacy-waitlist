@@ -6,17 +6,14 @@ class FitsData
 
     def used_module_ids
       ids = []
-      fits.each do |hull, fits|
-        ids << hull
-        fits.each do |fit|
-          fit[:fit][:modules].each_key { |id| ids << id }
-          fit[:fit][:cargo].each_key { |id| ids << id }
-        end
+      fits.values.flatten.each do |fit|
+        ids << fit[:fit][:modules].keys
+        ids << fit[:fit][:cargo].keys
       end
-      ids.to_a
+      ids.flatten.uniq
     end
     def fits
-      Rails.cache.fetch('fits_data', expires_in: 5.days) do
+      @fits ||= Rails.cache.fetch('fits_data', expires_in: 5.days) do
         load_fits
       end
     end

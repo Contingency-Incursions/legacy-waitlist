@@ -95,7 +95,7 @@ module Waitlist
             name: record[:char_wef_name],
             corporation_id: nil # TODO
           }
-          this_fit[:hours_in_fleet] = record[:wef_cached_time_in_fleet] / 3600
+          this_fit[:hours_in_fleet] = record[:wef_cached_time_in_fleet]
           this_fit[:review_comment] = record[:wef_review_comment]
           this_fit[:tags] = tags
         else

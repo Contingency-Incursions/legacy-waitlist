@@ -42,37 +42,47 @@ class SkillsData
   end
 
   def self.load_skills(character_id)
-    skills_response = esi_client.get("/v4/characters/#{character_id}/skills/", character_id, ESIClientService::Skills_ReadSkills_v1)
+    char = Character.find(character_id)
+    if char.skills_last_checked.nil? or char.skills_last_checked  < 2.minutes.ago
+      skills_response = esi_client.get("/v4/characters/#{character_id}/skills/", character_id, ESIClientService::Skills_ReadSkills_v1)
+      char.update(skills_last_checked: Time.now)
+    else
+      skills_response = nil
+    end
+
     # Assuming SkillCurrent is an AR model
     last_known_skills_query = SkillCurrent.where(character_id: character_id)
     last_known_skills = Hash[last_known_skills_query.map { |sc| [sc.skill_id, sc.level] }]
 
     now = Time.now.to_i
 
-    # To be replaced with actual method
     tracked_skills = skill_data.relevant_skills
 
     result = Hash.new
-    skills_response['skills'].each do |skill|
-      result[skill['skill_id']] = skill['active_skill_level']
+    if skills_response.nil?
+      result = last_known_skills
+    else
+      skills_response['skills'].each do |skill|
+        result[skill['skill_id']] = skill['active_skill_level']
 
-      next unless tracked_skills.include?(skill['skill_id'])
+        next unless tracked_skills.include?(skill['skill_id'])
 
-      on_record = last_known_skills[skill['skill_id']]
-      if on_record == skill['trained_skill_level']
-        next
-      end
-
-      ActiveRecord::Base.transaction do
-        if on_record
-          SkillHistory.create(character_id: character_id, skill_id: skill['skill_id'], old_level: on_record, new_level: skill['trained_skill_level'], logged_at: now)
-        elsif !last_known_skills.empty?
-          SkillHistory.create(character_id: character_id, skill_id: skill['skill_id'], old_level: 0, new_level: skill['trained_skill_level'], logged_at: now)
+        on_record = last_known_skills[skill['skill_id']]
+        if on_record == skill['trained_skill_level']
+          next
         end
 
-        skill_current = SkillCurrent.find_or_initialize_by(character_id: character_id, skill_id: skill['skill_id'])
-        skill_current.level = skill['trained_skill_level']
-        skill_current.save!
+        ActiveRecord::Base.transaction do
+          if on_record
+            SkillHistory.create(character_id: character_id, skill_id: skill['skill_id'], old_level: on_record, new_level: skill['trained_skill_level'], logged_at: now)
+          elsif !last_known_skills.empty?
+            SkillHistory.create(character_id: character_id, skill_id: skill['skill_id'], old_level: 0, new_level: skill['trained_skill_level'], logged_at: now)
+          end
+
+          skill_current = SkillCurrent.find_or_initialize_by(character_id: character_id, skill_id: skill['skill_id'])
+          skill_current.level = skill['trained_skill_level']
+          skill_current.save!
+        end
       end
     end
 

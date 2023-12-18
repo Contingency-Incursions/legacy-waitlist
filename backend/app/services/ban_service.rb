@@ -14,20 +14,18 @@ class BanService
       bans = bans(character)
       return bans if bans.present?
 
-      corporation_bans(character.corporation.id) if character.corporation
+      corporation_bans(character.corporation) if character.corporation
     end
 
-    def corporation_bans(corporation_id)
-      corporation = Corporation.find_by(id: corporation_id)
+    def corporation_bans(corporation)
       return unless corporation
       bans = bans(corporation)
       return bans if bans.present?
 
-      alliance_bans(corporation.alliance.id) if corporation.alliance
+      alliance_bans(corporation.alliance) if corporation.alliance
     end
 
-    def alliance_bans(alliance_id)
-      alliance = Alliance.find_by(id: alliance_id)
+    def alliance_bans(alliance)
       return unless alliance
       bans(alliance)
     end
