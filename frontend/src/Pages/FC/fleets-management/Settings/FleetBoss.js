@@ -45,10 +45,8 @@ const FleetBoss = ({ fleetBoss = {}, fleetId, fleetSystem, error_count }) => {
               name={fleetBoss.name ?? ''}
               noLink={!fleetBoss.id}
             />)}
-            {(error_count && error_count >= 10) && (
-              <>
+            {(error_count !== undefined && error_count >= 10) && (
                 <p>Fleet error, please reset boss</p>
-              </>
             )}
             <Button onClick={handleClick} />
           </div>

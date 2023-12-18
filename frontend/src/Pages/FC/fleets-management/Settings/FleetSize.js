@@ -88,7 +88,7 @@ const FleetSize = ({ fleetId, size, max_size }) => {
             <FormGroup>
               <Select value={selectedValue} onChange={e => setSelectedValue(e.target.value)}>
                 <option value={40}>Headquarters (40)</option>
-                <option value={80}>Flagship (80)</option>
+                <option value={80}>Kundi Pop (80)</option>
                 <option value={20}>Assaults (20)</option>
                 <option value={11}>Vanguards (11)</option>
               </Select>

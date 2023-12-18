@@ -78,7 +78,7 @@ class InvTypesService
     def load_types(type_ids, with_skill_reqs: false, with_attributes: false, with_groups: false, with_all: false)
       types = InvType.where(typeID: type_ids.uniq)
       if with_skill_reqs
-        types = types.joins(:dgm_type_attributes, :dgm_type_effects).includes(:dgm_type_attributes, :dgm_type_effects)
+        types = types.left_joins(:dgm_type_attributes, :dgm_type_effects).includes(:dgm_type_attributes, :dgm_type_effects)
       elsif with_attributes
         types = types.joins(:dgm_type_attributes).includes(:dgm_type_attributes)
       elsif with_groups
@@ -86,10 +86,7 @@ class InvTypesService
       elsif with_all
         types = types.left_joins(:dgm_type_attributes, :dgm_type_effects, :inv_group).includes(:dgm_type_attributes, :dgm_type_effects, :inv_group)
       end
-      result = {}
-      types.each do |item_type|
-        result[item_type.typeID] = item_type
-      end
+      result = types.index_by(&:typeID)
       type_ids.each do |type_id|
         result[type_id] = nil unless result[type_id].present?
       end

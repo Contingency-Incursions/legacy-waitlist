@@ -63,7 +63,7 @@ export async function errorToaster(toastContext, promise) {
   }
 }
 
-export function useApi(path) {
+export function useApi(path, supressError = false) {
   const toastContext = React.useContext(ToastContext);
   const [data, setData] = React.useState(null);
 
@@ -74,7 +74,9 @@ export function useApi(path) {
       toastContext,
       apiCall(path, {}).then(setData, (err) => {
         setData(null);
-        throw err;
+        if(!supressError){
+          throw err;
+        }
       })
     );
   }, [toastContext, path]);

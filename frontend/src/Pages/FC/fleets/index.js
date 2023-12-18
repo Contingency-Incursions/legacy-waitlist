@@ -1,8 +1,8 @@
 import { useContext, useEffect } from "react";
 import { AuthContext, EventContext } from "../../../contexts";
 import { useApi } from "../../../api";
-
-import { AButton, Buttons } from "../../../Components/Form";
+import { NavLink } from "react-router-dom";
+import { inputStyle, Buttons } from "../../../Components/Form";
 import { Badge } from "../../../Components/Badge";
 import { CharacterName } from "../../../Components/EntityLinks";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -17,6 +17,15 @@ import RegisterFleetBtn from "./Register";
 
 const DOM = styled.div`
   margin-bottom: 50px;
+`;
+
+export const Link = styled(NavLink).attrs((props) => ({
+  className: `${props.active ? "active" : ""} ${props.static ? "static" : ""}`,
+}))`
+  ${inputStyle}
+  height: 2.5em;
+  text-decoration: none;
+  line-height: 2.5em;
 `;
 
 
@@ -85,9 +94,9 @@ const FleetsIndexPage = () => {
             { name: "System", selector: (r) => r?.boss_system?.name ?? "Unknown" },
             {
               name: "", selector: (r) => (
-                <AButton href={`/fc/fleets/${r.id}`}>
+                <Link to={`/fc/fleets/${r.id}`}>
                   <FontAwesomeIcon fixedWidth icon={faCog} /> Manage
-                </AButton>
+                </Link>
               )
             }
           ]}

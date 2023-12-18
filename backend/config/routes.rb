@@ -15,18 +15,60 @@ Rails.application.routes.draw do
     get 'auth/login_url', to: 'auth#login_url'
     post 'auth/cb', to: 'auth#callback'
 
-    get 'v2/announcements', to: 'announcements#list'
-    post 'v2/announcements', to: 'announcements#create'
-    put 'v2/announcements/:id', to: 'announcements#update'
-    delete 'v2/announcements/:id', to: 'announcements#destroy'
+
 
     get 'commanders/public', to: 'commanders#public_list'
+    get 'commanders', to: 'commanders#list'
+    get 'commanders/roles', to: 'commanders#assignable'
+    get 'commanders/:id', to: 'commanders#lookup'
+    delete 'commanders/:id', to: 'commanders#revoke'
+    post 'commanders', to: 'commanders#create'
 
     get 'sse/stream', to: 'sse#index'
 
     get 'fleet/members', to: 'fleet#members'
+    get 'fleet/info', to: 'fleet#info'
 
-    get 'waitlist', to: 'waitlist#index'
+    scope 'v2' do
+      get 'announcements', to: 'announcements#list'
+      post 'announcements', to: 'announcements#create'
+      put 'announcements/:id', to: 'announcements#update'
+      delete 'announcements/:id', to: 'announcements#destroy'
+
+      get 'bans/:id', to: 'bans#show'
+      get 'bans', to: 'bans#list'
+      post 'bans', to: 'bans#create'
+
+      get 'fleets', to: 'fleets/configure#index'
+      post 'fleets', to: 'fleets/configure#register'
+      delete 'fleets', to: 'fleets/configure#close_all'
+      scope 'fleets' do
+        get 'history', to: 'fleets/historic#history'
+        get ':fleet_id/waitlist', to: 'fleets/waitlist#fleet_waitlist'
+        get ':fleet_id/comp', to: 'fleets/comp#comp'
+        post ':fleet_id/boss', to: 'fleets/settings#update_boss'
+        post ':fleet_id/visibility', to: 'fleets/settings#update_visibility'
+        post ':fleet_id/size', to: 'fleets/settings#update_size'
+        post ':fleet_id/actions/invite-all', to: 'fleets/actions#invite_all'
+        delete ':fleet_id', to: 'fleets/actions#delete_fleet'
+        get ':fleet_id', to: 'fleets/settings#get_fleet'
+      end
+    end
+
+    get 'waitlist', to: 'waitlist/list#index'
+    delete 'waitlist', to: 'waitlist/actions#empty_waitlist'
+    scope 'waitlist' do
+      post 'xup', to: 'waitlist/xup#xup'
+      post 'remove_fit', to: 'waitlist/actions#remove'
+      post 'message', to: 'waitlist/message#send_message'
+      post 'reject', to: 'waitlist/message#reject'
+      post 'approve', to: 'waitlist/message#approve'
+      post 'invite', to: 'waitlist/invite#invite'
+    end
+
+    get 'implants', to: 'implants#list_implants'
+
+
 
     post 'fit-check', to: 'fit_check#fit_check'
 
@@ -44,8 +86,6 @@ Rails.application.routes.draw do
     get 'notes', to: 'notes#index'
     post 'notes/add', to: 'notes#create'
 
-    get 'v2/bans/:id', to: 'bans#show'
-
     get 'history/xup', to: 'history/xup#index'
 
     post 'open_window', to: 'window#create'
@@ -53,12 +93,19 @@ Rails.application.routes.draw do
     get 'skills', to: 'skills#list_skills'
 
     get 'search', to: 'search#query'
+    post 'search', to: 'search#esi_search'
 
     get 'badges', to: 'badges#index'
     post 'badges/:id/members', to: 'badges#assign'
     delete 'badges/:id/members/:character_id', to: 'badges#revoke'
+    get 'badges/:badge_id/members', to: 'badges#get_badge_members'
+
+    get 'stats', to: 'statistics#statistics'
+
+    get 'reports', to: 'reports#index'
+
+    get 'categories', to: 'categories#index'
   end
   # Auth routes
-
 
 end

@@ -54,7 +54,7 @@ class AuthController < ApplicationController
 
     alts.each do |alt|
       characters << {
-        id: alt.id,
+        id: alt.attributes['id'],
         name: alt.name,
         corporation_id: nil
       }
@@ -70,7 +70,8 @@ class AuthController < ApplicationController
   end
 
   def logout
-    # logic here, possibly offloaded to service
+    cookies.permanent.encrypted[:current_user_id] = nil
+    head :no_content, status: :ok
   end
 
   def login_url
@@ -105,14 +106,16 @@ class AuthController < ApplicationController
       return render plain: payload, status: :forbidden
     end
 
+    get_current_account
+
     logged_in_account =
       if params[:state].presence == "alt" && @authenticated_account && @authenticated_account.id != character_id
         if Admin.find_by(character_id: character_id)
           return render json: { error: 'Character is flagged as a main and cannot be added as an alt' }, status: :bad_request
         end
 
-        AltCharacter.create!(account_id: account.id, alt_id: character_id)
-        account.id
+        AltCharacter.find_or_create_by!(account_id: @authenticated_account.id, alt_id: character_id)
+        @authenticated_account.id
       else
         character_id
       end

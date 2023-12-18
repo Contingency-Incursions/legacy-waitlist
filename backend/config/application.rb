@@ -43,7 +43,6 @@ module BackendNew
     config.modules = Psych.safe_load(File.read(Rails.root.join('config', 'data', 'modules.yaml')), aliases: true)
     config.skillplan = Psych.safe_load(File.read(Rails.root.join('config', 'data', 'skillplan.yaml')), aliases: true)
     config.skills = Psych.safe_load(File.read(Rails.root.join('config', 'data', 'skills.yaml')), aliases: true)
-    config.tags = Psych.safe_load(File.read(Rails.root.join('config', 'data', 'tags.yaml')), aliases: true)
 
     config.middleware.use ActionDispatch::Cookies
     #config.middleware.use ActionDispatch::Session::CookieStore, key: '_backend_session'
@@ -54,5 +53,16 @@ module BackendNew
         resource '*', headers: :any, methods: [:get, :post, :options]
       end
     end
+
+    config.active_job.queue_adapter = :good_job
+
+    config.good_job.cron = {
+      fleet_updater: {
+        class: 'FleetUpdaterJob',
+        cron: 'every 30 seconds'
+      }
+    }
+
+    config.good_job.enable_cron = true
   end
 end

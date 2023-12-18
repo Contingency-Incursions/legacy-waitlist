@@ -3,9 +3,44 @@
 require 'httparty'
 require 'json'
 
-class ESIError < StandardError
-  def initialize(message)
+class ESIError < StandardError; end
+
+class DatabaseError < ESIError
+  def initialize(message = "Database error")
+    super
+  end
+end
+
+class HTTPError < ESIError
+  def initialize(message = "ESI HTTP error")
+    super
+  end
+end
+
+class StatusError < ESIError
+  def initialize(code)
+    super("ESI returned #{code}")
+  end
+end
+
+class WithMessageError < ESIError
+
+  attr_accessor :code
+  def initialize(code, message)
     super(message)
+    @code = code
+  end
+end
+
+class NoTokenError < ESIError
+  def initialize(message = "No ESI token found")
+    super
+  end
+end
+
+class MissingScopeError < ESIError
+  def initialize(message = "Missing ESI scope")
+    super
   end
 end
 
@@ -13,6 +48,25 @@ class ESIError::StatusIs400 < ESIError
 end
 
 class ESIError::MissingScope < ESIError
+end
+
+class EsiErrorReason
+  attr_accessor :error, :details
+
+  def initialize(error, details)
+    @error = error
+    @details = details
+  end
+
+  def self.new_from_json(body)
+    begin
+      parsed_json = JSON.parse(body)
+      error = parsed_json['error']
+      EsiErrorReason.new(error, '')
+    rescue JSON::ParserError => e
+      EsiErrorReason.new('Failed to parse ESI error reason', e.message)
+    end
+  end
 end
 
 class ESIClientService
@@ -104,7 +158,48 @@ class ESIClientService
     if response.success?
       JSON.parse(response.body)
     else
-      # Handle error here
+      log_response_error(response)
+    end
+  end
+
+  def delete(url, character_id, scope)
+    access_token = get_access_token(character_id, scope)
+
+    headers = { 'Authorization' => "Bearer #{access_token}" }
+    response = self.class.delete(url, headers: headers)
+
+    unless response.success?
+      log_response_error(response)
+    end
+  end
+
+  def put(url, input, character_id, scope)
+    access_token = get_access_token(character_id, scope)
+
+    headers = {
+      "Authorization" => "Bearer #{access_token}",
+      "Content-Type" => "application/json"
+    }
+    response = self.class.put(url, headers: headers, body: input.to_json)
+
+    unless response.success?
+      log_response_error(response)
+    end
+  end
+
+  def post(url, input, character_id, scope)
+    access_token = get_access_token(character_id, scope)
+
+    headers = {
+      "Authorization" => "Bearer #{access_token}",
+      "Content-Type" => "application/json"
+    }
+    response = self.class.post(url, headers: headers, body: input.to_json)
+
+    if response.success?
+      JSON.parse(response.body)
+    else
+      log_response_error(response)
     end
   end
 
@@ -112,7 +207,12 @@ class ESIClientService
     access_token = get_access_token(char_id, scope)
 
     headers = { 'Authorization' => "Bearer #{access_token}" }
-    response = self.class.post(url, {headers: headers, body: input})
+    response = self.class.post(url, {headers: headers, body: input.to_json})
+
+    unless response.success?
+      log_response_error(response)
+    end
+
   end
 
   def get_unauthenticated(path)
@@ -123,6 +223,18 @@ class ESIClientService
   end
 
   private
+
+  def log_response_error(response)
+    unless response.success?
+      Rails.logger.warn("#{response.code}: #{response.body}\nReq URI: #{response.uri}\nHeaders: #{response.headers.inspect}")
+      payload = EsiErrorReason.new_from_json(response.body)
+
+      raise WithMessageError.new(response.code, payload.error)
+    end
+    response
+  rescue HTTParty::Error => e
+    Rails.logger.error e
+  end
 
   def access_token_raw(character_id)
     access_token = AccessToken.find_by_character_id(character_id)

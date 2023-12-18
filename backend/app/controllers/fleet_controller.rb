@@ -1,39 +1,42 @@
 # frozen_string_literal: true
 
 class FleetController < ApplicationController
-
   def members
     character_id = params[:character_id]
     error_message = 'Fleet not found'
     # assuming an equivalent method for require_access
     AuthService.requires_access(@authenticated_account, 'fleet-view')
 
-    @fleet = Fleet.find_by_id(FleetService.new.get_current_fleet_id(character_id))
+    begin
+      fleet = Fleet.find_by_id(FleetService.get_current_fleet_id(character_id))
+    rescue WithMessageError => e
+      render plain: e.message, status: :bad_request and return
+    end
 
-    return render json: { error: error_message }, status: :not_found if @fleet.nil?
 
-    in_fleet = @fleet.fleet_members.where(character_id: character_id)
-    character_ids = in_fleet.map { |member| member.character_id }
+    return render plain: error_message, status: :not_found if fleet.nil?
+
+    in_fleet =  esi_client.get("/v1/fleets/#{fleet.id}/members", @authenticated_account.id, ESIClientService::Fleets_ReadFleet_v1)
+    ship_names = InvTypesService.names_of(in_fleet.map {|f| f['ship_type_id']}.uniq)
+    character_ids = in_fleet.map { |member| member['character_id'] }
     characters = Character.where(id: character_ids)
 
     # assuming equivalent match methods exist in Rails
     squads = FleetSquad
-               .where(fleet_id: @fleet.id)
+               .where(fleet_id: fleet.id)
                .each_with_object({}) { |squad, hash| hash[squad.squad_id] = squad.category }
 
-    # assuming equivalent match methods exist in Rails
-    category_lookup = Category
-                        .categories
-                        .each_with_object({}) { |category, hash| hash[category.id] = category.name }
+    category_lookup = {}
+    CategoriesData.categories.each {|c| category_lookup[c['id']] = c['name']}
 
     members = in_fleet.map do |member|
-      wl_category = squads[member.squad_id].and_then { |s| category_lookup[s] }.and_then { |s| s.to_s }
+      wl_category = category_lookup[squads[member["squad_id"]].to_s]
       {
-        id: member.character_id,
-        name: characters.find { |char| char.id == member.character_id }&.name,
+        id: member['character_id'],
+        name: characters.find { |char| char.id == member['character_id'] }&.name,
         ship: {
-          id: member.ship_type_id, # assume mapping logic exists here
-          name: type_db.name_of(member.ship_type_id) # assume mapping logic exists here
+          id: member['ship_type_id'], # assume mapping logic exists here
+          name: ship_names[member['ship_type_id']] || 'Unknown' # assume mapping logic exists here
         },
         wl_category: wl_category
       }
@@ -42,16 +45,21 @@ class FleetController < ApplicationController
     render json: { members: members }, status: :ok
   end
 
-  private
+  def info
+    AuthService.requires_access(@authenticated_account, 'fleet-view')
+    authorize_character!(params[:character_id], nil)
+    fleet_id = FleetService.get_current_fleet_id(@authenticated_account.id)
 
-  def authenticate_user
-    unless current_user
-      render json: { error: 'You need to be logged in to access this resource' }, status: :unauthorized
-    end
+    wings = esi_client.get("/v1/fleets/#{fleet_id}/wings", @authenticated_account.id, ESIClientService::Fleets_ReadFleet_v1)
+
+    render json: { 'fleet_id' => fleet_id, 'wings' => wings }
+  rescue => e
+    render plain: e.message, status: :not_found
   end
 
-  def authorize_character!(action)
-    # An equivalent method for `authorize_character` can handle the character authorization here.
-    render json: { error: 'Unauthorized action' }, status: :unauthorized unless current_user.has_access?(action)
-  end   #replace with your authorization mechanism
+
+  private
+  def esi_client
+    @esi_client ||= ESIClientService.new
+  end
 end

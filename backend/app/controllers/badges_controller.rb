@@ -51,6 +51,41 @@ class BadgesController < ApplicationController
     end
   end
 
+  def get_badge_members
+    AuthService.requires_access(@authenticated_account, "badges-manage")
+    @badge_assignments = BadgeAssignment
+                           .joins(:character, :granted_by, :badge)
+                           .where(badge_id: params[:badge_id])
+
+    # Map these records to the desired output structure
+    @badge_assignments = @badge_assignments.map do |assignment|
+      {
+        badge: {
+          id: assignment.badge.id,
+          name: assignment.badge.name,
+          member_count: -1,
+          exclude_badge_id: -1
+        },
+        granted_at: assignment.granted_at,
+        character: {
+          id: assignment.character.id,
+          name: assignment.character.name
+        },
+        granted_by: {
+          id: assignment.granted_by.id,
+          name: assignment.granted_by.name
+        }
+      }
+    end
+
+    # render json or plain depending on data availability
+    if @badge_assignments.empty?
+      render plain: "No Content", status: 204
+    else
+      render json: @badge_assignments, status: :ok
+    end
+  end
+
   private
 
 

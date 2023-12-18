@@ -3,6 +3,8 @@ class InvType < ApplicationRecord
   has_many :dgm_type_effects, foreign_key: 'typeID'
   belongs_to :inv_group, foreign_key: 'groupID'
 
+  alias_attribute :name, :typeName
+
   self.primary_key = 'typeID'
 
   def slot

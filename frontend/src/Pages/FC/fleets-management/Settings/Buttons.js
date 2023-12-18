@@ -1,7 +1,7 @@
 import CloseFleet from "./Buttons/CloseFleet";
 import ClearWaitlist from "./Buttons/ClearWaitlist";
 import InviteAll from "./Buttons/InviteAll";
-import OhShit from "./Buttons/OhShit";
+// import OhShit from "./Buttons/OhShit";
 import styled from "styled-components";
 
 const ButtonsDOM = styled.div`
@@ -27,7 +27,7 @@ const FleetButtons = ({ fleetId }) => {
   return (
     <ButtonsDOM>
       <InviteAll fleetId={fleetId} />
-      <OhShit fleetId={fleetId} />
+      {/* <OhShit fleetId={fleetId} /> */}
       <ClearWaitlist fleetId={fleetId} />
       <CloseFleet fleetId={fleetId} />
     </ButtonsDOM>

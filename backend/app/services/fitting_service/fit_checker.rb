@@ -2,7 +2,7 @@
 
 module FittingService
   class FitChecker
-    FitError = Class.new(StandardError)
+    class FitError < StandardError; end
 
     attr_accessor :approved, :category, :badges, :fitting, :doctrine_fit, :pilot, :tags, :errors, :analysis
 
@@ -45,9 +45,32 @@ module FittingService
           checker.check_time_in_fleet
 
           checker.finish
-        # rescue => e
-        #   raise FitError, e.message
+          # rescue => e
+          #   raise FitError, e.message
         end
+      end
+
+      def validate(fit)
+        ids = []
+        ids << fit[:hull]
+        fit[:modules].each do |id, count|
+          ids << id if count > 0
+        end
+
+        fit[:cargo].each do |id, count|
+          ids << id if count > 0
+        end
+
+        ids.uniq!
+
+        types = InvTypesService.load_types(ids, with_groups: true)
+
+        ids.each do |id|
+          raise FitError.new('Invalid module') unless types[id].present?
+        end
+
+        hull_type = types[fit[:hull]]
+        raise FitError.new('Not a ship') unless hull_type.inv_group.categoryID == 6 # Ship
       end
     end
 
@@ -83,7 +106,7 @@ module FittingService
             unless @badges.include?("WEB")
               @tags << "UPGRADE-HOURS-REACHED"
             end
-          elsif !( (@fitting[:hull] == 28661 && has_t2_blaster) || (@fitting[:hull] == 28659 && has_t2_lasers) ) # Kronos, Paladin
+          elsif !((@fitting[:hull] == 28661 && has_t2_blaster) || (@fitting[:hull] == 28659 && has_t2_lasers)) # Kronos, Paladin
             @tags << "UPGRADE-HOURS-REACHED"
           end
         elsif @pilot.time_in_fleet >= (85 * 3600)
@@ -169,14 +192,17 @@ module FittingService
     end
 
     def add_snowflake_tags
-      @tags << 'HQ-FC' if @pilot.access_keys.include?('waitlist-tag:HQ-FC')
-      @tags << 'TRAINEE' if @pilot.access_keys.include?('waitlist-tag:TRAINEE')
+      if @pilot.access_keys.include?('waitlist-tag:HQ-FC')
+        @tags << 'HQ-FC'
+      elsif @pilot.access_keys.include?('waitlist-tag:TRAINEE')
+        @tags << 'TRAINEE'
+      end
 
       # To save space on the XUP card,
       # don't show these badges for FCs
       if @fitting[:hull] == 33472 # Nestor
         @tags << 'LOGI' if @badges.include?('LOGI')
-        @tags <<'RETIRED-LOGI' if @badges.include?('RETIRED-LOGI')
+        @tags << 'RETIRED-LOGI' if @badges.include?('RETIRED-LOGI')
       end
 
       if @fitting[:hull] == 17740 && @badges.include?('WEB') # Vindicator
@@ -234,6 +260,7 @@ module FittingService
         end
       end
     end
+
     def check_skill_reqs_tier(tier)
       ship_name = @fitting[:hull_name]
       reqs = SkillsData.skill_data.requirements[ship_name]
@@ -241,17 +268,17 @@ module FittingService
       return false unless reqs
 
       reqs.each do |skill_id, tiers|
-        return false if (req = tiers[tier]) && (self.pilot.skills[skill_id] < req)
+        return false if req = tiers[tier] and @pilot.skills.get(skill_id) < req
       end
       true
     end
 
     def check_skill_reqs
-      skill_tier = if check_skill_reqs_tier(SkillsData::SkillTiers::GOLD)
+      skill_tier = if check_skill_reqs_tier(:gold)
                      "gold"
-                   elsif check_skill_reqs_tier(SkillsData::SkillTiers::ELITE)
+                   elsif check_skill_reqs_tier(:elite)
                      "elite"
-                   elsif check_skill_reqs_tier(SkillsData::SkillTiers::MIN)
+                   elsif check_skill_reqs_tier(:min)
                      "basic"
                    else
                      "starter"
@@ -319,7 +346,7 @@ module FittingService
 
     def check_fit_reqs
       type_ids = InvTypesService.ids_of(["EM Armor Compensation", "Thermal Armor Compensation", "Explosive Armor Compensation", "Kinetic Armor Compensation",
-                                               'Bastion Module I', "Hull Upgrades", "Mechanics" ])
+                                         'Bastion Module I', "Hull Upgrades", "Mechanics"])
       comp_reqs = if @doctrine_fit && (@doctrine_fit[:name].include?("Starter") || @doctrine_fit[:name].include?("Nightmare Basic"))
                     2
                   else
@@ -327,22 +354,22 @@ module FittingService
                   end
 
       have_comps = [
-        @pilot.skills.get(type_ids.find {|id| id[:name] == "EM Armor Compensation"}[:id]),
-        @pilot.skills.get(type_ids.find {|id| id[:name] == "Thermal Armor Compensation"}[:id]),
-        @pilot.skills.get(type_ids.find {|id| id[:name] == "Kinetic Armor Compensation"}[:id]),
-        @pilot.skills.get(type_ids.find {|id| id[:name] == "Explosive Armor Compensation"}[:id]),
+        @pilot.skills.get(type_ids.find { |id| id[:name] == "EM Armor Compensation" }[:id]),
+        @pilot.skills.get(type_ids.find { |id| id[:name] == "Thermal Armor Compensation" }[:id]),
+        @pilot.skills.get(type_ids.find { |id| id[:name] == "Kinetic Armor Compensation" }[:id]),
+        @pilot.skills.get(type_ids.find { |id| id[:name] == "Explosive Armor Compensation" }[:id]),
       ].compact.min
 
       if have_comps < comp_reqs
         @errors.push("Missing Armor Compensation skills: level #{comp_reqs} required")
       end
 
-      if @fitting[:modules][type_ids.find {|id| id[:name] == 'Bastion Module I'}[:id]].to_i > 0
-        if @pilot.skills.get(type_ids.find {|id| id[:name] == "Hull Upgrades"}[:id]).to_i < 5
+      if @fitting[:modules][type_ids.find { |id| id[:name] == 'Bastion Module I' }[:id]].to_i > 0
+        if @pilot.skills.get(type_ids.find { |id| id[:name] == "Hull Upgrades" }[:id]).to_i < 5
           @errors.push('Missing tank skill: Hull Upgrades 5 required')
         end
 
-        if @pilot.skills.get(type_ids.find {|id| id[:name] == "Mechanics"}[:id]).to_i < 4
+        if @pilot.skills.get(type_ids.find { |id| id[:name] == "Mechanics" }[:id]).to_i < 4
           @errors.push('Missing tank skill: Mechanics 4 required')
         end
       end

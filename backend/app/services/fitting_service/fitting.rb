@@ -6,47 +6,59 @@ module FittingService
 
     class << self
       def from_eft(eft)
-        fitting = { hull: nil, hull_name: nil, cargo: {}, modules: {} }
+        fittings = []
         section = 0
         stripped_lines = eft.strip.lines.map(&:strip)
-        section_count = stripped_lines.filter(&:blank?).count
+        section_counts = []
         names_to_retrieve = []
         modules = []
 
-        stripped_lines.each do |line|
+        stripped_lines.each_with_index do |line, i|
           if line.start_with?('[') && line.end_with?(']') && line.include?(',')
             hull_name, ship_name = parse_hull_and_ship(line)
+            fitting = { hull: nil, hull_name: nil, cargo: {}, modules: {} }
             fitting[:hull_name] = hull_name
 
             raise FitError, 'Parse Error' if ship_name.nil?
 
             names_to_retrieve << hull_name
             section = 0
+            fittings << fitting
+            modules << []
+            section_counts << 0
           else
+            mods = modules.last
             next if line.start_with?("[Empty ")
             if line.blank?
+              next if stripped_lines[i+1].start_with?('[') && stripped_lines[i+1].end_with?(']') && stripped_lines[i+1].include?(',')
+              section_counts[-1] += 1
               section += 1
               next
             end
             type_name, count, stacked = parse_line(line)
 
-            modules << [type_name, count, stacked, section]
+            mods << [type_name, count, stacked, section]
             names_to_retrieve << type_name
           end
         end
 
         types = InvTypesService.load_types_from_names(names_to_retrieve, include_groups: true).to_a
 
-        fitting[:hull] = types.select { |t| t.typeName == names_to_retrieve[0] }[0]&.typeID
 
-        modules.each do |mod|
-          type = types.select { |t| t.typeName == mod[0] }[0]
-          is_cargo = cargo?(mod[3], section_count, type, mod[2])
 
-          add_item_to_fitting(fitting, type&.typeID, mod[1], is_cargo)
+        modules.each_with_index do |mods, i|
+          fitting = fittings[i]
+          fitting[:hull] = types.select { |t| t.typeName == fitting[:hull_name] }[0]&.typeID
+          mods.each do |mod|
+            type = types.select { |t| t.typeName == mod[0] }[0]
+            is_cargo = cargo?(mod[3], section_counts[i], type, mod[2])
+
+            add_item_to_fitting(fitting, type&.typeID, mod[1], is_cargo)
+          end
+
         end
 
-        fitting
+        fittings
       end
 
       def from_dna(dna)

@@ -3,6 +3,33 @@ module Authentication
 
   private
 
+  def get_current_account
+    account_id = cookies.permanent.encrypted[:current_user_id]
+
+    if account_id.blank?
+      return nil
+    end
+
+    # If the admin table has a character_id field
+    access_level_record = Admin.find_by(character_id: account_id)
+
+    # If instead it has an account_id or user_id or some other field
+    # access_level_record = Admin.find_by(account_id: account_id)
+
+    access_level = access_level_record ? access_level_record.role : "user"
+
+    access_keys = AuthService.build_access_levels[access_level]
+
+    if access_keys.blank?
+      return nil
+    end
+
+    @authenticated_account = AuthenticatedAccount.new(
+      id: account_id,
+      access: access_keys,
+      )
+  end
+
   def authenticate!
     account_id = cookies.permanent.encrypted[:current_user_id]
 

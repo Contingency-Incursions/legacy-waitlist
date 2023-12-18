@@ -70,7 +70,7 @@ class SkillsData
           SkillHistory.create(character_id: character_id, skill_id: skill['skill_id'], old_level: 0, new_level: skill['trained_skill_level'], logged_at: now)
         end
 
-        skill_current = SkillCurrent.find_or_initialize_by(character_id: character_id, skill_id: skill.skill_id)
+        skill_current = SkillCurrent.find_or_initialize_by(character_id: character_id, skill_id: skill['skill_id'])
         skill_current.level = skill['trained_skill_level']
         skill_current.save!
       end

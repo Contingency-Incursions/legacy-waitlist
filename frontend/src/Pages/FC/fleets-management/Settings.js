@@ -1,6 +1,5 @@
 import { useContext, useEffect } from "react";
 import { EventContext } from "../../../contexts";
-import { useApi } from "../../../api";
 import { usePageTitle } from "../../../Util/title";
 
 import styled from "styled-components";
@@ -100,9 +99,9 @@ const Details = styled.div`
   }
 `;
 
-const FleetSettings = ({ fleetId, xups }) => {
+const FleetSettings = ({ fleetId, xups, settings, settingsRefresh }) => {
   const eventContext = useContext(EventContext);
-  const [ settings, refresh ] = useApi(`/api/v2/fleets/${fleetId}`);
+
 
   useEffect(() => {
     if (!eventContext) return;
@@ -111,14 +110,14 @@ const FleetSettings = ({ fleetId, xups }) => {
       let data = JSON.parse(e.data);
 
       if (data.id === Number(fleetId)) {
-        refresh();
+        settingsRefresh();
       }
     }
 
     eventContext.addEventListener("fleet_settings", handleEvent);
     return () => eventContext.removeEventListener("fleet_settings", handleEvent);
   },
-    [eventContext, fleetId, refresh]
+    [eventContext, fleetId, settingsRefresh]
   );
 
   usePageTitle(`${settings?.boss?.name}'s Fleet`);

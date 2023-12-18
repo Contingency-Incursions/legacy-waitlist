@@ -16,7 +16,7 @@ class FitCheckController < ApplicationController
   def fit_check
     # Assuming strong params and input params are same XupRequest
     input = xup_request_params
-    fit = FittingService::Fitting.from_eft(input[:eft])
+    fits = FittingService::Fitting.from_eft(input[:eft])
 
     pilot = PilotData.new.tap do |pd|
       pd.implants = ImplantData.get_implants(input[:character_id])
@@ -32,17 +32,25 @@ class FitCheckController < ApplicationController
 
     result = []
 
-    fit_checked = FittingService::FitChecker.check(pilot, fit, badges)
 
-    # Handle possible errors, assuming Madness::BadRequest can be replaced with RuntimeError
-    error = fit_checked[:errors].first
-    return render status: :bad_request, plain: error if error.present?
+    fits.each do |fit|
+      fit_checked = FittingService::FitChecker.check(pilot, fit, badges)
+      error = fit_checked[:errors].first
+      # Handle possible errors, assuming Madness::BadRequest can be replaced with RuntimeError
 
-    result.push({
-                  approved: fit_checked[:approved],
-                  fit_analysis: fit_checked[:analysis],
-                  dna: FittingService::Fitting.to_dna(fit)
-                })
+      return render status: :bad_request, plain: error if error.present?
+
+      result.push({
+                    approved: fit_checked[:approved],
+                    fit_analysis: fit_checked[:analysis],
+                    dna: FittingService::Fitting.to_dna(fit)
+                  })
+    end
+
+
+
+
+
 
     render json: result
   end

@@ -20,28 +20,37 @@ class SseController < ApplicationController
 
   def perform_task(stream)
     sse = SSE.new(stream, retry: 300)
+    subscribers = []
 
-    sse.write('open', event: 'open')
+    begin
+      sse.write('open', event: 'open')
 
-    subscriber = ActiveSupport::Notifications.subscribe('sse_event') do |*args|
-      # args includes information about the event
-      # you can send this information back to the client as message
-      begin
+      subscribers << ActiveSupport::Notifications.subscribe('sse_event') do |*args|
+        # args includes information about the event
+        # you can send this information back to the client as message
         args[4][:extra][:event_names].each do |event_name|
           sse.write(args[4][:extra][:data], event: event_name)
         end
-      rescue IOError
-        # client disconnected
-      rescue ActionController::Live::ClientDisconnected
-        sse.close
-      ensure
-        sse.close
       end
 
+      if @authenticated_account
+        subscribers << ActiveSupport::Notifications.subscribe(@authenticated_account.id.to_s) do |*args|
+          args[4][:extra][:event_names].each do |event_name|
+            sse.write(args[4][:extra][:data], event: event_name)
+          end
+        end
+      end
 
-    end
+      if @authenticated_account.access.include?('fleet-invite')
+        subscribers << ActiveSupport::Notifications.subscribe('fleet-events') do |*args|
+          # args includes information about the event
+          # you can send this information back to the client as message
+          args[4][:extra][:event_names].each do |event_name|
+            sse.write(args[4][:extra][:data], event: event_name)
+          end
+        end
+      end
 
-    begin
       loop do
         # Heartbeat to keep the connection alive
         unless stream.closed?
@@ -50,13 +59,17 @@ class SseController < ApplicationController
         sleep 2
       end
     rescue IOError
-      # client disconnected
+      subscribers.each {|sub| ActiveSupport::Notifications.unsubscribe(sub)}
+      sse.close
     rescue ActionController::Live::ClientDisconnected
+      subscribers.each {|sub| ActiveSupport::Notifications.unsubscribe(sub)}
       sse.close
     ensure
+      subscribers.each {|sub| ActiveSupport::Notifications.unsubscribe(sub)}
       sse.close
     end
   ensure
+    subscribers.each {|sub| ActiveSupport::Notifications.unsubscribe(sub)}
     sse.close
   end
 
@@ -69,7 +82,7 @@ class SseController < ApplicationController
     stream.write(headers.map { |header| header + "\r\n" }.join)
     stream.write("\r\n")
     stream.flush
-  rescue
+  rescue => e
     stream.close
     raise
   end
