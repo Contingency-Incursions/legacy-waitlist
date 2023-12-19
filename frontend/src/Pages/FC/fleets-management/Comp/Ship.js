@@ -121,7 +121,10 @@ const ShowInfo = (id, whoami, toastContext) => {
 
 const BadgeDisplay = ({ship, badges}) => {
   let type = useMemo(() => {
-    if(ship == 33472){
+    if(badges === null) {
+      return '';
+    }
+    if(ship === 33472){
       if(badges.includes('LOGI')) {
         return 'LOGI';
       }
@@ -129,10 +132,10 @@ const BadgeDisplay = ({ship, badges}) => {
         return 'RETIRED-LOGI';
       }
     }
-    if((ship == 28661 || ship == 28659) && badges.includes('BASTION')){
+    if((ship === 28661 || ship === 28659) && badges.includes('BASTION')){
       return 'BASTION';
     }
-    if(ship == 17740 && badges.includes('WEB')){
+    if(ship === 17740 && badges.includes('WEB')){
       return 'WEB'
     }
     return ''
