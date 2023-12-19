@@ -201,7 +201,7 @@ const FitCard = ({ fit, bossId, tab, inviteCounts, onInvite }) => {
 
           <RemoveFit fitId={id} />
           <ShowInfo {...character} />
-          <ViewSkills character={character} hull={fit?.hull} skills={skills} />
+          <ViewSkills character={character} hull={fit?.hull.name} skills={skills} />
           <ViewProfile {...character} />
           <MessagePilot fitId={id} />
           <RejectFit fitId={id} isRejected={fit.state === 'rejected'} />

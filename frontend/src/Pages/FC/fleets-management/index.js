@@ -10,8 +10,10 @@ import { EventContext } from '../../../contexts';
 
 const FleetsManagementPage = () => {
   const eventContext = useContext(EventContext);
-  const [ xup, refresh ] = useApi(`/api/v2/fleets/waitlist`);
   const url = useParams();
+  const [ xup, refresh ] = useApi(`/api/v2/fleets/${url?.fleetId}/waitlist`);
+  const [ settings, settingsRefresh ] = useApi(`/api/v2/fleets/${url?.fleetId}`);
+
 
   useEffect(() => {
     if (!eventContext) return;
@@ -19,12 +21,11 @@ const FleetsManagementPage = () => {
     eventContext.addEventListener("waitlist_update", refresh);
     return () => eventContext.removeEventListener("waitlist_update", refresh);
   }, [eventContext, refresh])
-
   return (
     <>
-      <FleetSettings fleetId={url?.fleetId} xups={xup?.waitlist} />
+      <FleetSettings fleetId={url?.fleetId} xups={xup?.waitlist} settings={settings} settingsRefresh={settingsRefresh} />
       <FleetComps fleetId={url?.fleetId} />
-      <Waitlist fleetId={url?.fleetId} xup={xup} />
+      <Waitlist xup={xup} settings={settings} />
     </>
   )
 }

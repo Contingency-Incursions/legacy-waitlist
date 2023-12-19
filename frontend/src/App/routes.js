@@ -25,6 +25,7 @@ import { Waitlist } from "../Pages/Waitlist";
 import { E401, E403, E404 } from "../Pages/Errors";
 import FleetsIndexPage from "../Pages/FC/fleets";
 import FleetsManagementPage from "../Pages/FC/fleets-management";
+import { FcStats } from "../Pages/FC/FCStats";
 
 function AuthenticatedRoute(props) {
   const authContext = useContext(AuthContext);
@@ -69,6 +70,7 @@ export function WaitlistRoutes() {
       <Route path="/fc/commanders" element={<AuthenticatedRoute component={<CommandersPage />} access="commanders-view" />}/>
       <Route path="/fc/fleet" element={<AuthenticatedRoute component={<Fleet />} access="fleet-view" />}/>
       <Route path="/fc/fleet/register" element={<AuthenticatedRoute component={<FleetRegister />} access="fleet-view" />}/>
+      <Route path="/fc/fleet/fc_stats" element={<AuthenticatedRoute component={<FcStats />} access="fleet-history-view" />}/>
       <Route path="/fc/fleet/history" element={<AuthenticatedRoute component={<FleetCompHistory />} access="fleet-history-view" />}/>
       <Route path="/fc/notes/add" element={<AuthenticatedRoute component={<NoteAdd />} access="notes-add" />} />
       <Route path="/fc/search" element={<AuthenticatedRoute component={<Search />} access="waitlist-tag:HQ-FC" />}/>

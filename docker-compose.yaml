@@ -15,11 +15,3 @@ services:
       PG_USER: "${PG_USER}"
       PG_PASSWORD: "${PG_PASSWORD}"
       PG_ROOT_PASSWORD: "${PG_PASSWORD}"
-
-  sse:
-    image: "tvdw/sse-server"
-    restart: unless-stopped
-    ports:
-      - "127.0.0.1:8000:8000"
-    environment:
-      SSE_SECRET: "${SSE_SECRET}"

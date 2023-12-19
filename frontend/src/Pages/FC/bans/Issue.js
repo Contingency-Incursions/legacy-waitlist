@@ -121,35 +121,38 @@ const IssueBanModal = ({ isOpen, setOpen, refreshFunction }) => {
   };
 
   useEffect(() => {
-    const reset = () => {
-      return setEntity({ id: null, name: "" });
-    };
-
-    // Require >= 4 characters to query ESI
-    if (searchVal.length < 3) return reset();
-
-    setSearchPending(true);
-    errorToaster(
-      toastContext,
-      apiCall(`/api/search`, {
-        method: "POST",
-        json: {
-          search: searchVal,
-          category: category.toLowerCase(),
-          strict: true,
-        },
-      }).then((res) => {
-        setSearchPending(false);
-        if (res.length > 0) {
-          setEntity({
-            id: res[0],
-            name: searchVal,
-          });
-        } else {
-          reset();
-        }
-      })
-    );
+    const timeOutId = setTimeout(() => {
+      const reset = () => {
+        return setEntity({ id: null, name: "" });
+      };
+  
+      // Require >= 4 characters to query ESI
+      if (searchVal.length < 3) return reset();
+  
+      setSearchPending(true);
+      errorToaster(
+        toastContext,
+        apiCall(`/api/search`, {
+          method: "POST",
+          json: {
+            search: searchVal,
+            category: category.toLowerCase(),
+            strict: true,
+          },
+        }).then((res) => {
+          setSearchPending(false);
+          if (res.length > 0) {
+            setEntity({
+              id: res[0],
+              name: searchVal,
+            });
+          } else {
+            reset();
+          }
+        })
+      );
+    }, 500);
+    return () => clearTimeout(timeOutId)
   }, [searchVal, category, toastContext]);
 
   return (

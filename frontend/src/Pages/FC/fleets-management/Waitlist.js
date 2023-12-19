@@ -3,18 +3,16 @@ import styled from "styled-components";
 import Navs from "./Waitlist/Navs";
 import Spinner from "../../../Components/Spinner";
 import Flightstrip from "./Waitlist/FlightStrip";
-import { useApi } from "../../../api";
 
 const WaitlistDOM = styled.div`
   border-top: 1px solid ${(props) => props.theme.colors.accent1};
   padding-top: 10px;
 `;
 
-const Waitlist = ({ fleetId, xup }) => {
+const Waitlist = ({ fleetId, xup, settings }) => {
   const [ tab, setTab ] = useState('All');
   const [inviteCounts, setInviteCounts] = useState({});
   const [skills, setSkills] = useState({});
-  const [ settings ] = useApi(`/api/v2/fleets/${fleetId}`);
 
   let bossId = useMemo(() => {
     return settings?.boss?.id;

@@ -43,7 +43,7 @@ const RegisterFleetBtn = ({ refreshFunction }) => {
   const [ defaultSquads, isDefaultSquads ] = useState(true);
   const [ defaultMotd, isDefaultMotd ] = useState(true);
   const [ squadMappings, setSquadMappings ] = useState({});
-  const [ fleet ] = useApi(`/api/fleet/info?character_id=${authContext?.current?.id}`);
+  const [ fleet ] = useApi(`/api/fleet/info?character_id=${authContext?.current?.id}`, true);
   const [ data ] = useApi('/api/categories');
 
   // Flatten fleet squads into single array
@@ -107,6 +107,10 @@ const RegisterFleetBtn = ({ refreshFunction }) => {
       })
       .finally(() => isPending(false))
     );
+  }
+
+  if(fleet === null){
+    return null;
   }
 
   return (

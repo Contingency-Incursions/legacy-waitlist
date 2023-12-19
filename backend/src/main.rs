@@ -39,13 +39,13 @@ fn not_found(_req: &Request) -> String {
 }
 
 fn main() {
-    let _guard = sentry::init(("
+//     let _guard = sentry::init(("
 
-    https://988040048939a23af92b0a85ebe93fe2@o1154850.ingest.sentry.io/4506129796235264", sentry::ClientOptions {
-    release: sentry::release_name!(),
-    attach_stacktrace: true,
-    ..Default::default()
-}));
+//     https://988040048939a23af92b0a85ebe93fe2@o1154850.ingest.sentry.io/4506129796235264", sentry::ClientOptions {
+//     release: sentry::release_name!(),
+//     attach_stacktrace: true,
+//     ..Default::default()
+// }));
 
 tokio::runtime::Builder::new_multi_thread()
         .enable_all()
