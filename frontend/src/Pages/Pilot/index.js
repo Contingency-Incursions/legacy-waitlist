@@ -172,8 +172,8 @@ function PilotDisplay({ authContext }) {
           alt="Character Portrait"
         />
         <div>
-          <div>
-            <h1>{basicInfo && basicInfo.name}</h1>
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <h1>{basicInfo && basicInfo.name}</h1><h3> - {basicInfo && basicInfo.corp_name} {basicInfo && basicInfo.alliance_name && `(${basicInfo.alliance_name})`}</h3>
           </div>
           <PilotTags style={{ flexWrap: "flex" }} tags={basicInfo && basicInfo.tags} />
         </div>
