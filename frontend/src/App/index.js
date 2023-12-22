@@ -8,6 +8,7 @@ import { WaitlistRoutes } from "./routes";
 import { Container } from "react-awesome-styled-grid";
 import { Menu } from "./Menu";
 import { Tooltip } from 'react-tooltip'
+import { createConsumer } from "@rails/actioncable";
 
 import AnnouncementBanner from "../Components/AnnouncementBanner";
 import ErrorBoundary from './ErrorBoundary';
@@ -58,17 +59,9 @@ export default class App extends React.Component {
 
   componentDidUpdate() {
     if (this.state.auth && !this.state.events) {
-      var events = new EventSource("/api/sse/stream");
-      events.addEventListener("open", (evt) => {
-        this.setState({ eventErrors: 0 });
-      });
-      events.addEventListener("error", (err) => {
-        events.close();
-        setTimeout(() => {
-          this.setState({ events: null, eventErrors: this.state.eventErrors + 1 });
-        }, this.state.eventErrors * 5000 + Math.random() * 10000);
-      });
-      this.setState({ events });
+
+      const consumer = createConsumer('/api/cable');
+      this.setState({ events: consumer });
     }
   }
 

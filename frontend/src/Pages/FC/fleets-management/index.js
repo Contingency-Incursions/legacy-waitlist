@@ -1,6 +1,7 @@
 import { useContext, useEffect } from 'react';
 import { useApi } from '../../../api';
 import { useParams } from 'react-router-dom';
+import { FireNotificationApi } from '../../../Components/Event';
 
 
 import FleetSettings from './Settings';
@@ -18,8 +19,28 @@ const FleetsManagementPage = () => {
   useEffect(() => {
     if (!eventContext) return;
 
-    eventContext.addEventListener("waitlist_update", refresh);
-    return () => eventContext.removeEventListener("waitlist_update", refresh);
+    
+    eventContext.subscriptions.create({channel: 'WaitlistChannel'}, {
+      received(data){
+        refresh(data);
+      }
+    })
+
+    eventContext.subscriptions.create({channel: 'FcChannel'}, {
+      received(data){
+        if(data.event == 'notification'){
+          let event_data = data?.data;
+          if (!event_data) return;
+        
+          FireNotificationApi({
+            title: event_data?.title,
+            body: event_data.message,
+          });
+        }
+      }
+    })
+
+    return
   }, [eventContext, refresh])
   return (
     <>

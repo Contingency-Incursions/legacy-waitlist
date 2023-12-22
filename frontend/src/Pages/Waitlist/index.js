@@ -88,12 +88,21 @@ function useWaitlist(waitlistId) {
     const handleEvent = function (event) {
       updateFn();
     };
-    eventContext.addEventListener("waitlist_update", handleEvent);
-    eventContext.addEventListener("visibility", updateFn);
+
+    eventContext.subscriptions.create({channel: 'WaitlistChannel'}, {
+      received(data){
+        handleEvent(data);
+      }
+    })
+
+    eventContext.subscriptions.create({channel: 'VisibilityChannel'}, {
+      received(data){
+        updateFn(data);
+      }
+    })
+
     return function () {
       clearUpdateFn();
-      eventContext.removeEventListener("waitlist_update", handleEvent);
-      eventContext.removeEventListener("visibility", updateFn);
     };
   }, [refreshFn, eventContext, waitlistId]);
 
@@ -124,12 +133,17 @@ function useFleetComposition() {
     if (!eventContext) return;
 
     const [updateFn, clearUpdateFn] = coalesceCalls(refreshFn, 2000);
-    eventContext.addEventListener("comp_update", updateFn);
-    eventContext.addEventListener("open", updateFn);
+
+    
+    eventContext.subscriptions.create({channel: 'FleetChannel'}, {
+      received(data){
+        updateFn(data);
+      }
+    })
+
+    //eventContext.addEventListener("open", updateFn);
     return function () {
       clearUpdateFn();
-      eventContext.removeEventListener("comp_update", updateFn);
-      eventContext.removeEventListener("open", updateFn);
     };
   }, [refreshFn, eventContext]);
 

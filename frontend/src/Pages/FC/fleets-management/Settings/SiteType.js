@@ -39,8 +39,6 @@ const SiteType = ({ fleetId, type }) => {
     }
     isPending(true);
 
-    debugger;
-
     errorToaster(
       toastContext,
       apiCall(`/api/v2/fleets/${fleetId}/type`, {

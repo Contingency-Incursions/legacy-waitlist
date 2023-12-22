@@ -91,7 +91,7 @@ const AnnouncementBanner = () => {
 
   // Update announcements when a payload is received from the SSE server
   const handleAnnouncment = (evt) => {
-    setAnnouncments(JSON.parse(evt.data) ?? []);
+    setAnnouncments(evt.data ?? []);
   };
 
   useEffect(() => {
@@ -99,12 +99,12 @@ const AnnouncementBanner = () => {
       return;
     }
 
-    eventContext.addEventListener("announcment;new", handleAnnouncment);
-    eventContext.addEventListener("announcment;updated", handleAnnouncment);
-    return () => {
-      eventContext.removeEventListener("announcment;new", handleAnnouncment);
-      eventContext.removeEventListener("announcment;updated", handleAnnouncment);
-    };
+    eventContext.subscriptions.create({channel: 'AnnouncementChannel'}, {
+      received(data){
+        handleAnnouncment(data);
+      }
+    })
+    return
   }, [eventContext]);
 
   // Allow users to dismiss an announcement for thirty days

@@ -108,15 +108,21 @@ const FleetSettings = ({ fleetId, xups, settings, settingsRefresh }) => {
     if (!eventContext) return;
 
     const handleEvent = (e) => {
-      let data = JSON.parse(e.data);
+      let data = e.data;
 
-      if (data.id === Number(fleetId)) {
+      if (data.id === fleetId) {
         settingsRefresh();
       }
     }
 
-    eventContext.addEventListener("fleet_settings", handleEvent);
-    return () => eventContext.removeEventListener("fleet_settings", handleEvent);
+    
+    eventContext.subscriptions.create({channel: 'FcChannel'}, {
+      received(data){
+        handleEvent(data);
+      }
+    })
+
+    return
   },
     [eventContext, fleetId, settingsRefresh]
   );

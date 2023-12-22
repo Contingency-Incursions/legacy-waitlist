@@ -17,7 +17,7 @@ const H3 = styled.h3`
   padding-bottom: 10px;
 `;
 
-const FireNotificationApi = ({ title, body }) => {
+export const FireNotificationApi = ({ title, body }) => {
   const Fire = ({ title, body }) =>
     new Notification(title ?? "Contingency Incursions", {
       body: body,
@@ -57,7 +57,7 @@ const handleEmergency = (event) => {
 }
 
 const handleNotification = (event) => {
-  let data = JSON.parse(event?.data);
+  let data = event?.data;
   if (!data) return;
 
   FireNotificationApi({
@@ -95,7 +95,7 @@ const BrowserNotification = () => {
       let title = null,
         body = event.data;
       try {
-        let n = JSON.parse(event.data);
+        let n = event.data;
         title = n.title ?? null;
         body = n.message;
 
@@ -105,7 +105,7 @@ const BrowserNotification = () => {
       }
 
       if (settings.audio_alarm) {
-        let is_fleet_invite = event?.data.includes("has invited your");
+        let is_fleet_invite = body.includes("has invited your");
 
         if (!title) {
           title = is_fleet_invite ? "Fleet Invite Received" : null;
@@ -133,14 +133,26 @@ const BrowserNotification = () => {
       return;
     }
 
-    eventContext.addEventListener("emergency", handleEmergency);
-    eventContext.addEventListener("message", handleMessage);
-    eventContext.addEventListener("notification", handleNotification);
-    return () => {
-      eventContext.removeEventListener("emergency", handleEmergency);
-      eventContext.removeEventListener("message", handleMessage);
-      eventContext.removeEventListener("notification", handleNotification);
-    };
+    eventContext.subscriptions.create({channel: 'EmergencyChannel'}, {
+      received(data){
+        handleEmergency(data);
+      }
+    })
+
+    eventContext.subscriptions.create({channel: 'CharacterChannel'}, {
+      received(data){
+        if(data.event == 'message'){
+          handleMessage(data);
+        } else if(data.event == 'notification'){
+          handleNotification(data);
+        }
+      }
+    })
+
+    //eventContext.addEventListener("emergency", handleEmergency);
+    //eventContext.addEventListener("message", handleMessage);
+    //eventContext.addEventListener("notification", handleNotification);
+    return
   }, [eventContext]);
 
   if (notification?.sound) {

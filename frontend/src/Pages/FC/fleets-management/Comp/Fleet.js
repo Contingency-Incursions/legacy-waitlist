@@ -22,16 +22,23 @@ const Fleet = ({ fleetBoss, fleetId, myFleet = false }) => {
     if (!eventContext) return;
 
     const comp_updated = (e) => {
-      let data = JSON.parse(e.data);
-      if (data.id === Number(fleetId)) {
+      let data = e.data;
+      if (data.id === fleetId) {
         refresh();
       }
     }
 
-    eventContext.addEventListener("fleet_comp", comp_updated);
-    return () => {
-      eventContext.removeEventListener("fleet_comp", comp_updated);
+    if(fleetId){
+      eventContext.subscriptions.create({channel: 'FcChannel'}, {
+        received(data){
+          comp_updated(data);
+        }
+      })
+  
     }
+
+
+    return
   }, [eventContext, fleetId, refresh])
 
   let fleet = useMemo(() => {

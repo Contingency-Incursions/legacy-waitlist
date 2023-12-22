@@ -53,10 +53,13 @@ export function Fleet() {
       return;
     }
 
-    eventContext.addEventListener("waitlist_update", handleNotification);
-    return () => {
-      eventContext.removeEventListener("waitlist_update", handleNotification);
-    };
+    eventContext.subscriptions.create({channel: 'WaitlistChannel'}, {
+      received(data){
+        handleNotification(data);
+      }
+    })
+
+    return
   }, [eventContext]);
 
   useEffect(() => {

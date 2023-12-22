@@ -26,10 +26,14 @@ const FleetComps = ({ fleetId }) => {
   useEffect(() => {
     if (!eventContext) return;
 
-    eventContext.addEventListener("fleets", refresh);
-    return () => {
-      eventContext.removeEventListener("fleets", refresh);
-    }
+    
+    eventContext.subscriptions.create({channel: 'FleetChannel'}, {
+      received(data){
+        refresh(data);
+      }
+    })
+
+    return
   }, [refresh, eventContext])
 
   return (
