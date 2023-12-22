@@ -92,6 +92,7 @@ export const icons = {
   "RETIRED-LOGI": { type: "shield", color: "neutral", letter: "L", name: "Retired Logi" },
   BASTION: { type: "shield", color: "blue", letter: "B", name: "Bastion Specialist" },
   WEB: { type: "shield", color: "cyan", letter: "W", name: "Web Specialist" },
+  "WEB-ASPERIANT": {type: 'shield', color: 'neutral', letter: 'W', name: 'Web Asperiant'},
 
   // Other
   "ELITE-GOLD": { type: "shield", color: "yellow", letter: "E", name: "Elite Gold" },

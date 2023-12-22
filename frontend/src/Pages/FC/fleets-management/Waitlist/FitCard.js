@@ -136,6 +136,7 @@ const FitCard = ({ fit, bossId, tab, inviteCounts, onInvite }) => {
     const badges = [
       'BASTION',
       'WEB',
+      'WEB-ASPERIANT',
       'ELITE',
       'ELITE-GOLD'
     ];
