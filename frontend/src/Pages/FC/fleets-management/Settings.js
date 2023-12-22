@@ -8,6 +8,7 @@ import FleetBoss from "./Settings/FleetBoss";
 import FleetVisibilty from "./Settings/FleetVisibilty";
 import FleetSize from "./Settings/FleetSize";
 import WaitlistSummary from "./Settings/WaitlistSummary";
+import SiteType from "./Settings/SiteType";
 
 const SettingsDOM = styled.div`
   box-sizing: border-box;
@@ -127,6 +128,7 @@ const FleetSettings = ({ fleetId, xups, settings, settingsRefresh }) => {
       <FleetBoss fleetBoss={settings?.boss} fleetSystem={settings?.boss_system} error_count={settings?.error_count} fleetId={fleetId} />
       <FleetVisibilty visible={settings?.visible} fleetId={fleetId} />
       <FleetSize size={settings?.size} max_size={settings?.size_max} fleetId={fleetId} />
+      <SiteType type={settings?.site_type} fleetId={fleetId} />
       <WaitlistSummary xups={xups} />
       <FleetButtons fleetId={fleetId} />
     </SettingsDOM>

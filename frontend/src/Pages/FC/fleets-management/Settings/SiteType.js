@@ -3,21 +3,11 @@ import { ToastContext } from "../../../../contexts";
 import { apiCall, errorToaster } from "../../../../api";
 
 import { Box } from "../../../../Components/Box";
-import { Button as EditButton, Card, Details, Feature as BaseFeature } from "./components";
-import { Button, Buttons, Input as BaseInput } from "../../../../Components/Form";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faExclamationTriangle, faUsers } from "@fortawesome/free-solid-svg-icons";
+import { Button as EditButton, Card, Details } from "./components";
+import { Button, Buttons, Select } from "../../../../Components/Form";
 import { Modal } from '../../../../Components/Modal';
 
 import styled from "styled-components";
-
-const Feature = styled(BaseFeature)`
-  border-radius: unset;
-
-  &.overgird {
-    color: ${props => props.theme.colors.warning.color};
-  }
-`;
 
 const FormGroup = styled.div`
   flex-grow: 2;
@@ -34,24 +24,12 @@ const H2 = styled.h2`
   }
 `;
 
-const Input = styled(BaseInput)`
-  max-width: 75px;
-  margin-right: 12px;
-  -moz-appearance: textfield;
-  &::-webkit-outer-spin-button,
-  &::-webkit-inner-spin-button {
-      -webkit-appearance: none;
-  }
-`;
-
-const FleetSize = ({ fleetId, size, max_size }) => {
+const SiteType = ({ fleetId, type }) => {
   const toastContext = useContext(ToastContext);
 
   const [ open, setOpen ] = useState(false);
-  const [ selectedValue, setSelectedValue ] = useState(max_size);
+  const [ selectedValue, setSelectedValue ] = useState(type);
   const [ pending, isPending ] = useState(false);
-
-  const overgrid = size > max_size;
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -61,12 +39,14 @@ const FleetSize = ({ fleetId, size, max_size }) => {
     }
     isPending(true);
 
+    debugger;
+
     errorToaster(
       toastContext,
-      apiCall(`/api/v2/fleets/${fleetId}/size`, {
+      apiCall(`/api/v2/fleets/${fleetId}/type`, {
         method: 'POST',
         json: {
-          max_size: Number(selectedValue)
+          site_type: selectedValue
         }
       })
       .then(() => setOpen(false))
@@ -78,13 +58,10 @@ const FleetSize = ({ fleetId, size, max_size }) => {
     <>
       <Card>
         <div>
-          <Feature>
-            <FontAwesomeIcon className={overgrid ? 'overgird' : ''} fixedWidth icon={overgrid ? faExclamationTriangle : faUsers} size="2x" />
-          </Feature>
           <Details>
-            <p>On Grid Number</p>
+            <p>Site Type</p>
             <div>
-              {size ?? '-'} / {max_size ?? '-'}
+              {type ?? '-'}
               <EditButton onClick={_ => setOpen(true)} />
             </div>
           </Details>
@@ -93,19 +70,16 @@ const FleetSize = ({ fleetId, size, max_size }) => {
 
       <Modal open={open} setOpen={setOpen}>
         <Box>
-          <H2>Set Magic Number</H2>
+          <H2>Set Site Type</H2>
           <form onSubmit={handleSubmit}>
             <FormGroup>
-              <Input
-                type="number"
-                min="0"
-                max="100"
-                value={selectedValue}
-                onChange={e => setSelectedValue(e.target.value)}
-                required
-              />
+              <Select value={selectedValue}  onChange={e => setSelectedValue(e.target.value)}>
+               <option value={'hq'}>Headquarters</option>
+               <option value={'kundi'}>Kundi Pop</option>
+               <option value={'assault'}>Assaults</option>
+               <option value={'vg'}>Vanguards</option>
+              </Select>
             </FormGroup>
-
             <Buttons>
               <Button type="submit" variant="primary">Submit</Button>
               <Button type="button" onClick={_ => setOpen(false)}>Cancel</Button>
@@ -117,4 +91,4 @@ const FleetSize = ({ fleetId, size, max_size }) => {
   )
 }
 
-export default FleetSize;
+export default SiteType;
