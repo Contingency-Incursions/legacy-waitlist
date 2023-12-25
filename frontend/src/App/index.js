@@ -80,6 +80,10 @@ export default class App extends React.Component {
     this.setState({ auth: newState });
   };
 
+
+  
+
+
   render() {
     return (
       <React.StrictMode>
