@@ -20,13 +20,13 @@ const FleetsManagementPage = () => {
     if (!eventContext) return;
 
     
-    eventContext.subscriptions.create({channel: 'WaitlistChannel'}, {
+    const waitlist_sub = eventContext.subscriptions.create({channel: 'WaitlistChannel'}, {
       received(data){
         refresh(data);
       }
     })
 
-    eventContext.subscriptions.create({channel: 'FcChannel'}, {
+    const fc_sub = eventContext.subscriptions.create({channel: 'FcChannel'}, {
       received(data){
         if(data.event == 'notification'){
           let event_data = data?.data;
@@ -40,7 +40,10 @@ const FleetsManagementPage = () => {
       }
     })
 
-    return
+    return () => {
+      waitlist_sub.unsubscribe();
+      fc_sub.unsubscribe();
+    }
   }, [eventContext, refresh])
   return (
     <>

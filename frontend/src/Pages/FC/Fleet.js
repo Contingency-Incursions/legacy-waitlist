@@ -53,13 +53,15 @@ export function Fleet() {
       return;
     }
 
-    eventContext.subscriptions.create({channel: 'WaitlistChannel'}, {
+    const sub = eventContext.subscriptions.create({channel: 'WaitlistChannel'}, {
       received(data){
         handleNotification(data);
       }
     })
 
-    return
+    return () => {
+      sub.unsubscribe();
+    }
   }, [eventContext]);
 
   useEffect(() => {

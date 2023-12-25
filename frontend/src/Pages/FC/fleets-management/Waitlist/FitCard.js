@@ -178,7 +178,8 @@ const FitCard = ({ fit, bossId, tab, inviteCounts, onInvite }) => {
       'UPGRADE-HOURS-REACHED',
       'ELITE-HOURS-REACHED',
       "AT-WAR",
-      "FACTION-WAR"
+      "FACTION-WAR",
+      'NON-DOCTRINE'
     ];
 
     tags = tags.filter(tag => ALLOWED_TAGS.includes(tag));

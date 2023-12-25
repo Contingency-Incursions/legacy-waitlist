@@ -99,12 +99,14 @@ const AnnouncementBanner = () => {
       return;
     }
 
-    eventContext.subscriptions.create({channel: 'AnnouncementChannel'}, {
+    const sub = eventContext.subscriptions.create({channel: 'AnnouncementChannel'}, {
       received(data){
         handleAnnouncment(data);
       }
     })
-    return
+    return () => {
+      sub.unsubscribe();
+    }
   }, [eventContext]);
 
   // Allow users to dismiss an announcement for thirty days

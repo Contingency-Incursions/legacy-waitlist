@@ -28,17 +28,22 @@ const Fleet = ({ fleetBoss, fleetId, myFleet = false }) => {
       }
     }
 
+    let sub = null;
+
     if(fleetId){
-      eventContext.subscriptions.create({channel: 'FcChannel'}, {
+      sub = eventContext.subscriptions.create({channel: 'FcChannel'}, {
         received(data){
           comp_updated(data);
         }
       })
-  
     }
 
 
-    return
+    return () => {
+      if(sub !== null){
+        sub.unsubscribe();
+      }
+    }
   }, [eventContext, fleetId, refresh])
 
   let fleet = useMemo(() => {

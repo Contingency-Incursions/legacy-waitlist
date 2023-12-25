@@ -89,13 +89,13 @@ function useWaitlist(waitlistId) {
       updateFn();
     };
 
-    eventContext.subscriptions.create({channel: 'WaitlistChannel'}, {
+    const waitlist_sub = eventContext.subscriptions.create({channel: 'WaitlistChannel'}, {
       received(data){
         handleEvent(data);
       }
     })
 
-    eventContext.subscriptions.create({channel: 'VisibilityChannel'}, {
+    const vis_sub = eventContext.subscriptions.create({channel: 'VisibilityChannel'}, {
       received(data){
         updateFn(data);
       }
@@ -103,6 +103,8 @@ function useWaitlist(waitlistId) {
 
     return function () {
       clearUpdateFn();
+      waitlist_sub.unsubscribe();
+      vis_sub.unsubscribe();
     };
   }, [refreshFn, eventContext, waitlistId]);
 
@@ -135,7 +137,7 @@ function useFleetComposition() {
     const [updateFn, clearUpdateFn] = coalesceCalls(refreshFn, 2000);
 
     
-    eventContext.subscriptions.create({channel: 'FleetChannel'}, {
+    const sub = eventContext.subscriptions.create({channel: 'FleetChannel'}, {
       received(data){
         updateFn(data);
       }
@@ -144,6 +146,7 @@ function useFleetComposition() {
     //eventContext.addEventListener("open", updateFn);
     return function () {
       clearUpdateFn();
+      sub.unsubscribe();
     };
   }, [refreshFn, eventContext]);
 

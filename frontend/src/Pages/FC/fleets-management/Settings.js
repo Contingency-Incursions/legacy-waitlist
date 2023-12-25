@@ -116,13 +116,15 @@ const FleetSettings = ({ fleetId, xups, settings, settingsRefresh }) => {
     }
 
     
-    eventContext.subscriptions.create({channel: 'FcChannel'}, {
+    const sub = eventContext.subscriptions.create({channel: 'FcChannel'}, {
       received(data){
         handleEvent(data);
       }
     })
 
-    return
+    return () => {
+      sub.unsubscribe();
+    }
   },
     [eventContext, fleetId, settingsRefresh]
   );

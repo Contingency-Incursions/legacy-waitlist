@@ -63,19 +63,22 @@ const FleetsIndexPage = () => {
   useEffect(() => {
     if (!eventContext) return;
 
-    eventContext.subscriptions.create({channel: 'FleetChannel'}, {
+    const fleet_sub = eventContext.subscriptions.create({channel: 'FleetChannel'}, {
       received(data){
         refresh(data);
       }
     })
 
-    eventContext.subscriptions.create({channel: 'FcChannel'}, {
+    const fc_sub = eventContext.subscriptions.create({channel: 'FcChannel'}, {
       received(data){
         refresh(data);
       }
     })
 
-    return
+    return () => {
+      fleet_sub.unsubscribe();
+      fc_sub.unsubscribe();
+    }
   }, [refresh, eventContext])
 
 

@@ -27,13 +27,15 @@ const FleetComps = ({ fleetId }) => {
     if (!eventContext) return;
 
     
-    eventContext.subscriptions.create({channel: 'FleetChannel'}, {
+    const sub = eventContext.subscriptions.create({channel: 'FleetChannel'}, {
       received(data){
         refresh(data);
       }
     })
 
-    return
+    return () => {
+      sub.unsubscribe();
+    }
   }, [refresh, eventContext])
 
   return (

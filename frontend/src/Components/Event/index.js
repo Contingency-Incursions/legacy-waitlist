@@ -133,13 +133,13 @@ const BrowserNotification = () => {
       return;
     }
 
-    eventContext.subscriptions.create({channel: 'EmergencyChannel'}, {
+    const emergency = eventContext.subscriptions.create({channel: 'EmergencyChannel'}, {
       received(data){
         handleEmergency(data);
       }
     })
 
-    eventContext.subscriptions.create({channel: 'CharacterChannel'}, {
+    const char_sub = eventContext.subscriptions.create({channel: 'CharacterChannel'}, {
       received(data){
         if(data.event == 'message'){
           handleMessage(data);
@@ -152,7 +152,10 @@ const BrowserNotification = () => {
     //eventContext.addEventListener("emergency", handleEmergency);
     //eventContext.addEventListener("message", handleMessage);
     //eventContext.addEventListener("notification", handleNotification);
-    return
+    return () => {
+      emergency.unsubscribe();
+      char_sub.unsubscribe();
+    }
   }, [eventContext]);
 
   if (notification?.sound) {
