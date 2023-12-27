@@ -193,7 +193,7 @@ export function SkillDisplay({ ship, skills, setShip = null, filterMin = false }
               Damnation
             </Button>
           </InputGroup>
-          <AButton href="/skills/plans" style={{ float: "right" }}>
+          <AButton href="/skills" style={{ float: "right" }}>
             Skill Plans
           </AButton>
         </Buttons>
