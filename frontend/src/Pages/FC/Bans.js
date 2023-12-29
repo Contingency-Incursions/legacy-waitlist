@@ -90,6 +90,9 @@ const BansPage = () => {
           case "Alliance":
             return <AllianceName {...row.entity} />;
 
+          case "Account":
+            return <CharacterName {...row.entity} />;
+
           default:
             return row.entity.name;
         }

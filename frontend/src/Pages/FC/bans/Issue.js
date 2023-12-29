@@ -178,7 +178,7 @@ const IssueBanModal = ({ isOpen, setOpen, refreshFunction }) => {
                   appearance: "auto",
                 }}
               >
-                <option disabled>Account</option>
+                <option>Account</option>
                 <option>Character</option>
                 <option>Corporation</option>
                 <option>Alliance</option>

@@ -47,7 +47,7 @@ const FilterComponents = ({ filters, onChange, onClear }) => {
       >
         {OPTIONS.entity_type.map((o, key) => {
           return (
-            <option value={o.value ?? o.text} key={key} disabled={o.text === "account"}>
+            <option value={o.value ?? o.text} key={key}>
               {o.text}
             </option>
           );
