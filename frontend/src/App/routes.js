@@ -21,6 +21,7 @@ import { Search } from "../Pages/FC/Search";
 import Skills from "../Pages/Skills";
 import { Statistics } from "../Pages/FC/Statistics";
 import { Waitlist } from "../Pages/Waitlist";
+import { WaitlistSettings } from "../Pages/FC/WaitlistSettings";
 
 import { E401, E403, E404 } from "../Pages/Errors";
 import FleetsIndexPage from "../Pages/FC/fleets";
@@ -76,7 +77,7 @@ export function WaitlistRoutes() {
       <Route path="/fc/search" element={<AuthenticatedRoute component={<Search />} access="waitlist-tag:HQ-FC" />}/>
       <Route path="/fc/stats" element={<AuthenticatedRoute component={<Statistics />} access="stats-view" />} />
       <Route path="/fc/reports" element={<AuthenticatedRoute component={<ReportsPage />} access="reports-view" />}/>
-
+      <Route path="/fc/settings" element={<AuthenticatedRoute component={<WaitlistSettings />} access="settings-view" />}/>
 
       <Route path="/fc/fleets" element={<AuthenticatedRoute component={<FleetsIndexPage />} access="fleet-view" />} /> 
 

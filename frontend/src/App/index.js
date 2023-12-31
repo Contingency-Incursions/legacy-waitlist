@@ -9,6 +9,8 @@ import { Container } from "react-awesome-styled-grid";
 import { Menu } from "./Menu";
 import { Tooltip } from 'react-tooltip'
 import { createConsumer } from "@rails/actioncable";
+import { SettingsProvider } from "../Contexts/Settings";
+import AntiGankBanner from "../Components/AntiGankBanner"
 
 import AnnouncementBanner from "../Components/AnnouncementBanner";
 import ErrorBoundary from './ErrorBoundary';
@@ -92,7 +94,8 @@ export default class App extends React.Component {
           <ToastContext.Provider value={this.addToast}>
             <EventContext.Provider value={this.state.events}>
               <AuthContext.Provider value={this.state.auth}>
-                <BrowserRouter>
+              <SettingsProvider>
+                  <BrowserRouter>
                   <Container style={{ height: "auto", minHeight: `calc(100vh - 70px)` }}>
                     <Menu
                       onChangeCharacter={(char) => this.changeCharacter(char)}
@@ -111,6 +114,7 @@ export default class App extends React.Component {
                         }
                       }}
                     />
+                    <AntiGankBanner />
                     <AnnouncementBanner />
                     <ErrorBoundary>
                     <WaitlistRoutes />
@@ -123,6 +127,8 @@ export default class App extends React.Component {
                 </BrowserRouter>
                 <Tooltip id="tip" style={{ zIndex: 150 }} />
                 <Footer />
+                  </SettingsProvider>
+
               </AuthContext.Provider>
             </EventContext.Provider>
           </ToastContext.Provider>
