@@ -1,7 +1,7 @@
 import { useContext, useMemo } from "react";
 import { AuthContext, ToastContext } from "../../../../contexts";
 import { apiCall, errorToaster } from "../../../../api";
-import BadgeIcon from "../../../../Components/Badge";
+import BadgeIcon, {Badge} from "../../../../Components/Badge";
 import { Button as BaseButton } from "../../../../Components/Form";
 import { CharacterName } from "../../../../Components/EntityLinks";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -164,6 +164,9 @@ const Ship = ({ characters = [], name, typeId }) => {
             <div key={key}>
               <CharacterName {...pilot} />
               <span>
+                {pilot.is_alt && (
+                   <Badge variant="danger">ALT</Badge>
+                )}
                 <BadgeDisplay ship={typeId} badges={pilot.badges} />
               </span>
               <Button variant="primary" onClick={() => ShowInfo(pilot.id, authContext.current, toastContext)}>
