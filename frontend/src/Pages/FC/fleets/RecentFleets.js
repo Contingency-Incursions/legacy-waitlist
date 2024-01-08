@@ -24,11 +24,11 @@ const RecentFleets = () => {
       if(existingEntry === undefined){
         _fleets[id] = {
           fleet_id: id,
-          bosses: [fleet.character_name],
+          bosses: [`${fleet.character_name} (${(fleet.fleet_time / 3600).toFixed(2)})`],
           total_time: fleet.fleet_time
         }
       } else {
-        _fleets[id].bosses.push(fleet.character_name);
+        _fleets[id].bosses.push(`${fleet.character_name} (${fleet.fleet_time / 3600})`);
         _fleets[id].total_time += fleet.fleet_time
       }
     })
@@ -44,7 +44,7 @@ const RecentFleets = () => {
             <Table
               columns={[
                 { name: "Fleet ID", selector: (r) => r?.fleet_id },
-                { name: "Bosses", selector: (r) => r?.bosses },
+                { name: "Bosses", selector: (r) => r?.bosses.join(', ') },
                 { name: "Fleet Time", selector: (r) => (r?.total_time / 3600).toFixed(2) },
               ]}
               data={fleets ?? []}
