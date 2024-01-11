@@ -13,6 +13,7 @@ import WrongFit from "./XupModals/WrongFit";
 import ValidateFit from "./XupModals/ValidateFit";
 import { IsEmptyObject } from "../../Util/objects";
 import { PreloadNotification } from "../../Components/Event";
+import { useEffect } from "react";
 
 const Box = styled(BaseBox)`
   display: flex;
@@ -72,12 +73,13 @@ const Box = styled(BaseBox)`
 
 
 
-async function submitFit({ character_id, fits, is_alt }) {
+async function submitFit({ character_id, fits, is_alt, max_alts }) {
   await apiCall("/api/waitlist/xup", {
     json: {
       eft: fits,
       character_id,
       is_alt,
+      max_alts
     },
   });
 }
@@ -93,6 +95,7 @@ const JoinWaitlist = ({ hasFits }) => {
   const [ badFits, setBadFits ] = useState(undefined);
   const [ fits, setFits ] = useState(undefined);
   const [ validatedFits, setValidatedFits ] = useState(undefined);
+  const [ max_alts, setMaxAlts] = useState(0);
   const [ isMarauder, setMarauder ] = useState(false);
 
   const reset = () => {
@@ -109,6 +112,7 @@ const JoinWaitlist = ({ hasFits }) => {
         character_id: authContext.current.id,
         fits,
         is_alt: alt,
+        max_alts
       })
         .then(() => {
           addToast(toastContext, {
@@ -147,6 +151,7 @@ const JoinWaitlist = ({ hasFits }) => {
             <ValidateFit
               alt={alt} setAlt={(a) => setAlt(a)}
               fits={fits} setFits={(f) => setFits(f)}
+              max_alts={max_alts} setMaxAlts={setMaxAlts}
               callback={(fits) => {
                 setValidatedFits(fits);
 

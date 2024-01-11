@@ -130,7 +130,7 @@ const FitState = ({ state, review_comment }) => {
 
 const IMAGE_SERVER_URL = 'https://images.evetech.net/';
 
-const FitCard = ({ fit, bossId, tab, inviteCounts, onInvite }) => {
+const FitCard = ({ fit, bossId, tab, inviteCounts, onInvite, max_alts }) => {
   const [skills] = useApi(`/api/skills?character_id=${fit.character.id}`);
   const BadgeContainer = ({ tags }) => {
     const badges = [
@@ -170,7 +170,7 @@ const FitCard = ({ fit, bossId, tab, inviteCounts, onInvite }) => {
     )
   }
 
-  const ContentContainer = ({ character, fit_analysis, id, tags, bossId, inviteCounts, onInvite, skills }) => {
+  const ContentContainer = ({ character, fit_analysis, id, tags, bossId, inviteCounts, onInvite, skills, max_alts }) => {
     const ALLOWED_TAGS = [
       'NO-EM-806',
       'SLOW',
@@ -179,7 +179,8 @@ const FitCard = ({ fit, bossId, tab, inviteCounts, onInvite }) => {
       'ELITE-HOURS-REACHED',
       "AT-WAR",
       "FACTION-WAR",
-      'NON-DOCTRINE'
+      'NON-DOCTRINE',
+      'BOXER'
     ];
 
     tags = tags.filter(tag => ALLOWED_TAGS.includes(tag));
@@ -191,7 +192,7 @@ const FitCard = ({ fit, bossId, tab, inviteCounts, onInvite }) => {
       <ContentContainerDOM>
         <div className="names">
           <div>
-            <p>{character?.name ?? 'Unknown'}</p>
+            <p>{character?.name ?? 'Unknown'} {tags.includes('BOXER') && max_alts && `+ ${max_alts}`}</p>
             <p>{fit_analysis?.name}</p>
           </div>
           <BadgeContainer tags={fit?.tags} />
@@ -235,7 +236,7 @@ const FitCard = ({ fit, bossId, tab, inviteCounts, onInvite }) => {
   return (
     <FitCardDOM variant={FitState(fit)} style={{ display: show ? 'flex' : 'none'}}>
       <ImageContainer character={fit?.character} hull={fit.hull} skills={skills} />
-      <ContentContainer {...fit} bossId={bossId} inviteCounts={inviteCounts} onInvite={onInvite} skills={skills} />
+      <ContentContainer {...fit} bossId={bossId} inviteCounts={inviteCounts} onInvite={onInvite} skills={skills} max_alts={max_alts} />
       <div className='grey' />
     </FitCardDOM>
   )

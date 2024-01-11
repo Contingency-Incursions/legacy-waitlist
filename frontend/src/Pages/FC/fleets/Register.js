@@ -83,7 +83,8 @@ const RegisterFleetBtn = ({ refreshFunction }) => {
       default_motd: defaultMotd,
       default_squads: defaultSquads,
       boss_id: authContext.current.id,
-      squads: null
+      squads: null,
+      all_squads: squads
     };
 
     if (!defaultSquads) {

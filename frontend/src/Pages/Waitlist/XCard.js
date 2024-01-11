@@ -241,7 +241,7 @@ export function XCard({ entry, fit, onAction }) {
   return (
     <XCardDOM variant={variant}>
       <XCardDOM.Head>
-        <span>{accountName}</span>
+        <span>{accountName} {entry.max_alts && `+ ${entry.max_alts}`}</span>
         <XCardDOM.Head.Badges>
           {tagImages}
           {approvalFlag}

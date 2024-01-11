@@ -22,7 +22,7 @@ const Fits = styled.div`
   }
 `;
 
-const Flightstrip = ({ id, character, fleet_time, fits, joined_at, bossId, tab, inviteCounts, setInviteCounts, skills, setSkills }) => {
+const Flightstrip = ({ id, character, fleet_time, fits, joined_at, bossId, tab, inviteCounts, setInviteCounts, skills, setSkills, max_alts }) => {
   let show = useMemo(() => {
     if(!fits) return false;
     if(tab == 'All'){
@@ -54,6 +54,7 @@ const Flightstrip = ({ id, character, fleet_time, fits, joined_at, bossId, tab, 
       <Fits>
         {fits?.map((fit) => <FitCard 
         fit={fit} 
+        max_alts={max_alts}
         bossId={bossId} 
         key={fit.id} 
         tab={tab} 

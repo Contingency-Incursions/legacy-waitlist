@@ -1,7 +1,7 @@
 import styled from "styled-components";
-import { Label as BaseLabel, Button, Textarea } from "../../../Components/Form";
+import { Label as BaseLabel,Input as BaseInput, Button, Textarea } from "../../../Components/Form";
 import { ImplantDisplay } from "../../../Components/FitDisplay";
-import { useContext, useState } from "react";
+import { useContext, useState, useMemo, useEffect } from "react";
 import { AuthContext, ToastContext } from "../../../contexts";
 import { apiCall, errorToaster, useApi } from "../../../api";
 //import A from "../../../Components/A";
@@ -23,6 +23,17 @@ const Label = styled(BaseLabel)`
     background: none;
   }
 `;
+
+const Input = styled(BaseInput)`
+  max-width: 75px;
+  margin-right: 12px;
+  -moz-appearance: textfield;
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+  }
+`;
+
 
 const exampleFit = String.raw`
 [Kronos, CI Kronos Elite]
@@ -49,7 +60,7 @@ async function validateFit({ character_id, eft }) {
   });
 }
 
-const ValidateFit = ({ alt, fits, callback, setAlt, setFits }) => {
+const ValidateFit = ({ alt, fits, max_alts, callback, setAlt, setFits, setMaxAlts }) => {
   const authContext = useContext(AuthContext);
   const toastContext = useContext(ToastContext);
 
@@ -77,6 +88,17 @@ const ValidateFit = ({ alt, fits, callback, setAlt, setFits }) => {
     );
   }
 
+  const is_boxer = useMemo(() => {
+    const main = authContext.characters.find((e) => e.main);
+    return main.badges.includes('BOXER');
+  }, [authContext])
+
+  useEffect(() => {
+    const main = authContext.characters.find((e) => e.main);
+    setMaxAlts(main.boxer_alts);
+  }, [setMaxAlts, authContext])
+
+
   return (
     <>
       <H2>{!fits ? "Join" : "Update fits on"} the Waitlist</H2>
@@ -93,6 +115,22 @@ const ValidateFit = ({ alt, fits, callback, setAlt, setFits }) => {
             This pilot is an alt
           </Label>
         </FormGroup>
+
+        {is_boxer && (
+                  <FormGroup>
+                  <Label htmlFor="boxer_alts">What is max boxer alts you can bring?</Label>
+                    <Input id="boxer_alts"
+                      type="number"
+                      min="0"
+                      max="20"
+                     value={max_alts}
+                     onChange={(e) => setMaxAlts(e.target.value)}
+                     step='1'
+                      required
+                    /> alts
+                </FormGroup>
+        )}
+
 
         <Button variant="success" disabled={pending}>X UP</Button>
         {/* <A href={`https://wiki.${window.location.host}/guides/waitlist`} target="_blank">

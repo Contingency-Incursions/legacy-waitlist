@@ -28,7 +28,7 @@ const RecentFleets = () => {
           total_time: fleet.fleet_time
         }
       } else {
-        _fleets[id].bosses.push(`${fleet.character_name} (${fleet.fleet_time / 3600})`);
+        _fleets[id].bosses.push(`${fleet.character_name} (${(fleet.fleet_time / 3600).toFixed(2)})`);
         _fleets[id].total_time += fleet.fleet_time
       }
     })

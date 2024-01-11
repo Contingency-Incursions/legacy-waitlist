@@ -100,6 +100,7 @@ export const icons = {
   UNKNOWN: { type: "shield", color: "neutral", letter: "?", name: null },
   "AT-WAR": {type: "image", href: require('./BadgeImages/Wars.png'),  name: 'Pilot at war'},
   "FACTION-WAR": {type: "image", href: require('./BadgeImages/Icon_fw.png'), name: 'Pilot in FW'},
+  BOXER: {type: 'shield', color: 'neutral', letter: 'B', name: 'Trusted Boxer'}
 };
 
 const BadgeIcon = ({ type = "UNKNOWN", height = "1.2em" }) => {

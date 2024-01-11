@@ -59,6 +59,7 @@ const ConfigureSquadsForm = ({ squads, categories, squadMappings, setSquadMappin
 
   return (
     <DOM>
+      <Label>Any on-grid squads not directly mapped will be turned into boxer squads</Label>
       {categories?.map((category, key) => <SquadSelect 
         category={category}
         options={squads}
