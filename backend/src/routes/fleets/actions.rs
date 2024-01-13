@@ -50,18 +50,18 @@ async fn delete_fleet(
 
     let mut tx = app.get_db().begin().await?;
     sqlx::query!("DELETE FROM fleet_squad WHERE fleet_id=$1", fleet_id)
-        .execute(&mut tx)
+        .execute(&mut *tx)
         .await?;
 
     sqlx::query!("DELETE FROM fleet WHERE id=$1", fleet_id)
-        .execute(&mut tx)
+        .execute(&mut *tx)
         .await?;
 
     sqlx::query!(
         "UPDATE fleet_activity SET has_left=true WHERE fleet_id=$1 AND has_left=false",
         fleet_id
     )
-    .execute(&mut tx)
+    .execute(&mut *tx)
     .await?;
 
     tx.commit().await?;
@@ -272,7 +272,7 @@ async fn invite_all(
     .await?;
 
     for alt in alts {
-        if invited_characters.contains(&alt.character_id.unwrap()) {
+        if invited_characters.contains(&alt.character_id) {
             continue; // Character has already been invited
         }
 
@@ -296,7 +296,7 @@ async fn invite_all(
             .post_204(
                 &format!("/v1/fleets/{}/members", fleet_id),
                 &SquadInvite {
-                    character_id: alt.character_id.unwrap(),
+                    character_id: alt.character_id,
                     role: "squad_member",
                     squad_id: target_squad.squad_id,
                     wing_id: target_squad.wing_id,
@@ -319,16 +319,16 @@ async fn invite_all(
         }
 
         invite_count += 1;
-        invited_characters.push(alt.character_id.unwrap());
+        invited_characters.push(alt.character_id);
 
         app.sse_client
             .submit(vec![Event::new(
-                &format!("account;{}", alt.account_id.unwrap()),
+                &format!("account;{}", alt.account_id),
                 "message",
                 format!(
                     "{} has invited your {} to fleet.",
                     fc.name,
-                    TypeDB::name_of(alt.hull.unwrap())?
+                    TypeDB::name_of(alt.hull)?
                 ),
             )])
             .await?;

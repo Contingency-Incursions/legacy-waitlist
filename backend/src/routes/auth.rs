@@ -79,7 +79,7 @@ async fn set_wiki_passwd(
         "INSERT INTO wiki_user (character_id, \"user\", hash, mail) VALUES ($1, $2, $3, $4) ON CONFLICT (character_id)
         DO UPDATE
         SET \"user\" = excluded.user,
-        hash = excluded.hash, 
+        hash = excluded.hash,
         mail = excluded.mail;",
         account.id,
         wiki_user,

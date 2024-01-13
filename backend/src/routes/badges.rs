@@ -45,7 +45,7 @@ async fn list_badges(
     account.require_access("badges-manage")?;
 
     let rows = sqlx::query!(
-        "SELECT id as \"id!\", name as \"name!\", 
+        "SELECT id as \"id!\", name as \"name!\",
             (
                 SELECT COUNT(*)
                 FROM badge_assignment AS badge_assignment
@@ -80,20 +80,20 @@ async fn get_badge_members(
     account.require_access("badges-manage")?;
 
     let badge_assignments = sqlx::query!(
-        "SELECT 
-        c.id, 
-        c.name, 
-        g.id AS \"grantedById!\", 
-        g.name AS \"grantedByName!\", 
-        b.id AS \"badge_id\", 
-        b.name AS \"badge_name\", 
-        grantedAt 
-      FROM 
-        badge_assignment 
-        JOIN character AS c ON characterId = c.id 
-        JOIN character AS g ON grantedById = g.id 
-        JOIN badge AS b ON badgeId = b.id 
-      WHERE 
+        "SELECT
+        c.id,
+        c.name,
+        g.id AS \"grantedById!\",
+        g.name AS \"grantedByName!\",
+        b.id AS \"badge_id\",
+        b.name AS \"badge_name\",
+        grantedAt
+      FROM
+        badge_assignment
+        JOIN character AS c ON characterId = c.id
+        JOIN character AS g ON grantedById = g.id
+        JOIN badge AS b ON badgeId = b.id
+      WHERE
         badgeId = $1",
         badge_id
     )

@@ -111,11 +111,11 @@ async fn close_all(
         let mut tx = app.get_db().begin().await?;
 
         sqlx::query!("DELETE FROM fleet_squad WHERE fleet_id=$1", fleet.id)
-            .execute(&mut tx)
+            .execute(&mut *tx)
             .await?;
 
         sqlx::query!("DELETE FROM fleet WHERE id=$1", fleet.id)
-            .execute(&mut tx)
+            .execute(&mut *tx)
             .await?;
 
         tx.commit().await?;
@@ -172,17 +172,17 @@ async fn register(
         "DELETE FROM fleet_squad WHERE fleet_id=$1",
         basic_info.fleet_id
     )
-    .execute(&mut tx)
+    .execute(&mut *tx)
     .await?;
 
     sqlx::query!(
         "INSERT INTO fleet (id, boss_id, max_size) VALUES ($1, $2, 40) ON CONFLICT (id) DO UPDATE
-        SET max_size = excluded.max_size, 
+        SET max_size = excluded.max_size,
         boss_id = excluded.boss_id;",
         basic_info.fleet_id,
         basic_info.fleet_boss_id
     )
-    .execute(&mut tx)
+    .execute(&mut *tx)
     .await?;
 
     // Let the FC use default squads, or map thier own for invites
@@ -258,7 +258,7 @@ async fn register(
                         new_wing.id,
                         new_squad.id
                     )
-                    .execute(&mut tx)
+                    .execute(&mut *tx)
                     .await?;
                 }
             }
@@ -272,7 +272,7 @@ async fn register(
                 squad.wing_id,
                 squad.id
             )
-            .execute(&mut tx)
+            .execute(&mut *tx)
             .await?;
         }
     }

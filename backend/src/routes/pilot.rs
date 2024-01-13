@@ -69,10 +69,10 @@ async fn alt_info(
         FROM
             character
         JOIN
-            \"alt_character\"AS \"alt\" ON (alt.alt_id=id OR alt.account_id=id)       
+            \"alt_character\"AS \"alt\" ON (alt.alt_id=id OR alt.account_id=id)
         WHERE
             (alt.alt_id=$1 OR alt.account_id=$2) AND id!=$3
-        ORDER BY 
+        ORDER BY
             \"name\" ASC",
         character_id,
         character_id,

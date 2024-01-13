@@ -73,7 +73,7 @@ impl BanService {
         let now: i64 = chrono::Utc::now().timestamp();
 
         let rows = sqlx::query!(
-            "SELECT 
+            "SELECT
                 ban.id,
                 entity_id,
                 entity_name,
@@ -132,7 +132,7 @@ impl BanService {
         entity_type: &str,
     ) -> Result<Option<Vec<Ban>>, Madness> {
         let rows = sqlx::query!(
-            "SELECT 
+            "SELECT
                 ban.id,
                 entity_id,
                 entity_name,

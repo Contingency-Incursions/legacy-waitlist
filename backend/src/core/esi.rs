@@ -336,7 +336,7 @@ impl ESIClient {
         let mut tx = self.db.begin().await?;
 
         if sqlx::query!("SELECT id FROM character WHERE id=$1", auth.character_id)
-            .fetch_optional(&mut tx)
+            .fetch_optional(&mut *tx)
             .await?
             .is_none()
         {
@@ -345,7 +345,7 @@ impl ESIClient {
                 auth.character_id,
                 auth.character_name
             )
-            .execute(&mut tx)
+            .execute(&mut *tx)
             .await?;
         }
 
@@ -353,26 +353,26 @@ impl ESIClient {
         let scopes = join_scopes(&auth.scopes);
         sqlx::query!(
             "INSERT INTO access_token (character_id, access_token, expires, scopes) VALUES ($1, $2, $3, $4) ON CONFLICT (character_id) DO UPDATE
-            SET access_token = excluded.access_token, 
-                expires = excluded.expires, 
+            SET access_token = excluded.access_token,
+                expires = excluded.expires,
                 scopes = excluded.scopes;",
             auth.character_id,
             auth.access_token,
             expiry_timestamp,
             scopes,
         )
-        .execute(&mut tx)
+        .execute(&mut *tx)
         .await?;
 
         sqlx::query!(
             "INSERT INTO refresh_token (character_id, refresh_token, scopes) VALUES ($1, $2, $3) ON CONFLICT (character_id) DO UPDATE
-            SET refresh_token = excluded.refresh_token, 
+            SET refresh_token = excluded.refresh_token,
                 scopes = excluded.scopes;",
             auth.character_id,
             auth.refresh_token,
             scopes,
         )
-        .execute(&mut tx)
+        .execute(&mut *tx)
         .await?;
 
         tx.commit().await?;
@@ -428,13 +428,13 @@ impl ESIClient {
                     "DELETE FROM access_token WHERE character_id=$1",
                     character_id
                 )
-                .execute(&mut tx)
+                .execute(&mut *tx)
                 .await?;
                 sqlx::query!(
                     "DELETE FROM refresh_token WHERE character_id=$1",
                     character_id
                 )
-                .execute(&mut tx)
+                .execute(&mut *tx)
                 .await?;
                 tx.commit().await?;
 

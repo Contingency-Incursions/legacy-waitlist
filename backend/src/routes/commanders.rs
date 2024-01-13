@@ -89,15 +89,15 @@ async fn list(
         .into_iter()
         .map(|cmdr| Commander {
             character: Character {
-                id: cmdr.id.unwrap(),
-                name: cmdr.name.unwrap(),
+                id: cmdr.id,
+                name: cmdr.name,
             },
-            role: cmdr.role.unwrap(),
+            role: cmdr.role,
             granted_by: Character {
-                id: cmdr.admin_id.unwrap(),
-                name: cmdr.admin_name.unwrap(),
+                id: cmdr.admin_id,
+                name: cmdr.admin_name,
             },
-            granted_at: cmdr.granted_at.unwrap(),
+            granted_at: cmdr.granted_at,
         })
         .collect();
 

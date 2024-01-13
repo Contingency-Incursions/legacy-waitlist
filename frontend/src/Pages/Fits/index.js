@@ -2,9 +2,11 @@ import { useApi } from "../../api";
 import { InputGroup, Button, Buttons, AButton } from "../../Components/Form";
 import { Fitout, ImplantOut } from "./FittingSortDisplay";
 import { PageTitle } from "../../Components/Page";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { usePageTitle } from "../../Util/title";
 import { InfoNote } from "../../Components/NoteBox";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faExternalLinkAlt } from "@fortawesome/free-solid-svg-icons";
 
 export function Fits() {
   const queryParams = new URLSearchParams(useLocation().search);
@@ -28,7 +30,7 @@ function FitsDisplay({ tier, setTier = null }) {
   return (
     <>
       <PageTitle>HQ FITS</PageTitle>
-      <AButton href="/skills/plans" style={{ float: "right" }}>
+      <AButton as={Link} to="/skills/plans" style={{ float: "right" }}>
         Skill Plans
       </AButton>
       {setTier && (
@@ -62,7 +64,7 @@ function FitsDisplay({ tier, setTier = null }) {
               href={`https://wiki.${window.location.host}/guides/travelling-between-focuses#incursion-ship-travel-fits`}
               target="_blank"
             >
-              Travel
+              Travel <FontAwesomeIcon fixedWidth icon={faExternalLinkAlt} />
             </AButton>
           </InputGroup>
         </Buttons>

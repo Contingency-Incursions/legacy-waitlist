@@ -51,19 +51,19 @@ async fn list(
     let bans = rows
         .into_iter()
         .map(|ban| Ban {
-            id: Some(ban.id.unwrap()),
+            id: Some(ban.id),
             entity: Some(Entity {
-                id: ban.entity_id.unwrap(),
+                id: ban.entity_id,
                 name: ban.entity_name,
-                category: ban.entity_type.unwrap(),
+                category: ban.entity_type,
             }),
-            issued_at: Some(ban.issued_at.unwrap()),
+            issued_at: Some(ban.issued_at),
             issued_by: Some(Character {
-                id: ban.issued_by_id.unwrap(),
-                name: ban.issued_by_name.unwrap(),
+                id: ban.issued_by_id,
+                name: ban.issued_by_name,
                 corporation_id: None,
             }),
-            reason: ban.reason.unwrap(),
+            reason: ban.reason,
             public_reason: ban.public_reason,
             revoked_at: ban.revoked_at,
             revoked_by: None,

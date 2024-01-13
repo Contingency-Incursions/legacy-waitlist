@@ -10,11 +10,11 @@ async fn empty_waitlist(
     let mut tx = app.get_db().begin().await?;
 
     sqlx::query!("DELETE FROM waitlist_entry_fit")
-        .execute(&mut tx)
+        .execute(&mut *tx)
         .await?;
 
     sqlx::query!("DELETE FROM waitlist_entry")
-        .execute(&mut tx)
+        .execute(&mut *tx)
         .await?;
 
     tx.commit().await?;

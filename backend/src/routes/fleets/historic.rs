@@ -25,7 +25,7 @@ async fn fleet_history(
 ) -> Result<Json<HistoryResponse>, Madness> {
     account.require_access("fleet-view")?;
     let res: Vec<Fleet> = sqlx::query_as(
-        "select 
+        "select
     fleet_id,
     c.name as character_name,
     max(fa.last_seen) as fleet_end,

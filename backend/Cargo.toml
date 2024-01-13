@@ -13,29 +13,29 @@ members = [
 eve_data_macros = { path = "./eve-data-macros" }
 eve_data_core = { path = "./eve-data-core" }
 
-sqlx = { version = "0.5", features = ["runtime-tokio-rustls", "postgres", "macros", "chrono"] }
-rocket = { version = "0.5.0-rc.1", features = ["json"] }
+sqlx = { version = "0.7", features = ["runtime-tokio-rustls", "postgres", "macros", "chrono"] }
+rocket = { version = "0.5.0", features = ["json"] }
 lazy_static = "1"
 chrono = "0.4"
 reqwest = { version = "*", default-features = false, features = ["json", "rustls-tls"] }
 tokio = { version = "*", features = ["time"] }
 
-serde = "1.0.130"
+serde = "1.0.195"
 serde_json = "*"
-rmp-serde = "0.15"
+rmp-serde = "1.1"
 yaml-merge-keys = { version = "*", features = ["serde_yaml"] }
 serde_yaml = "*"
 toml = "*"
 branca = "0.10"
 hex = "0.4"
-regex = "1.5.4"
-rand = "0.8.4"
+regex = "1.10.2"
+rand = "0.8.5"
 thiserror = "*"
 bcrypt = "*"
-zxcvbn = "2.2.0"
+zxcvbn = "2.2.2"
 itertools = "*"
 Inflector = "0.11.4"
-bigdecimal = { version = "*", features = ["serde"] }
+bigdecimal = { version = "0.3", features = ["serde"] }
 dotenv = "*"
 sentry = {version = "*", features = ["debug-images"] }
 

@@ -126,15 +126,15 @@ impl FleetUpdater {
                 let mut tx = self.get_db().begin().await?;
 
                 sqlx::query!("DELETE FROM fleet_squad WHERE fleet_id=$1", fleet_id)
-                    .execute(&mut tx)
+                    .execute(&mut *tx)
                     .await?;
 
                 sqlx::query!("DELETE FROM fleet WHERE id=$1", fleet_id)
-                    .execute(&mut tx)
+                    .execute(&mut *tx)
                     .await?;
 
                 sqlx::query!("UPDATE fleet_activity SET last_seen=$1,has_left=true WHERE fleet_id=$2 AND has_left=false", now, fleet_id)
-                    .execute(&mut tx)
+                    .execute(&mut *tx)
                     .await?;
 
                 tx.commit().await?;
@@ -188,7 +188,7 @@ impl FleetUpdater {
                     sqlx::query!(
                         "INSERT INTO character (id, name, last_seen) VALUES ($1, $2, $3) ON CONFLICT (id)
                         DO UPDATE
-                        SET name = excluded.name, 
+                        SET name = excluded.name,
                         last_seen = excluded.last_seen;",
                         id,
                         character_info.name,
@@ -210,32 +210,32 @@ impl FleetUpdater {
                 .fetch_all(self.get_db())
                 .await?
                 .into_iter()
-                .map(|r| (r.character_id.unwrap(), r))
+                .map(|r| (r.character_id, r))
                 .collect();
 
             let mut tx = self.get_db().begin().await?;
             for &id in &member_ids {
                 if let Some(pilot_on_wl) = waitlist.get(&id) {
                     changed = true;
-                    if pilot_on_wl.is_alt.unwrap() {
+                    if pilot_on_wl.is_alt {
                         sqlx::query!(
                             "DELETE FROM waitlist_entry_fit WHERE character_id=$1",
                             pilot_on_wl.character_id
                         )
-                        .execute(&mut tx)
+                        .execute(&mut *tx)
                         .await?;
                     } else {
                         sqlx::query!(
                             "DELETE FROM waitlist_entry_fit WHERE entry_id=$1 AND is_alt = false",
                             pilot_on_wl.entry_id
                         )
-                        .execute(&mut tx)
+                        .execute(&mut *tx)
                         .await?;
                     }
                 }
             }
             sqlx::query!("DELETE FROM waitlist_entry WHERE id NOT IN (SELECT entry_id FROM waitlist_entry_fit)")
-                .execute(&mut tx)
+                .execute(&mut *tx)
                 .await?;
 
             tx.commit().await?;
@@ -255,7 +255,7 @@ impl FleetUpdater {
                 "SELECT * FROM fleet_activity WHERE fleet_id=$1 AND has_left=false",
                 fleet_id
             )
-            .fetch_all(&mut tx)
+            .fetch_all(&mut *tx)
             .await?
             .into_iter()
             .map(|r| (r.character_id, r))
@@ -277,7 +277,7 @@ impl FleetUpdater {
                         member.solar_system_id,
                         fleet_id
                     )
-                    .execute(&mut tx)
+                    .execute(&mut *tx)
                     .await?;
 
                     boss_system_changed = true;
@@ -293,7 +293,7 @@ impl FleetUpdater {
                                     now,
                                     in_db.id
                                 )
-                                .execute(&mut tx)
+                                .execute(&mut *tx)
                                 .await?;
 
                                 changed = true;
@@ -304,7 +304,7 @@ impl FleetUpdater {
                                 now,
                                 in_db.id
                             )
-                            .execute(&mut tx)
+                            .execute(&mut *tx)
                             .await?;
 
                             insert_record = true;
@@ -319,7 +319,7 @@ impl FleetUpdater {
                         sqlx::query!(
                             "INSERT INTO fleet_activity (character_id, fleet_id, first_seen, last_seen, is_boss, hull, has_left) VALUES ($1, $2, $3, $4, $5, $6, false)",
                             member.character_id, fleet_id, now, now, is_boss, member.ship_type_id,
-                        ).execute(&mut tx).await?;
+                        ).execute(&mut *tx).await?;
 
                         changed = true;
                     }
@@ -336,7 +336,7 @@ impl FleetUpdater {
                         "UPDATE fleet_activity SET has_left=true WHERE id=$1",
                         pilot.id
                     )
-                    .execute(&mut tx)
+                    .execute(&mut *tx)
                     .await?;
 
                     changed = true;
