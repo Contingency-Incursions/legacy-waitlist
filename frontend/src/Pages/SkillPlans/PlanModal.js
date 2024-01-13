@@ -53,7 +53,7 @@ const PlanModal = ({ levels, shipId, source, setOpen }) => {
   const toastContext = useContext(ToastContext);
 
   const [filter, setFilter] = useState(false);
-  const [skills] = useApi(`/api/skills?character_id=${authContext?.current?.id || -1}`, true);
+  const [skills] = useApi(`/api/skills?character_id=${authContext?.current?.id || -1}`);
 
   if (!skills || !levels) {
     return null;
