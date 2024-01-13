@@ -29,13 +29,13 @@ const special_sort = (charA, charB) => {
   else return 0;
 };
 
-const FilterComponents = ({ filters, onChange, onClear}) => {
+const FilterComponents = ({ filters, onChange, onClear }) => {
   const handleSelect = (evt) => {
     let f = filters;
     f.role = evt.target.value === "-1" ? null : evt.target.value;
     onChange(f);
   };
-  
+
   const handleNameChange = (evt) => {
     let f = filters;
     f.name = evt.target.value;
@@ -51,7 +51,7 @@ const FilterComponents = ({ filters, onChange, onClear}) => {
         style={{
           marginRight: "10px",
           marginBottom: "10px",
-          appearance: "auto"
+          appearance: "auto",
         }}
       >
         <option value={-1}>Any</option>
@@ -60,37 +60,37 @@ const FilterComponents = ({ filters, onChange, onClear}) => {
             <option value={role} key={key} readOnly>
               {role}
             </option>
-          )
+          );
         })}
       </Select>
       <Input
         value={filters?.name ?? ""}
         onChange={handleNameChange}
         placeholder="pilot name"
-        style={{ 
+        style={{
           marginRight: "10px",
-          marginBottom: "10px" 
+          marginBottom: "10px",
         }}
       />
       <Button variant={"primary"} onClick={onClear} style={{ marginBottom: "10px" }}>
         Clear
       </Button>
     </div>
-  )
-}
+  );
+};
 
 const ReportsPage = () => {
-  const [ report, fetchReport ] = useApi("/api/reports");  
-  const [ filters, setFilters ] = React.useState({ type: null, name: "" });
+  const [report, fetchReport] = useApi("/api/reports");
+  const [filters, setFilters] = React.useState({ type: null, name: "" });
   usePageTitle("Activity Reports");
-    
+
   const columns = [
     {
       name: "Pilot Name",
       sortable: true,
       sortFunction: (rowA, rowB) => special_sort(rowA, rowB),
       grow: 2,
-      selector: (row) => <CharacterName id={row.character_id} name={row.name} />
+      selector: (row) => <CharacterName id={row.character_id} name={row.name} />,
     },
     { name: "Role", selector: (row) => row.role },
     {
@@ -98,11 +98,11 @@ const ReportsPage = () => {
       sortable: true,
       sortFunction: (rowA, rowB) => SortDate(rowA.last_seen, rowB.last_seen),
       selector: (row) => {
-        if(!row?.last_seen) {
+        if (!row?.last_seen) {
           return "-";
         }
         return formatDate(new Date(row.last_seen * 1000));
-      }
+      },
     },
     {
       name: "Hours (last 28 Days)",
@@ -112,22 +112,22 @@ const ReportsPage = () => {
         if (!row?.seconds_last_month) {
           return "-";
         }
-        return row.seconds_last_month / 3600
-      }
-    }
-  ]
+        return row.seconds_last_month / 3600;
+      },
+    },
+  ];
 
   const TableHeader = React.useMemo(() => {
     const handleClear = () => setFilters({ type: null, name: "" });
 
     return (
       <TableControls>
-        <FilterComponents 
+        <FilterComponents
           filters={filters}
           onChange={(e) => {
             setFilters({
-              ...e
-            })
+              ...e,
+            });
           }}
           onClear={handleClear}
         />
@@ -136,15 +136,15 @@ const ReportsPage = () => {
           <FontAwesomeIcon fixedWidth icon={faUndo} /> Refresh Reports
         </Button>
       </TableControls>
-    )
-  })
+    );
+  }, [setFilters, fetchReport, filters]);
 
   const filteredData = (report ?? []).filter(
-    (row) => 
+    (row) =>
       row &&
       (!filters.role || row.role === filters.role) &&
       row.name.toLowerCase().includes(filters?.name.toLowerCase())
-  )
+  );
 
   return (
     <>
@@ -160,7 +160,7 @@ const ReportsPage = () => {
         progressPending={!report}
       />
     </>
-  )
-}
+  );
+};
 
 export default ReportsPage;

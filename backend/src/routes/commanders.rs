@@ -25,7 +25,7 @@ struct Character {
 struct CharacterWithRole {
     id: i64,
     name: String,
-    role: String
+    role: String,
 }
 
 #[derive(Serialize)]
@@ -101,10 +101,10 @@ async fn list(
         })
         .collect();
 
-    return Ok(Json(CommanderList {
+    Ok(Json(CommanderList {
         commanders,
         filters,
-    }));
+    }))
 }
 
 #[post("/api/commanders", data = "<body>")]
@@ -148,9 +148,10 @@ async fn assign(
         .await?
     {
         // Ensure the character doesn't already have a role - Character <-> Admin is a 1 to 1 relationship
-        if let Some(_) = sqlx::query!("SELECT * FROM admin WHERE character_id=$1", character_id)
+        if sqlx::query!("SELECT * FROM admin WHERE character_id=$1", character_id)
             .fetch_optional(app.get_db())
             .await?
+            .is_some()
         {
             return Err(Madness::BadRequest(format!(
                 "Cannot assign \"{}\" to {} as they already have a role",
@@ -173,7 +174,7 @@ async fn assign(
     }
 
     // todo: return error message
-    return Err(Madness::NotFound(""));
+    Err(Madness::NotFound(""))
 }
 
 #[get("/api/commanders/public")]
@@ -196,10 +197,10 @@ async fn public_directory(
 async fn assignable(account: AuthenticatedAccount) -> Result<Json<Vec<&'static str>>, Madness> {
     account.require_access("commanders-manage")?;
 
-    let role_order = vec!["Wiki Team", "Trainee", "FC", "Instructor", "Leadership"];
+    let role_order = ["Wiki Team", "Trainee", "FC", "Instructor", "Leadership"];
 
     let mut options = Vec::new();
-    for scope in account.access.into_iter() {
+    for scope in account.access.iter() {
         if scope.contains("commanders-manage:") {
             // 14 is the index of ":".
             let (_, b) = scope.split_at(18);
@@ -241,7 +242,7 @@ async fn lookup(
     }
 
     // todo: return error message
-    return Err(Madness::NotFound(""));
+    Err(Madness::NotFound(""))
 }
 
 #[delete("/api/commanders/<character_id>")]
@@ -254,9 +255,9 @@ async fn revoke(
 
     // Stop user from revoking their own role
     if account.id == character_id {
-        return Err(Madness::BadRequest(format!(
-            "You cannot revoke your own rank."
-        )));
+        return Err(Madness::BadRequest(
+            "You cannot revoke your own rank.".to_string(),
+        ));
     }
 
     // Check the target user has a role. If they do not return a 200, if they do...
@@ -279,16 +280,16 @@ async fn revoke(
             .await?;
     };
 
-    return Ok("Ok");
+    Ok("Ok")
 }
 
 pub fn routes() -> Vec<rocket::Route> {
     routes![
-        assign,             // POST     /api/commanders
-        list,               // GET      /api/commanders
-        public_directory,   // GET      /api/commanders/directory
-        assignable,         // GET      /api/commanders/roles
-        lookup,             // GET      /api/commanders/<character_id>
-        revoke              // DELETE   /api/commanders/<character_id>
+        assign,           // POST     /api/commanders
+        list,             // GET      /api/commanders
+        public_directory, // GET      /api/commanders/directory
+        assignable,       // GET      /api/commanders/roles
+        lookup,           // GET      /api/commanders/<character_id>
+        revoke            // DELETE   /api/commanders/<character_id>
     ]
 }

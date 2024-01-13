@@ -19,8 +19,8 @@ const WikiPassword = () => {
   const authContext = useContext(AuthContext);
   const toastContext = useContext(ToastContext);
 
-  const [ open, isOpen ] = useState(false);
-  const [ value, setValue ] = useState(undefined);
+  const [open, isOpen] = useState(false);
+  const [value, setValue] = useState(undefined);
 
   const onClick = (e) => {
     e.preventDefault();
@@ -35,7 +35,7 @@ const WikiPassword = () => {
   };
 
   // Allow FCs and Wiki team access to the Set Password button
-  if (!(authContext.access['waitlist-tag:TRAINEE'] || authContext?.access['wiki-editor'])) {
+  if (!(authContext.access["waitlist-tag:TRAINEE"] || authContext?.access["wiki-editor"])) {
     return null;
   }
 

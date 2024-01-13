@@ -27,6 +27,7 @@
     "varint": "^6.0.0"
   },
   "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "eslint": "^8.29.0",
     "eslint-config-react-app": "^7.0.1",
     "eslint-plugin-react": "^7.25.1",
@@ -63,7 +64,6 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "http://127.0.0.1:5000",
   "prettier": {
     "trailingComma": "es5",
     "printWidth": 100

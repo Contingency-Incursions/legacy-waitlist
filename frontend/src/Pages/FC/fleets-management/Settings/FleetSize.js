@@ -7,7 +7,7 @@ import { Button as EditButton, Card, Details, Feature as BaseFeature } from "./c
 import { Button, Buttons, Input as BaseInput } from "../../../../Components/Form";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faExclamationTriangle, faUsers } from "@fortawesome/free-solid-svg-icons";
-import { Modal } from '../../../../Components/Modal';
+import { Modal } from "../../../../Components/Modal";
 
 import styled from "styled-components";
 
@@ -15,7 +15,7 @@ const Feature = styled(BaseFeature)`
   border-radius: unset;
 
   &.overgird {
-    color: ${props => props.theme.colors.warning.color};
+    color: ${(props) => props.theme.colors.warning.color};
   }
 `;
 
@@ -40,16 +40,16 @@ const Input = styled(BaseInput)`
   -moz-appearance: textfield;
   &::-webkit-outer-spin-button,
   &::-webkit-inner-spin-button {
-      -webkit-appearance: none;
+    -webkit-appearance: none;
   }
 `;
 
 const FleetSize = ({ fleetId, size, max_size }) => {
   const toastContext = useContext(ToastContext);
 
-  const [ open, setOpen ] = useState(false);
-  const [ selectedValue, setSelectedValue ] = useState(max_size);
-  const [ pending, isPending ] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [selectedValue, setSelectedValue] = useState(max_size);
+  const [pending, isPending] = useState(false);
 
   const overgrid = size > max_size;
 
@@ -64,28 +64,33 @@ const FleetSize = ({ fleetId, size, max_size }) => {
     errorToaster(
       toastContext,
       apiCall(`/api/v2/fleets/${fleetId}/size`, {
-        method: 'POST',
+        method: "POST",
         json: {
-          max_size: Number(selectedValue)
-        }
+          max_size: Number(selectedValue),
+        },
       })
-      .then(() => setOpen(false))
-      .finally(() => isPending(false))
+        .then(() => setOpen(false))
+        .finally(() => isPending(false))
     );
-  }
+  };
 
   return (
     <>
       <Card>
         <div>
           <Feature>
-            <FontAwesomeIcon className={overgrid ? 'overgird' : ''} fixedWidth icon={overgrid ? faExclamationTriangle : faUsers} size="2x" />
+            <FontAwesomeIcon
+              className={overgrid ? "overgird" : ""}
+              fixedWidth
+              icon={overgrid ? faExclamationTriangle : faUsers}
+              size="2x"
+            />
           </Feature>
           <Details>
             <p>On Grid Number</p>
             <div>
-              {size ?? '-'} / {max_size ?? '-'}
-              <EditButton onClick={_ => setOpen(true)} />
+              {size ?? "-"} / {max_size ?? "-"}
+              <EditButton onClick={(_) => setOpen(true)} />
             </div>
           </Details>
         </div>
@@ -101,20 +106,24 @@ const FleetSize = ({ fleetId, size, max_size }) => {
                 min="0"
                 max="100"
                 value={selectedValue}
-                onChange={e => setSelectedValue(e.target.value)}
+                onChange={(e) => setSelectedValue(e.target.value)}
                 required
               />
             </FormGroup>
 
             <Buttons>
-              <Button type="submit" variant="primary">Submit</Button>
-              <Button type="button" onClick={_ => setOpen(false)}>Cancel</Button>
+              <Button type="submit" variant="primary">
+                Submit
+              </Button>
+              <Button type="button" onClick={(_) => setOpen(false)}>
+                Cancel
+              </Button>
             </Buttons>
           </form>
         </Box>
       </Modal>
     </>
-  )
-}
+  );
+};
 
 export default FleetSize;

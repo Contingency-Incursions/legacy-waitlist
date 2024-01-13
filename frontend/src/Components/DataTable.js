@@ -50,7 +50,6 @@ const TableControls = styled.div`
   }
 `;
 
-
 const Table = (props) => {
   const themeContext = React.useContext(ThemeContext);
 
@@ -107,7 +106,7 @@ Table.defaultProps = {
   paginationPerPage: 50,
   paginationRowsPerPageOptions: [10, 25, 50, 75, 100],
   persistTableHead: true,
-  progressComponent: <Spinner />
+  progressComponent: <Spinner />,
 };
 
 export default Table;

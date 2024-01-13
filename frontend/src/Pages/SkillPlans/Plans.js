@@ -3,7 +3,7 @@ import { useApi } from "../../api";
 import { usePageTitle } from "../../Util/title";
 import Spinner from "../../Components/Spinner";
 import styled from "styled-components";
-import PlanModal from './PlanModal';
+import PlanModal from "./PlanModal";
 import alphaIcon from "../../App/alpha.png";
 import A from "../../Components/A";
 
@@ -30,12 +30,12 @@ const PlanSummaryCard = styled.a`
     background-color: ${(props) => props.theme.colors.accent2};
   }
 
-  border-radius: 5px;  
+  border-radius: 5px;
   color: unset;
   cursor: pointer;
-  display: flex;   
+  display: flex;
   margin: 0px 10px 10px 0px;
-  padding: .5em;
+  padding: 0.5em;
   position: relative;
   width: 25vw;
   max-width: 450px;
@@ -48,10 +48,10 @@ const PlanSummaryCard = styled.a`
   @media (max-width: 800px) {
     width: 95vw;
   }
-  
+
   @media (max-width: 500px) {
     text-align: center;
-    
+
     img:first-of-type {
       vertical-align: middle;
       margin-right: unset;
@@ -59,13 +59,12 @@ const PlanSummaryCard = styled.a`
     }
   }
 
-  
   @media (max-width: 450px) {
     flex-direction: column;
     align-items: center;
 
     .alpha {
-      left: 55%!important;
+      left: 55% !important;
     }
   }
 
@@ -90,80 +89,96 @@ const PlanSummaryCard = styled.a`
 `;
 
 const PlanSummary = ({ levels, ships, source, onClick }) => {
-  {source.name === "TII Blasters" && (
-    <img src={`https://images.evetech.net/types/3186/icon`} />
-  )}
-  {source.name === "TII Lasers" && (
-    <img src={`https://images.evetech.net/types/3057/icon`} />
-  )}
+  source.name === "TII Blasters" && (
+    <img alt={source.name} src={`https://images.evetech.net/types/3186/icon`} />
+  );
+  source.name === "TII Lasers" && (
+    <img alt={source.name} src={`https://images.evetech.net/types/3057/icon`} />
+  );
   let imgSrc = `https://images.evetech.net/types/${ships[0]?.id}/icon`;
   if (!ships[0]) {
     let id = source.name === "TII Blasters" ? 3186 : 3057;
     imgSrc = `https://images.evetech.net/types/${id}/icon`;
   }
   return (
-    <PlanSummaryCard onClick={e => onClick({levels, shipId: ships[0]?.id, source})}>
+    <PlanSummaryCard onClick={(e) => onClick({ levels, shipId: ships[0]?.id, source })}>
       <div style={{ width: "70px", display: "relative" }}>
-        <img src={imgSrc} className="icon" />
+        <img src={imgSrc} alt={source.name} className="icon" />
         {source.alpha && (
-        <img src={alphaIcon} title="Alpha clones can fly this ship!" className="alpha" />
-      )}
+          <img
+            src={alphaIcon}
+            alt={"\u03B1"}
+            title="Alpha clones can fly this ship!"
+            className="alpha"
+          />
+        )}
       </div>
-      
+
       <div style={{ display: "inline" }}>
         <h3>{source.name}</h3>
         <p>{source.description !== "~" && source.description}</p>
       </div>
     </PlanSummaryCard>
-  );  
-}
+  );
+};
 
 const Plans = () => {
-    const [ skillPlans ] = useApi(`/api/skills/plans`);
-    const [ selected, setSelected ] = useState(false);
-  
-    usePageTitle("Skill Plans");
+  const [skillPlans] = useApi(`/api/skills/plans`);
+  const [selected, setSelected] = useState(false);
 
-    return (
+  usePageTitle("Skill Plans");
+
+  return (
+    <>
+      <Header>
+        <h1>Skill Plans</h1>
+      </Header>
+
+      {!skillPlans ? (
+        <Spinner />
+      ) : (
         <>
-          <Header>
-            <h1>Skill Plans</h1>
-          </Header>
+          <p style={{ paddingBottom: "15px" }}>
+            Minimum Skills: Armor compensation II (starter fits) or IV (all other fits) &amp; the
+            skills to use your fit.
+          </p>
 
-          {!skillPlans ? <Spinner /> : (
-            <>
-              <p style={{ paddingBottom: "15px" }}>
-                Minimum Skills:  Armor compensation II (starter fits) or IV (all other fits) &amp; the skills to use your fit.
-              </p>
-
-              <div style={{ display: "flex", flexWrap: "wrap"}}>
-              {skillPlans?.filter(plan => plan.source.tier === "Minimum")?.map((plan, key) => {
-                  return <PlanSummary {...plan} key={key} onClick={setSelected} />
+          <div style={{ display: "flex", flexWrap: "wrap" }}>
+            {skillPlans
+              ?.filter((plan) => plan.source.tier === "Minimum")
+              ?.map((plan, key) => {
+                return <PlanSummary {...plan} key={key} onClick={setSelected} />;
               })}
-              </div>
-              
-              <H2>Weapon Plans</H2>
-              <div style={{ display: "flex", flexWrap: "wrap"}}>
-                {skillPlans?.filter(plan => plan.source.tier === "Weapon")?.map((plan, key) => {
-                  return <PlanSummary {...plan} key={key} onClick={setSelected} />
-                })}
-              </div>
+          </div>
 
-              <H2>Elite Plans</H2>
-              <p style={{ paddingBottom: "15px" }}>
-                You are required to reach <b>Elite</b> status within 225 hours in fleet. Elite status requires elite fit, implants &amp; skills. You can check your hours on your <A href="/pilot">profile page</A>.
-              </p>
-              <div style={{ display: "flex", flexWrap: "wrap"}}>
-                {skillPlans?.filter(plan => plan.source.tier === "Elite")?.map((plan, key) => {
-                  return <PlanSummary {...plan} key={key} onClick={setSelected} />
-                })}
-              </div>
+          <H2>Weapon Plans</H2>
+          <div style={{ display: "flex", flexWrap: "wrap" }}>
+            {skillPlans
+              ?.filter((plan) => plan.source.tier === "Weapon")
+              ?.map((plan, key) => {
+                return <PlanSummary {...plan} key={key} onClick={setSelected} />;
+              })}
+          </div>
 
-              <PlanModal {...selected} setOpen={(e) => setSelected(false)} />
-            </>
-          )}
+          <H2>Elite Plans</H2>
+          <p style={{ paddingBottom: "15px" }}>
+            You are required to reach <b>Elite</b> status within 225 hours in fleet. Elite status
+            requires elite fit, implants &amp; skills. You can check your hours on your{" "}
+            <A href="/pilot">profile page</A>.
+          </p>
+          <div style={{ display: "flex", flexWrap: "wrap" }}>
+            {skillPlans
+              ?.filter((plan) => plan.source.tier === "Elite")
+              ?.map((plan, key) => {
+                return <PlanSummary {...plan} key={key} onClick={setSelected} />;
+              })}
+          </div>
+
+          <PlanModal {...selected} setOpen={(e) => setSelected(false)} />
         </>
-    );
+      )}
+    </>
+  );
 };
 
 export default Plans;

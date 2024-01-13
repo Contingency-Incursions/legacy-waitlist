@@ -11,7 +11,7 @@ import {
   faBullhorn,
   faBan,
   faPoll,
-  faCog
+  faCog,
 } from "@fortawesome/free-solid-svg-icons";
 import { usePageTitle } from "../../Util/title";
 

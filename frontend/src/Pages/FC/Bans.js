@@ -124,7 +124,7 @@ const BansPage = () => {
 
   const filteredData = (data ?? []).filter(
     (row) =>
-      (!filters.entity_type || row.entity.category.toLowerCase() == filters.entity_type) && // eslint-disable-line
+      (!filters.entity_type || row.entity.category.toLowerCase() === filters.entity_type) && // eslint-disable-line
       (!filters.type ||
         (filters.type === "permanent" && !row.revoked_at) ||
         (filters.type === "temporary" && row.revoked_at)) &&

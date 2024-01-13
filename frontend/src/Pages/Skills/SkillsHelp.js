@@ -23,7 +23,7 @@ const Link = styled.p`
 
   &:hover {
     cursor: pointer;
-    color: ${(props) => props.theme.colors.highlight.active}
+    color: ${(props) => props.theme.colors.highlight.active};
   }
 `;
 
@@ -51,7 +51,7 @@ const InlineBox = styled.div`
 `;
 
 const SkillsHelp = () => {
-  const [ open, setOpen ] = useState(false);
+  const [open, setOpen] = useState(false);
 
   return (
     <>
@@ -62,21 +62,32 @@ const SkillsHelp = () => {
       <Modal open={open} setOpen={setOpen}>
         <Box>
           <H2>
-            <FontAwesomeIcon fixedWidth icon={faInfoCircle}  />
+            <FontAwesomeIcon fixedWidth icon={faInfoCircle} />
             Skills Help
           </H2>
 
-          <div style={{ marginBottom: '15px', marginTop: '10px' }}>Each <InlineBox className='trained'/> represents a skill level.</div>
+          <div style={{ marginBottom: "15px", marginTop: "10px" }}>
+            Each <InlineBox className="trained" /> represents a skill level.
+          </div>
 
           <p>Key: </p>
-          <ul style={{ marginBottom: '25px' }}>
-            <li><InlineBox /> Not required / trained</li>
-            <li><InlineBox className="trained" /> <InlineBox className="trained not-required"/> Trained</li>
-            <li><InlineBox className="required"/> Skill required</li>
+          <ul style={{ marginBottom: "25px" }}>
+            <li>
+              <InlineBox /> Not required / trained
+            </li>
+            <li>
+              <InlineBox className="trained" /> <InlineBox className="trained not-required" />{" "}
+              Trained
+            </li>
+            <li>
+              <InlineBox className="required" /> Skill required
+            </li>
           </ul>
 
-          <div style={{ marginBottom: '30px'}}>
-            <p style={{ marginBottom: '5px' }}>Example of a skill trained to level II that requires level III.</p>
+          <div style={{ marginBottom: "30px" }}>
+            <p style={{ marginBottom: "5px" }}>
+              Example of a skill trained to level II that requires level III.
+            </p>
             <Skill>
               <div>Spaceship Command.</div>
               <div className="levels">
@@ -89,13 +100,13 @@ const SkillsHelp = () => {
             </Skill>
           </div>
 
-          <Button variant="primary" onClick={_ => setOpen(false)}>
+          <Button variant="primary" onClick={(_) => setOpen(false)}>
             Close
           </Button>
         </Box>
       </Modal>
     </>
-  )
-}
+  );
+};
 
 export default SkillsHelp;

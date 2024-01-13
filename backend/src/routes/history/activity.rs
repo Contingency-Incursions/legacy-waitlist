@@ -139,7 +139,7 @@ async fn fleet_comp(
             },
             logged_at: entry.first_seen,
             time_in_fleet: entry.last_seen - entry.first_seen,
-            is_boss: entry.is_boss == true,
+            is_boss: entry.is_boss,
         })
     }
 

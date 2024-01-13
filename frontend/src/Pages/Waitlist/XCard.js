@@ -7,10 +7,7 @@ import BadgeIcon, { Badge, icons } from "../../Components/Badge";
 import { Modal } from "../../Components/Modal";
 import { FitDisplay } from "../../Components/FitDisplay";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faTrashAlt,
-  faExclamationTriangle,
-} from "@fortawesome/free-solid-svg-icons";
+import { faTrashAlt, faExclamationTriangle } from "@fortawesome/free-solid-svg-icons";
 import _ from "lodash";
 
 import { SkillDisplay } from "../../Components/SkillDisplay";
@@ -124,29 +121,29 @@ XCardDOM.ReviewComment = styled.div`
   color: ${(props) => props.theme.colors.secondary.text};
 `;
 
-function ShipModalDisplay({fit, setModalOpen}) {
+function ShipModalDisplay({ fit, setModalOpen }) {
   const [skills] = useApi(`/api/skills?character_id=${fit.character.id}`);
 
   return (
     <>
-    <Modal open={true} setOpen={setModalOpen}>
-            <Box>
-              <FitDisplay fit={fit} />
-              {(fit.tags.includes("STARTER") || fit.tags.includes("STARTER-SKILLS")) ? (
-                <>
-                  <Title>Starter skills</Title>
-                  <SkillDisplay
-                    characterId={fit.character.id}
-                    ship={fit.hull.name}
-                    filterMin={true}
-                    skills={skills}
-                  />
-                </>
-              ) : null}
-            </Box>
-          </Modal>
+      <Modal open={true} setOpen={setModalOpen}>
+        <Box>
+          <FitDisplay fit={fit} />
+          {fit.tags.includes("STARTER") || fit.tags.includes("STARTER-SKILLS") ? (
+            <>
+              <Title>Starter skills</Title>
+              <SkillDisplay
+                characterId={fit.character.id}
+                ship={fit.hull.name}
+                filterMin={true}
+                skills={skills}
+              />
+            </>
+          ) : null}
+        </Box>
+      </Modal>
     </>
-  )
+  );
 }
 
 function ShipDisplay({ fit, onAction }) {
@@ -155,9 +152,7 @@ function ShipDisplay({ fit, onAction }) {
   if (fit.dna && fit.hull) {
     return (
       <>
-        {modalOpen ? (
-          <ShipModalDisplay fit={fit} setModalOpen={setModalOpen} />
-        ) : null}
+        {modalOpen ? <ShipModalDisplay fit={fit} setModalOpen={setModalOpen} /> : null}
         <a onClick={(evt) => setModalOpen(true)}>
           <img
             style={{ height: "44px" }}
@@ -218,30 +213,33 @@ export function XCard({ entry, fit, onAction }) {
     }
   });
 
-  const approvalFlag = fit.state == 'approved' ? null : (
-    <span title="Pending approval">
-      <FontAwesomeIcon icon={faExclamationTriangle} />
-    </span>
-  );
+  const approvalFlag =
+    fit.state === "approved" ? null : (
+      <span title="Pending approval">
+        <FontAwesomeIcon icon={faExclamationTriangle} />
+      </span>
+    );
 
-  let variant = 'secondary';
+  let variant = "secondary";
   if (isSelf || authContext.access["waitlist-view"]) {
     switch (fit.state) {
-      case 'approved':
-        variant = 'success';
+      case "approved":
+        variant = "success";
         break;
-      case 'rejected':
-        variant = 'danger';
+      case "rejected":
+        variant = "danger";
         break;
       default:
-        variant = 'warning';
+        variant = "warning";
     }
   }
 
   return (
     <XCardDOM variant={variant}>
       <XCardDOM.Head>
-        <span>{accountName} {entry.max_alts && `+ ${entry.max_alts}`}</span>
+        <span>
+          {accountName} {entry.max_alts && `+ ${entry.max_alts}`}
+        </span>
         <XCardDOM.Head.Badges>
           {tagImages}
           {approvalFlag}

@@ -36,7 +36,6 @@ impl std::fmt::Display for YearMonthDay {
     }
 }
 
-
 impl YearMonth {
     fn parse(input: &str) -> YearMonth {
         let mut pieces = input.split('-');
@@ -78,11 +77,11 @@ impl YearMonthDay {
             .parse()
             .expect("Should parse");
         let third = pieces
-        .next()
-        .expect("Third piece better be there")
-        .parse()
-        .expect("Should parse");
-    YearMonthDay(first, second, third)
+            .next()
+            .expect("Third piece better be there")
+            .parse()
+            .expect("Should parse");
+        YearMonthDay(first, second, third)
     }
 }
 
@@ -95,7 +94,6 @@ impl Serialize for YearMonthDay {
         serializer.serialize_str(&formatted)
     }
 }
-
 
 fn filter_into_other_1d(source: BTreeMap<String, f64>, threshold: f64) -> BTreeMap<String, f64> {
     let sum: f64 = source.values().sum();
@@ -252,7 +250,6 @@ impl Queries {
         Ok(result)
     }
 
-    
     async fn fleet_seconds_by_fleet_by_day(
         db: &crate::DB,
     ) -> Result<BTreeMap<YearMonthDay, BTreeMap<i64, f64>>, sqlx::Error> {
@@ -282,7 +279,7 @@ impl Queries {
             result
                 .entry(YearMonthDay::parse(&row.date))
                 .or_insert_with(BTreeMap::new)
-                .insert(row.fleet_id as i64, row.fleet_time as f64);
+                .insert(row.fleet_id, row.fleet_time as f64);
         }
 
         Ok(result)
@@ -521,7 +518,9 @@ async fn statistics(
         fleet_seconds_by_hull_by_month: Displayer::build_fleet_seconds_by_hull_by_month(
             &seconds_by_hull_month,
         )?,
-        fleet_seconds_by_fleet_by_day: Displayer::build_fleet_seconds_by_fleet_by_day(&seconds_by_fleet_by_day),
+        fleet_seconds_by_fleet_by_day: Displayer::build_fleet_seconds_by_fleet_by_day(
+            &seconds_by_fleet_by_day,
+        ),
         xes_by_hull_by_month: Displayer::build_xes_by_hull_by_month(&xes_by_hull_month)?,
         fleet_seconds_by_month: Displayer::build_fleet_seconds_by_month(&seconds_by_hull_month),
         pilots_by_month: Displayer::build_pilots_by_month(&seconds_by_character_month),

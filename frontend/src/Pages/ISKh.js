@@ -265,9 +265,7 @@ export function ISKh() {
   return (
     <>
       <div>
-        <NavButton to="/isk-h/calc">
-          Calculator
-        </NavButton>
+        <NavButton to="/isk-h/calc">Calculator</NavButton>
       </div>
       <div style={{ display: "flex", justifyContent: "center" }}>
         <ResultDisplay dataStr={dataStr} />

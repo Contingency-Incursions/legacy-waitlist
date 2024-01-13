@@ -2,7 +2,6 @@ import { useContext } from "react";
 import styled from "styled-components";
 import { SettingsContext } from "../Contexts/Settings";
 
-
 const AnnouncementBar = styled.div`
   background: ${(props) => props.theme.colors.secondary.color};
   box-shadow: 0px 3px ${(props) => props.theme.colors.shadow};
@@ -52,16 +51,20 @@ const AnnouncementBar = styled.div`
 `;
 
 const AntiGankBanner = () => {
-  const {settings} = useContext(SettingsContext)
+  const { settings } = useContext(SettingsContext);
   return (
     <>
-        {settings.anti_gank == 't' && (
-      <div style={{ marginBottom: "10px" }}>
-      <AnnouncementBar data-alert={true}>
-          <p style={{ paddingLeft: "42px" }}>{"GANKERS THREAT: Keep anti gank fit in dockup, we may need to switch on a moments notice. Waitlist Anti-gank mode is currently active"}</p>
-        </AnnouncementBar>
-  </div>
-    )}
+      {settings.anti_gank === "t" && (
+        <div style={{ marginBottom: "10px" }}>
+          <AnnouncementBar data-alert={true}>
+            <p style={{ paddingLeft: "42px" }}>
+              {
+                "GANKERS THREAT: Keep anti gank fit in dockup, we may need to switch on a moments notice. Waitlist Anti-gank mode is currently active"
+              }
+            </p>
+          </AnnouncementBar>
+        </div>
+      )}
     </>
   );
 };

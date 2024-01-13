@@ -3,7 +3,7 @@ use crate::{app::Application, core::auth::AuthenticatedAccount, util::madness::M
 #[delete("/api/waitlist")]
 async fn empty_waitlist(
     app: &rocket::State<Application>,
-    account: AuthenticatedAccount
+    account: AuthenticatedAccount,
 ) -> Result<&'static str, Madness> {
     account.require_access("waitlist-edit")?;
 

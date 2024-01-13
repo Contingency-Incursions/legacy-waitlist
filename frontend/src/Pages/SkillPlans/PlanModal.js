@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useContext, useState } from "react";
 import { AuthContext, ToastContext } from "../../contexts";
 import { useApi, toaster } from "../../api";
 import { Box } from "../../Components/Box";
@@ -11,21 +11,21 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCheck, faPaste } from "@fortawesome/free-solid-svg-icons";
 
 const PlanTitle = styled.div`
-    margin-bottom: 15px;
+  margin-bottom: 15px;
 
-    img:first-of-type {
-        margin-right: 15px;
-        vertical-align: middle;
-    }
+  img:first-of-type {
+    margin-right: 15px;
+    vertical-align: middle;
+  }
 
-    h4 {
-        display: inline;
-        font-size: 20px;
-    }
+  h4 {
+    display: inline;
+    font-size: 20px;
+  }
 
-    img.alpha {
-        padding-bottom: 25px;
-    }
+  img.alpha {
+    padding-bottom: 25px;
+  }
 `;
 
 const CopyBtn = styled.div`
@@ -41,112 +41,121 @@ const CopyBtn = styled.div`
 `;
 
 const S = (skills) => {
-  let txt = '';
-  for(let i = 0; i < skills.length; i++) {
+  let txt = "";
+  for (let i = 0; i < skills.length; i++) {
     txt += `${skills[i].Skill} ${skills[i].Required}\n`;
   }
   return txt;
-}
+};
 
 const PlanModal = ({ levels, shipId, source, setOpen }) => {
-    const authContext = useContext(AuthContext);
-    const toastContext = useContext(ToastContext);
+  const authContext = useContext(AuthContext);
+  const toastContext = useContext(ToastContext);
 
-    const [ filter, setFilter ] = useState(false);
-    const [ skills ] = useApi(`/api/skills?character_id=${authContext?.current?.id}`);
+  const [filter, setFilter] = useState(false);
+  const [skills] = useApi(`/api/skills?character_id=${authContext?.current?.id || -1}`, true);
 
-    if (!authContext || !skills || !levels) {
-        return null;
-    }
+  if (!skills || !levels) {
+    return null;
+  }
 
-    var skillList = _.invert(skills.ids);
+  var skillList = _.invert(skills.ids);
 
-    const columns = [{
+  const columns = [
+    {
       name: "Skill:",
       selector: (row) => (
         <>
           {row.Skill} {row.Required}
         </>
       ),
-      grow: 5
+      grow: 5,
     },
     {
       name: (
-        <CopyBtn title="Copy to Clipboard" onClick={(evt) => {
-          toaster(
-            toastContext,
-            navigator.clipboard
-              .writeText(S(data))
-              .then((success) => "Copied to clipboard")
-          )
-        }}>
+        <CopyBtn
+          title="Copy to Clipboard"
+          onClick={(evt) => {
+            toaster(
+              toastContext,
+              navigator.clipboard.writeText(S(data)).then((success) => "Copied to clipboard")
+            );
+          }}
+        >
           <FontAwesomeIcon icon={faPaste} fixedWidth />
         </CopyBtn>
       ),
-      selector: (row) => row.Trained && (<FontAwesomeIcon icon={faCheck} fixedWidth />)
-    }];
+      selector: (row) => row.Trained && <FontAwesomeIcon icon={faCheck} fixedWidth />,
+    },
+  ];
 
-    let data = [];
+  let data = [];
 
-    const ITR = (i) => {
-      switch (i) {
-        case 1:
-          return 'I';
-        case 2:
-          return 'II';
-        case 3:
-          return 'III';
-        case 4:
-          return 'IV';
-        case 5:
-          return 'V';
-        default:
-          return i;
-      }
+  const ITR = (i) => {
+    switch (i) {
+      case 1:
+        return "I";
+      case 2:
+        return "II";
+      case 3:
+        return "III";
+      case 4:
+        return "IV";
+      case 5:
+        return "V";
+      default:
+        return i;
     }
+  };
 
-    const HasSkill = (skillId, reqLevel) => {
-      return reqLevel <= skills.current[skillId]
-    }
+  const HasSkill = (skillId, reqLevel) => {
+    return reqLevel <= skills.current[skillId];
+  };
 
-    for(let i = 0; i < levels.length; i++) {
-      data.push({
-        Skill: skillList[levels[i][0]],
-        Required: ITR(levels[i][1]),
-        Trained: HasSkill(levels[i][0], levels[i][1])
-      })
-    }
-
-    const filteredData = (data ?? []).filter((row) => {
-      return !filter || !row.Trained;
+  for (let i = 0; i < levels.length; i++) {
+    data.push({
+      Skill: skillList[levels[i][0]],
+      Required: ITR(levels[i][1]),
+      Trained: HasSkill(levels[i][0], levels[i][1]),
     });
+  }
 
-    let src = `https://images.evetech.net/types/${shipId}/icon`;
-    if (source?.name === "TII Blasters") {
-      src = "https://images.evetech.net/types/3186/icon";
-    }
-    else if (source.name === "TII Lasers") {
-      src = "https://images.evetech.net/types/3057/icon";
-    }
+  const filteredData = (data ?? []).filter((row) => {
+    return !filter || !row.Trained;
+  });
 
-    return !authContext ? null : (
-        <Modal open={!!source} setOpen={setOpen}>
-            <Box>
-                <PlanTitle>
-                    <img src={src}/>
-                    <h4>
-                        { source?.name }
-                        { source?.alpha && <img src={alphaIcon} title="Alpha clones can fly this ship!" className="alpha" /> }
-                    </h4>
-                </PlanTitle>
-                <Table columns={columns} data={filteredData} paginationPerPage={10} />
-                <label>
-                  <input type="checkbox" checked={filter} onChange={() => setFilter(!filter)}  />
-                  Hide skills I have trained
-                </label>
-            </Box>
-        </Modal>
-    )
-}
+  let src = `https://images.evetech.net/types/${shipId}/icon`;
+  if (source?.name === "TII Blasters") {
+    src = "https://images.evetech.net/types/3186/icon";
+  } else if (source?.name === "TII Lasers") {
+    src = "https://images.evetech.net/types/3057/icon";
+  }
+
+  return (
+    <Modal open={!!source} setOpen={setOpen}>
+      <Box>
+        <PlanTitle>
+          <img alt={source?.name} src={src} />
+          <h4>
+            {source?.name}
+            {source?.alpha && (
+              <img
+                src={alphaIcon}
+                alt={"\u03B1"}
+                title="Alpha clones can fly this ship!"
+                className="alpha"
+              />
+            )}
+          </h4>
+        </PlanTitle>
+        <Table columns={columns} data={filteredData} paginationPerPage={10} />
+        <label>
+          <input type="checkbox" checked={filter} onChange={() => setFilter(!filter)} />
+          Hide skills I have trained
+        </label>
+      </Box>
+    </Modal>
+  );
+};
 
 export default PlanModal;

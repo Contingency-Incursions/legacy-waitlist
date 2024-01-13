@@ -43,7 +43,7 @@ const PageFilters = ({ idPrefix = "", selectedFilters, onChange }) => {
     if (selectedFilters !== values) {
       setValues(selectedFilters ?? []);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleClick = (e) => {
@@ -194,7 +194,7 @@ const AddAnnouncement = ({ isOpen, setOpen, refreshFunction }) => {
             <Button variant="danger" type="submit" disabled={pending}>
               Confirm
             </Button>
-            <Button variant="secondary" type='button' onClick={() => setOpen(false)}>
+            <Button variant="secondary" type="button" onClick={() => setOpen(false)}>
               Cancel
             </Button>
           </Buttons>

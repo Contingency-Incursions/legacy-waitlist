@@ -4,7 +4,7 @@ import { NavLink } from "react-router-dom";
 import styled from "styled-components";
 import { MobileButton } from "../Components/Form";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBars, faTimes } from "@fortawesome/free-solid-svg-icons";
+import { faBars, faExternalLinkAlt, faTimes } from "@fortawesome/free-solid-svg-icons";
 
 const ExternalLink = styled.a`
   padding: 1em;
@@ -102,43 +102,21 @@ export function MobileNavButton({ isOpen, setIsOpen }) {
 export function NavLinks({ whoami }) {
   return (
     <>
-      <Links to="/">
-        Waitlist
-      </Links>
-      <Links to="/fits">
-        Fits
-      </Links>
+      <Links to="/">Waitlist</Links>
+      <Links to="/fits">Fits</Links>
       <ExternalLink href={`https://wiki.${window.location.host}`} target="_blank">
-        Guides
+        Guides <FontAwesomeIcon fixedWidth icon={faExternalLinkAlt} />
       </ExternalLink>
       {whoami && (
         <>
-          <Links to="/pilot">
-            Pilot
-          </Links>
-          <Links to="/skills">
-            Skills
-          </Links>
+          <Links to="/pilot">Pilot</Links>
+          <Links to="/skills">Skills</Links>
         </>
       )}
-      <Links to="/isk-h/calc">
-        ISK/h
-      </Links>
-      {whoami && whoami.access["fleet-view"] && (
-        <Links to="/fc/fleets">
-          Fleets
-        </Links>
-      )}
-      {whoami && whoami.access["waitlist-tag:HQ-FC"] && (
-        <Links to="/fc">
-          FC
-        </Links>
-      )}
-      {whoami && whoami.access["search"] && (
-        <Links to="/fc/search">
-          Search
-        </Links>
-      )}
+      <Links to="/isk-h/calc">ISK/h</Links>
+      {whoami && whoami.access["fleet-view"] && <Links to="/fc/fleets">Fleets</Links>}
+      {whoami && whoami.access["waitlist-tag:HQ-FC"] && <Links to="/fc">FC</Links>}
+      {whoami && whoami.access["search"] && <Links to="/fc/search">Search</Links>}
     </>
   );
 }

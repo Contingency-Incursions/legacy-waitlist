@@ -82,25 +82,32 @@ export const icons = {
   TRAINEE: { type: "shield", color: "red", letter: "T", name: "Trainee" },
 
   // Implant badges
-  WARPSPEED: { type: "image", href: require('./BadgeImages/hardwire.png'), name: "Ascendancies" },
-  HYBRID: { type: "image", href: require('./BadgeImages/hardwire.png'), name: "Amulet [slot 1-5] + WS-618" },
-  AMULET: { type: "image", href: require('./BadgeImages/hardwire.png'), name: "Amulets [slot 1-6]" },
-
+  WARPSPEED: { type: "image", href: require("./BadgeImages/hardwire.png"), name: "Ascendancies" },
+  HYBRID: {
+    type: "image",
+    href: require("./BadgeImages/hardwire.png"),
+    name: "Amulet [slot 1-5] + WS-618",
+  },
+  AMULET: {
+    type: "image",
+    href: require("./BadgeImages/hardwire.png"),
+    name: "Amulets [slot 1-6]",
+  },
 
   // Specalist Badges
   LOGI: { type: "shield", color: "green", letter: "L", name: "Logi Specialist" },
   "RETIRED-LOGI": { type: "shield", color: "neutral", letter: "L", name: "Retired Logi" },
   BASTION: { type: "shield", color: "blue", letter: "B", name: "Bastion Specialist" },
   WEB: { type: "shield", color: "cyan", letter: "W", name: "Web Specialist" },
-  "WEB-ASPERIANT": {type: 'shield', color: 'neutral', letter: 'W', name: 'Web Asperiant'},
+  "WEB-ASPERIANT": { type: "shield", color: "neutral", letter: "W", name: "Web Asperiant" },
 
   // Other
   "ELITE-GOLD": { type: "shield", color: "yellow", letter: "E", name: "Elite Gold" },
   ELITE: { type: "shield", color: "neutral", letter: "E", name: "Elite" },
   UNKNOWN: { type: "shield", color: "neutral", letter: "?", name: null },
-  "AT-WAR": {type: "image", href: require('./BadgeImages/Wars.png'),  name: 'Pilot at war'},
-  "FACTION-WAR": {type: "image", href: require('./BadgeImages/Icon_fw.png'), name: 'Pilot in FW'},
-  BOXER: {type: 'shield', color: 'neutral', letter: 'B', name: 'Trusted Boxer'}
+  "AT-WAR": { type: "image", href: require("./BadgeImages/Wars.png"), name: "Pilot at war" },
+  "FACTION-WAR": { type: "image", href: require("./BadgeImages/Icon_fw.png"), name: "Pilot in FW" },
+  BOXER: { type: "shield", color: "neutral", letter: "B", name: "Trusted Boxer" },
 };
 
 const BadgeIcon = ({ type = "UNKNOWN", height = "1.2em" }) => {
@@ -108,7 +115,13 @@ const BadgeIcon = ({ type = "UNKNOWN", height = "1.2em" }) => {
   return badge.type === "shield" ? (
     <Shield {...badge} h={height} title={badge.name} />
   ) : (
-    <img src={badge.href} alt={badge.name} style={{ height }} data-tooltip-id="tip" data-tooltip-html={badge.name} />
+    <img
+      src={badge.href}
+      alt={badge.name}
+      style={{ height }}
+      data-tooltip-id="tip"
+      data-tooltip-html={badge.name}
+    />
   );
 };
 

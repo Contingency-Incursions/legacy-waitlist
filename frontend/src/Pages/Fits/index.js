@@ -12,7 +12,7 @@ export function Fits() {
   var tier = queryParams.get("Tier") || "Starter";
   const setTier = (newTier) => {
     queryParams.set("Tier", newTier);
-    navigate({search: queryParams.toString()})
+    navigate({ search: queryParams.toString() });
   };
 
   return <FitsDisplay tier={tier} setTier={setTier} />;
@@ -28,10 +28,10 @@ function FitsDisplay({ tier, setTier = null }) {
   return (
     <>
       <PageTitle>HQ FITS</PageTitle>
-      <AButton href="/skills" style={{ float: "right" }}>
+      <AButton href="/skills/plans" style={{ float: "right" }}>
         Skill Plans
       </AButton>
-      {setTier != null && (
+      {setTier && (
         <Buttons style={{ marginBottom: "0.5em" }}>
           <InputGroup>
             <Button active={tier === "Starter"} onClick={(evt) => setTier("Starter")}>
@@ -49,7 +49,7 @@ function FitsDisplay({ tier, setTier = null }) {
           </InputGroup>
           <InputGroup>
             <Button active={tier === "Logistics"} onClick={(evt) => setTier("Logistics")}>
-            Logistics
+              Logistics
             </Button>
           </InputGroup>
           <InputGroup>
@@ -80,7 +80,9 @@ function FitsDisplay({ tier, setTier = null }) {
         <Fitout data={fitData} tier="Logistics" />
       ) : tier === "Antigank" ? (
         <>
-          <p style={{ margin: '15px 0px 20px 3px', marginBottom: '20px', fontWeight: 'bold' }}>Our anti-gank doctrine used when gankers are in focus.</p>
+          <p style={{ margin: "15px 0px 20px 3px", marginBottom: "20px", fontWeight: "bold" }}>
+            Our anti-gank doctrine used when gankers are in focus.
+          </p>
           <InfoNote>Cruisers are not used with this doctrine.</InfoNote>
           <Fitout data={fitData} tier="Antigank" />
         </>

@@ -10,7 +10,7 @@ use crate::{
     tdf,
     util::madness::Madness,
 };
-use eve_data_core::{Fitting, TypeID, TypeError};
+use eve_data_core::{Fitting, TypeID};
 
 #[derive(Debug, Deserialize)]
 struct DnaXup {
@@ -39,20 +39,25 @@ async fn dedup_implants(db: &mut crate::DBTX<'_>, implants: &[TypeID]) -> Result
         .collect::<Vec<_>>()
         .join(":");
 
-    if let Some(implant_set) =
-        sqlx::query!("SELECT id FROM implant_set WHERE implants = $1", implant_str)
-            .fetch_optional(&mut *db)
-            .await?
+    if let Some(implant_set) = sqlx::query!(
+        "SELECT id FROM implant_set WHERE implants = $1",
+        implant_str
+    )
+    .fetch_optional(&mut *db)
+    .await?
     {
         return Ok(implant_set.id);
     }
 
-    let result = match sqlx::query!("INSERT INTO implant_set (implants) VALUES ($1) RETURNING id", implant_str)
+    let result = match sqlx::query!(
+        "INSERT INTO implant_set (implants) VALUES ($1) RETURNING id",
+        implant_str
+    )
     .fetch_optional(&mut *db)
-    .await? 
+    .await?
     {
         Some(e) => e.id,
-        None => 0
+        None => 0,
     };
     Ok(result)
 }
@@ -65,12 +70,16 @@ async fn dedup_dna(db: &mut crate::DBTX<'_>, hull: TypeID, dna: &str) -> Result<
         return Ok(fitting.id);
     };
 
-    let result = match sqlx::query!("INSERT INTO fitting (dna, hull) VALUES ($1, $2) returning id", dna, hull)
+    let result = match sqlx::query!(
+        "INSERT INTO fitting (dna, hull) VALUES ($1, $2) returning id",
+        dna,
+        hull
+    )
     .fetch_optional(&mut *db)
-    .await? 
+    .await?
     {
         Some(e) => e.id,
-        None => 0
+        None => 0,
     };
     Ok(result)
 }
@@ -159,7 +168,7 @@ async fn xup_multi(
                 time_in_fleet: *time_in_fleet,
                 skills,
                 access_keys: account.access,
-                id: character_id
+                id: character_id,
             },
         );
     }
@@ -177,18 +186,21 @@ async fn xup_multi(
     {
         Some(e) => e.id,
         None => {
-            let result = match sqlx::query!(
+            match sqlx::query!(
                 "INSERT INTO waitlist_entry (account_id, joined_at) VALUES ($1, $2) returning id",
                 account.id,
                 now,
             )
             .fetch_optional(&mut tx)
-            .await? 
+            .await?
             {
                 Some(e) => e.id,
-                None => return Err(Madness::BadRequest("Couldn't create waitlist entry".to_owned()))
-            };
-            result
+                None => {
+                    return Err(Madness::BadRequest(
+                        "Couldn't create waitlist entry".to_owned(),
+                    ))
+                }
+            }
         }
     };
 
@@ -199,7 +211,8 @@ async fn xup_multi(
     )
     .fetch_one(&mut tx)
     .await?
-    .count.unwrap() as usize)
+    .count
+    .unwrap() as usize)
         + xups.len()
         > MAX_X_PER_ACCOUNT
     {

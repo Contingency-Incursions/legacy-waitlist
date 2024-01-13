@@ -8,7 +8,6 @@ const TitleDOM = styled.div`
   gap: 16px;
   justify-content: space-between;
 
-
   > div {
     display: flex;
     align-items: center;
@@ -31,18 +30,35 @@ const TitleDOM = styled.div`
 
 const ModalTitle = ({ character, hull, mastery, setMastery }) => {
   return (
-   <TitleDOM>
-    <div>
-      <img src={`https://images.evetech.net/characters/${character.id}/portrait?size=64`} alt='avatar' />
-      <h2>{character.name}&apos;s | {hull}</h2>
-    </div>
-    <Buttons>
-      <Button variant={mastery === 'basic' || mastery === 'min' ? 'primary' : null} onClick={e => setMastery('min')}>Basic</Button>
-      <Button variant={mastery === 'elite' ? 'primary' : null} onClick={e => setMastery('elite')}>Elite</Button>
-      <Button variant={mastery === 'gold' ? 'primary' : null} onClick={e => setMastery('gold')}>Gold</Button>
-    </Buttons>
-   </TitleDOM>
-  )
-}
+    <TitleDOM>
+      <div>
+        <img
+          src={`https://images.evetech.net/characters/${character.id}/portrait?size=64`}
+          alt="avatar"
+        />
+        <h2>
+          {character.name}&apos;s | {hull}
+        </h2>
+      </div>
+      <Buttons>
+        <Button
+          variant={mastery === "basic" || mastery === "min" ? "primary" : null}
+          onClick={(e) => setMastery("min")}
+        >
+          Basic
+        </Button>
+        <Button
+          variant={mastery === "elite" ? "primary" : null}
+          onClick={(e) => setMastery("elite")}
+        >
+          Elite
+        </Button>
+        <Button variant={mastery === "gold" ? "primary" : null} onClick={(e) => setMastery("gold")}>
+          Gold
+        </Button>
+      </Buttons>
+    </TitleDOM>
+  );
+};
 
 export default ModalTitle;

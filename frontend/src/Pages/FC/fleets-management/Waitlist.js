@@ -10,49 +10,49 @@ const WaitlistDOM = styled.div`
 `;
 
 const Waitlist = ({ fleetId, xup, settings }) => {
-  const [ tab, setTab ] = useState('All');
+  const [tab, setTab] = useState("All");
   const [inviteCounts, setInviteCounts] = useState({});
   const [skills, setSkills] = useState({});
 
   let bossId = useMemo(() => {
     return settings?.boss?.id;
-  }, [settings])
+  }, [settings]);
 
   let fits = useMemo(() => {
-    if(!xup) return [];
-    if(!xup.waitlist) return [];
-    let all_fits = xup?.waitlist?.map(waitlist => waitlist.fits);
+    if (!xup) return [];
+    if (!xup.waitlist) return [];
+    let all_fits = xup?.waitlist?.map((waitlist) => waitlist.fits);
     return [].concat(...all_fits);
-  },
-  [xup])
+  }, [xup]);
 
   const handleSelect = useCallback((evt) => {
     setTab(evt);
-  }, [])
+  }, []);
 
   if (!xup) {
     return (
-      <WaitlistDOM style={{ textAlign: 'center' }}>
+      <WaitlistDOM style={{ textAlign: "center" }}>
         <Spinner />
       </WaitlistDOM>
-    )
+    );
   }
-  return  (
+  return (
     <WaitlistDOM>
       <Navs categories={xup?.categories} tab={tab} onClick={handleSelect} fits={fits} />
-      {xup?.waitlist?.map((waitlist) =>       
-      <Flightstrip 
-      {...waitlist} 
-      bossId={bossId} 
-      key={waitlist.id} 
-      tab={tab} 
-      inviteCounts={inviteCounts} 
-      setInviteCounts={setInviteCounts} 
-      skills={skills}
-      setSkills={setSkills}
-      />)}
+      {xup?.waitlist?.map((waitlist) => (
+        <Flightstrip
+          {...waitlist}
+          bossId={bossId}
+          key={waitlist.id}
+          tab={tab}
+          inviteCounts={inviteCounts}
+          setInviteCounts={setInviteCounts}
+          skills={skills}
+          setSkills={setSkills}
+        />
+      ))}
     </WaitlistDOM>
-  )
-}
+  );
+};
 
 export default Waitlist;

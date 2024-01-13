@@ -23,11 +23,11 @@ const CloseAllBtn = ({ refreshFunction }) => {
   const authContext = useContext(AuthContext);
   const toastContext = useContext(ToastContext);
 
-  const [ open, setOpen ] = useState(false);
-  const [ pending, isPending ] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [pending, isPending] = useState(false);
 
   // Only fleet admins: Instructor/Leadership should see this
-  if (!authContext?.access['fleet-admin']) {
+  if (!authContext?.access["fleet-admin"]) {
     return null;
   }
 
@@ -40,19 +40,19 @@ const CloseAllBtn = ({ refreshFunction }) => {
     errorToaster(
       toastContext,
       apiCall(`/api/v2/fleets`, {
-        method: 'DELETE',
+        method: "DELETE",
       })
-      .then(() => {
-        refreshFunction();
-        setOpen(false);
-      })
-      .finally(() => isPending(false))
+        .then(() => {
+          refreshFunction();
+          setOpen(false);
+        })
+        .finally(() => isPending(false))
     );
-  }
+  };
 
   return (
     <>
-      <Button variant="danger" tabIndex='-1' onClick={_ => setOpen(true)}>
+      <Button variant="danger" tabIndex="-1" onClick={(_) => setOpen(true)}>
         Close All Fleets
       </Button>
 
@@ -63,21 +63,29 @@ const CloseAllBtn = ({ refreshFunction }) => {
             Close all fleets?
           </H2>
 
-          <p style={{ marginBottom: '30px' }}>This will close all fleets and the waitlist. Are you sure you want to continue?</p>
+          <p style={{ marginBottom: "30px" }}>
+            This will close all fleets and the waitlist. Are you sure you want to continue?
+          </p>
 
           <Buttons>
-            <Button type="submit" tabIndex='1' autoFocus onClick={_ => setOpen(false)}>
+            <Button type="submit" tabIndex="1" autoFocus onClick={(_) => setOpen(false)}>
               Cancel
             </Button>
 
-            <Button type="submit" variant="danger" disabled={pending} tabIndex="-1" onClick={handleClose}>
+            <Button
+              type="submit"
+              variant="danger"
+              disabled={pending}
+              tabIndex="-1"
+              onClick={handleClose}
+            >
               Yes, Close all Fleets!
             </Button>
           </Buttons>
         </Box>
       </Modal>
     </>
-  )
-}
+  );
+};
 
 export default CloseAllBtn;

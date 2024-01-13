@@ -16,7 +16,15 @@ import { AccountBannedBanner } from "../FC/bans/AccountBanned";
 import { ActivitySummary } from "./ActivitySummary";
 import { Button, InputGroup, NavButton } from "../../Components/Form";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBan, faClipboard, faExternalLinkAlt, faGraduationCap, faPen, faPlane, faTimes } from "@fortawesome/free-solid-svg-icons";
+import {
+  faBan,
+  faClipboard,
+  faExternalLinkAlt,
+  faGraduationCap,
+  faPen,
+  faPlane,
+  faTimes,
+} from "@fortawesome/free-solid-svg-icons";
 import { Title, Content } from "../../Components/Page";
 import { PilotHistory } from "./PilotHistory";
 import { Row, Col } from "react-awesome-styled-grid";
@@ -43,7 +51,8 @@ const ControlButtons = styled.div`
     }
   }
 
-  button, a[href="/auth/start/fc"] {
+  button,
+  a[href="/auth/start/fc"] {
     display: block;
     margin-bottom: 12px;
     width: 100%;
@@ -173,7 +182,12 @@ function PilotDisplay({ authContext }) {
         />
         <div>
           <div style={{ display: "flex", alignItems: "center" }}>
-            <h1>{basicInfo && basicInfo.name}</h1><h3> - {basicInfo && basicInfo.corp_name} {basicInfo && basicInfo.alliance_name && `(${basicInfo.alliance_name})`}</h3>
+            <h1>{basicInfo && basicInfo.name}</h1>
+            <h3>
+              {" "}
+              - {basicInfo && basicInfo.corp_name}{" "}
+              {basicInfo && basicInfo.alliance_name && `(${basicInfo.alliance_name})`}
+            </h3>
           </div>
           <PilotTags style={{ flexWrap: "flex" }} tags={basicInfo && basicInfo.tags} />
         </div>
@@ -253,20 +267,21 @@ function PilotDisplay({ authContext }) {
           />
         </Col>
         <Col xs={4} md={2}>
-          {(authContext?.access['waitlist-tag:TRAINEE'] || authContext?.access['wiki-editor']) && authContext.current.id === characterId && (
-            <ControlButtons>
-              <div>Account Actions</div>
-              <div>
-                { authContext?.access['waitlist-tag:TRAINEE'] && (
-                  <NavButton to="/auth/start/fc" style={{ textAlign: 'center' }}>
-                    <span style={{ marginRight: '10px' }}>Add ESI Scopes</span>
-                    <FontAwesomeIcon fixedWidth icon={faExternalLinkAlt} />
-                  </NavButton>
-                )}
-                <WikiPassword />
-              </div>
-            </ControlButtons>
-          )}
+          {(authContext?.access["waitlist-tag:TRAINEE"] || authContext?.access["wiki-editor"]) &&
+            authContext.current.id === characterId && (
+              <ControlButtons>
+                <div>Account Actions</div>
+                <div>
+                  {authContext?.access["waitlist-tag:TRAINEE"] && (
+                    <NavButton to="/auth/start/fc" style={{ textAlign: "center" }}>
+                      <span style={{ marginRight: "10px" }}>Add ESI Scopes</span>
+                      <FontAwesomeIcon fixedWidth icon={faExternalLinkAlt} />
+                    </NavButton>
+                  )}
+                  <WikiPassword />
+                </div>
+              </ControlButtons>
+            )}
 
           <Title>Time in fleet</Title>
           <ActivitySummary summary={fleetHistory && fleetHistory.summary} />

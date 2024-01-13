@@ -26,6 +26,8 @@ pub enum FitError {
     InvalidHull,
     #[error("internal error: {0}")]
     Internal(#[source] TypeError),
+    #[error("failed to run add_war_tags()")]
+    WarTags,
 }
 
 impl From<ParseIntError> for FitError {
@@ -40,6 +42,12 @@ impl From<TypeError> for FitError {
             TypeError::Database(_) | &TypeError::MultipleMatches => FitError::Internal(e),
             TypeError::NothingMatched => FitError::InvalidModule,
         }
+    }
+}
+
+impl From<Box<dyn std::error::Error>> for FitError {
+    fn from(_: Box<dyn std::error::Error>) -> Self {
+        FitError::WarTags
     }
 }
 
@@ -120,7 +128,7 @@ impl Fitting {
     pub fn from_eft(eft: &str) -> Result<Vec<Fitting>, FitError> {
         let mut fittings = Vec::new();
         let mut section = 0;
-        let section_count = eft.trim().lines().filter(|&l| l == "").count();
+        let section_count = eft.trim().lines().filter(|&l| l.is_empty()).count();
 
         for line in eft.lines() {
             let line = line.trim();

@@ -1,0 +1,3 @@
+[submodule "sse-sever"]
+path = sse-server
+url = git@github.com:the-ditanian-fleet/sse-server.git

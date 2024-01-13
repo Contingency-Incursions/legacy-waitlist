@@ -52,25 +52,29 @@ const SkillRow = ({ mastery, name, current, requirements }) => {
     // if a given level is not required, just color it black.
     // if (!isRequired) return <div />
 
-    if (isTrained && !isRequired) return <div className="trained not-required" />
-    if (isTrained) return <div className="trained" />
-    if (isRequired) return <div className="required" />
-    return <div />
-  }
+    if (isTrained && !isRequired) return <div className="trained not-required" />;
+    if (isTrained) return <div className="trained" />;
+    if (isRequired) return <div className="required" />;
+    return <div />;
+  };
 
   return (
     <Skill>
       <div>{name}</div>
-      <div className="levels" data-tooltip-id="tip" data-tooltip-html={`Current: ${current}<br />Required: ${requiredLevel}`}>
-        <Square _key={1}/>
+      <div
+        className="levels"
+        data-tooltip-id="tip"
+        data-tooltip-html={`Current: ${current}<br />Required: ${requiredLevel}`}
+      >
+        <Square _key={1} />
         <Square _key={2} />
         <Square _key={3} />
         <Square _key={4} />
         <Square _key={5} />
       </div>
     </Skill>
-  )
-}
+  );
+};
 
 export default SkillRow;
-export { Skill }
+export { Skill };

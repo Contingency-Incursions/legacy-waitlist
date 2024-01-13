@@ -1,5 +1,5 @@
-use std::{env, sync::Arc};
 use rocket::Request;
+use std::{env, sync::Arc};
 
 mod app;
 mod config;
@@ -19,45 +19,46 @@ extern crate eve_data_macros;
 extern crate sqlx;
 type DBEngine = sqlx::Postgres;
 
-
 pub type DB = sqlx::Pool<DBEngine>;
 pub type DBTX<'c> = sqlx::Transaction<'c, DBEngine>;
 
 #[catch(401)]
 fn not_authorized(_req: &Request) -> String {
-    format!("401 Authorization Required")
+    "401 Authorization Required".to_string()
 }
 
 #[catch(403)]
 fn forbidden(_req: &Request) -> String {
-    format!("403 Forbidden")
+    "403 Forbidden".to_string()
 }
 
 #[catch(404)]
 fn not_found(_req: &Request) -> String {
-    format!("404 Not Found")
+    "404 Not Found".to_string()
 }
 
 fn main() {
-//     let _guard = sentry::init(("
+    //     let _guard = sentry::init(("
 
-//     https://988040048939a23af92b0a85ebe93fe2@o1154850.ingest.sentry.io/4506129796235264", sentry::ClientOptions {
-//     release: sentry::release_name!(),
-//     attach_stacktrace: true,
-//     ..Default::default()
-// }));
+    //     https://988040048939a23af92b0a85ebe93fe2@o1154850.ingest.sentry.io/4506129796235264", sentry::ClientOptions {
+    //     release: sentry::release_name!(),
+    //     attach_stacktrace: true,
+    //     ..Default::default()
+    // }));
 
-tokio::runtime::Builder::new_multi_thread()
+    tokio::runtime::Builder::new_multi_thread()
         .enable_all()
         .build()
         .unwrap()
         .block_on(async {
             let options = sqlx::postgres::PgPoolOptions::new();
 
-            let config_file = env::var("WAITLIST_CONFIG").unwrap_or_else(|_| "./config.toml".to_string());
+            let config_file =
+                env::var("WAITLIST_CONFIG").unwrap_or_else(|_| "./config.toml".to_string());
             let raw_config = std::fs::read_to_string(&config_file).expect("Could not load config");
-            let config: config::Config = toml::from_str(&raw_config).expect("Could not load config");
-        
+            let config: config::Config =
+                toml::from_str(&raw_config).expect("Could not load config");
+
             let database = options
                 .idle_timeout(std::time::Duration::from_secs(config.database.idle_timeout))
                 .connect_timeout(std::time::Duration::from_secs(
@@ -69,19 +70,19 @@ tokio::runtime::Builder::new_multi_thread()
                 .await
                 .unwrap();
             let database = Arc::new(database);
-        
+
             if config.fleet_updater.enable {
                 let fleet_updater =
                     core::fleet_updater::FleetUpdater::new(database.clone(), config.clone());
                 fleet_updater.start();
             }
-        
+
             if config.skill_updater.enable {
                 let skill_updater =
                     core::skill_updater::SkillUpdater::new(database.clone(), config.clone());
                 skill_updater.start();
             }
-        
+
             let application = app::new(database, config);
             rocket::build()
                 .register("/", catchers![not_authorized, forbidden, not_found])

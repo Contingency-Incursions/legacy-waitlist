@@ -152,7 +152,7 @@ const theme = {
         purple: "#aa88ff",
         neutral: "#4b4b4b",
         cyan: "#1eabaa",
-        text: "#ffffff"
+        text: "#ffffff",
       },
     },
   }),
@@ -198,7 +198,7 @@ theme["Deuteranopia"] = _.merge({}, theme.Dark, {
       text: "#12120f",
       disabled: "#53978a",
     },
-  }
+  },
 });
 
 Object.keys(theme).forEach((key) => {

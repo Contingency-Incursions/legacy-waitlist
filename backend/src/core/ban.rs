@@ -97,7 +97,7 @@ impl BanService {
         .fetch_all(self.db.as_ref())
         .await?;
 
-        if rows.len() == 0 {
+        if rows.is_empty() {
             return Ok(None);
         }
 
@@ -123,7 +123,7 @@ impl BanService {
             })
             .collect();
 
-        return Ok(Some(bans));
+        Ok(Some(bans))
     }
 
     pub async fn all_bans(
@@ -158,7 +158,7 @@ impl BanService {
         .fetch_all(self.db.as_ref())
         .await?;
 
-        if rows.len() == 0 {
+        if rows.is_empty() {
             return Ok(None);
         }
 
@@ -180,14 +180,11 @@ impl BanService {
                 reason: ban.reason,
                 public_reason: ban.public_reason,
                 revoked_at: ban.revoked_at,
-                revoked_by: match ban.revoked_by {
-                    Some(id) => Some(Character {
-                        id,
-                        name: "".to_string(),
-                        corporation_id: None,
-                    }),
-                    None => None,
-                },
+                revoked_by: ban.revoked_by.map(|id| Character {
+                    id,
+                    name: "".to_string(),
+                    corporation_id: None,
+                }),
             })
             .collect();
 
@@ -207,6 +204,6 @@ impl BanService {
             }
         }
 
-        return Ok(Some(bans));
+        Ok(Some(bans))
     }
 }

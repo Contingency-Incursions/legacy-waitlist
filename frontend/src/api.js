@@ -63,7 +63,7 @@ export async function errorToaster(toastContext, promise) {
   }
 }
 
-export function useApi(path, supressError = false) {
+export function useApi(path, suppressError = false) {
   const toastContext = React.useContext(ToastContext);
   const [data, setData] = React.useState(null);
 
@@ -74,12 +74,12 @@ export function useApi(path, supressError = false) {
       toastContext,
       apiCall(path, {}).then(setData, (err) => {
         setData(null);
-        if(!supressError){
+        if (!suppressError) {
           throw err;
         }
       })
     );
-  }, [toastContext, path]);
+  }, [toastContext, path, suppressError]);
 
   React.useEffect(() => {
     setData(null);

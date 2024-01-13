@@ -3,8 +3,8 @@ use std::collections::HashMap;
 use serde::Deserialize;
 
 use crate::core::esi::{ESIClient, ESIError, ESIScope};
-use eve_data_core::{SkillLevel, TypeID};
 use crate::tdf::skills as tdf_skills;
+use eve_data_core::{SkillLevel, TypeID};
 
 #[derive(Deserialize, Debug)]
 struct SkillResponseSkill {

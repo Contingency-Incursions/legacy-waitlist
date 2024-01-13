@@ -223,7 +223,7 @@ impl Builder {
 
             let mut tiers = HashMap::new();
             let mut tier_i = 1;
-            let mut last_value = modules_with_attribute.get(0).unwrap().1;
+            let mut last_value = modules_with_attribute.first().unwrap().1;
             for (type_id, attribute_value) in modules_with_attribute {
                 if (last_value - attribute_value).abs() > 0.0000000001 {
                     tier_i += 1;
@@ -260,10 +260,7 @@ pub fn drug_handling() -> Result<BTreeMap<TypeID, DrugChanger>, TypeError> {
         }
         drugmap.insert(
             TypeDB::id_of(&itemtype.detect)?,
-            DrugChanger {
-                add: add,
-                remove: remove,
-            },
+            DrugChanger { add, remove },
         );
     }
     Ok(drugmap)

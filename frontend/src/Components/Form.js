@@ -48,7 +48,9 @@ export const inputStyle = css`
 `;
 
 export const Button = styled.button.attrs((props) => ({
-  className: `${props.outline ? "btn-outline" : ""} ${props.active ? "active" : ""} ${props.static ? "static" : ""}`.trim(),
+  className: `${props.outline ? "btn-outline" : ""} ${props.active ? "active" : ""} ${
+    props.static ? "static" : ""
+  }`.trim(),
 }))`
   ${inputStyle}
   height: 2.5em;
@@ -63,8 +65,10 @@ export const Button = styled.button.attrs((props) => ({
     background: none;
     border: solid 1.5px ${(props) => props.theme.colors[props.variant || "input"].color};
     transition: ease-in-out 0.3s;
-    &:hover, &:active {
-      border: solid 1.5px ${(props) => props.theme.colors[props.variant || "input"].accent}!important;
+    &:hover,
+    &:active {
+      border: solid 1.5px
+        ${(props) => props.theme.colors[props.variant || "input"].accent}!important;
     }
   }
 `;
@@ -218,7 +222,6 @@ export const Highlight = styled.b`
 	color:  ${(props) => props.theme.colors.highlight.active};
 `;
 
-
 const SwitchDOM = styled.label`
   position: relative;
   display: inline-block;
@@ -240,7 +243,7 @@ const SwitchDOM = styled.label`
   }
 
   span {
-    background-color: ${props => props.theme.colors.accent2};
+    background-color: ${(props) => props.theme.colors.accent2};
     border-radius: 34px;
     cursor: pointer;
     position: absolute;
@@ -248,7 +251,7 @@ const SwitchDOM = styled.label`
     top: 0;
     left: 0;
     right: 0;
-    transition: .4s;
+    transition: 0.4s;
 
     &:before {
       background-color: white;
@@ -259,19 +262,16 @@ const SwitchDOM = styled.label`
       left: 4px;
       height: 20px;
       width: 20px;
-      transition: .4s;
+      transition: 0.4s;
     }
   }
 `;
 
-export const Switch = ({ id, checked = false, variant = 'primary', onChange }) => {
+export const Switch = ({ id, checked = false, variant = "primary", onChange }) => {
   return (
     <SwitchDOM htmlFor={id} variant={variant}>
-      <input type="checkbox"
-        checked={checked}
-        onChange={_ => onChange(!checked)}
-      />
-      <span className='slider round' />
+      <input type="checkbox" checked={checked} onChange={(_) => onChange(!checked)} />
+      <span className="slider round" />
     </SwitchDOM>
-  )
-}
+  );
+};

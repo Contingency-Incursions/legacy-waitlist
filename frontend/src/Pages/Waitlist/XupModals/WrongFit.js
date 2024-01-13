@@ -19,7 +19,7 @@ const WrongFit = ({ fits = [], goBack, xupAnyway }) => {
   return (
     <>
       <H2>Fix Your Fit{fits.length > 1 && "s"}</H2>
-      { fits?.map((fit, key) => {
+      {fits?.map((fit, key) => {
         return (
           !fit.approved && (
             <div style={{ marginBottom: "20px" }} key={key}>
@@ -30,11 +30,15 @@ const WrongFit = ({ fits = [], goBack, xupAnyway }) => {
       })}
 
       <ButtonWrapper>
-        <Button variant="warning" tabIndex="-1" onClick={xupAnyway}>Confirm X-UP</Button>
-        <Button variant="primary" onClick={goBack}>Fix my Fit</Button>
+        <Button variant="warning" tabIndex="-1" onClick={xupAnyway}>
+          Confirm X-UP
+        </Button>
+        <Button variant="primary" onClick={goBack}>
+          Fix my Fit
+        </Button>
       </ButtonWrapper>
     </>
-  )
-}
+  );
+};
 
 export default WrongFit;

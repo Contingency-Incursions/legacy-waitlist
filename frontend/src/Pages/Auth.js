@@ -83,8 +83,9 @@ export function AuthLogout() {
 
 export async function processAuth(callback) {
   const whoamiRaw = await fetch("/api/auth/whoami");
-  if (whoamiRaw.status !== 200) {
+  if (!whoamiRaw.ok) {
     callback(null);
+    return;
   }
   const whoami = await whoamiRaw.json();
   var access = {};

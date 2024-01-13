@@ -1,9 +1,9 @@
-import { useContext, useState, useMemo } from "react"
+import { useContext, useState, useMemo } from "react";
 import { apiCall, errorToaster } from "../../../../../api";
-import { ToastContext } from "../../../../../contexts"
+import { ToastContext } from "../../../../../contexts";
 import { Button } from "./Button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSpinner, faPaperPlane } from "@fortawesome/free-solid-svg-icons"
+import { faSpinner, faPaperPlane } from "@fortawesome/free-solid-svg-icons";
 
 async function invite(id, character_id) {
   return await apiCall("/api/waitlist/invite", {
@@ -12,43 +12,43 @@ async function invite(id, character_id) {
 }
 
 const InviteButton = ({ fitId, isRejected, bossId, inviteCounts, onInvite }) => {
-  const [ pending, isPending ] = useState(false);
+  const [pending, isPending] = useState(false);
   const toastContext = useContext(ToastContext);
 
   const handleClick = () => {
     isPending(true);
     errorToaster(
       toastContext,
-      invite(fitId, bossId)
-      .finally(_ => {
+      invite(fitId, bossId).finally((_) => {
         isPending(false);
-        onInvite({...inviteCounts, [fitId]: (localInviteCount + 1)});
+        onInvite({ ...inviteCounts, [fitId]: localInviteCount + 1 });
       })
     );
-  }
+  };
 
   const localInviteCount = useMemo(() => {
-    if(inviteCounts[fitId] === undefined){
+    if (inviteCounts[fitId] === undefined) {
       return 0;
     } else {
-      return inviteCounts[fitId]
+      return inviteCounts[fitId];
     }
-  
-  }, [inviteCounts])
+  }, [inviteCounts, fitId]);
 
   return (
     <>
-      <Button type="button"
+      <Button
+        type="button"
         variant="primary"
         data-tooltip-id="tip"
         data-tooltip-html={!isRejected ? "Invite" : "Fit rejected"}
         disabled={isRejected || pending}
         onClick={handleClick}
       >
-         <FontAwesomeIcon fixedWidth icon={!pending ? faPaperPlane : faSpinner} spin={pending} /> {localInviteCount}
+        <FontAwesomeIcon fixedWidth icon={!pending ? faPaperPlane : faSpinner} spin={pending} />{" "}
+        {localInviteCount}
       </Button>
     </>
-  )
-}
+  );
+};
 
 export default InviteButton;

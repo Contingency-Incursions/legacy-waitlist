@@ -1,12 +1,8 @@
-use crate::{
-    core::auth::AuthenticatedAccount,
-    app::Application,
-    util::madness::Madness
-};
+use crate::{app::Application, core::auth::AuthenticatedAccount, util::madness::Madness};
 
-use serde::Serialize;
-use rocket::serde::json::Json;
 use bigdecimal::BigDecimal;
+use rocket::serde::json::Json;
+use serde::Serialize;
 
 #[derive(Debug, Serialize)]
 struct ReportRow {
@@ -15,7 +11,7 @@ struct ReportRow {
     name: String,
     role: Option<String>,
     seconds_last_month: Option<BigDecimal>,
-    last_seen: Option<i64>
+    last_seen: Option<i64>,
 }
 
 #[get("/api/reports")]
@@ -53,7 +49,7 @@ async fn get_reports(
     .fetch_all(app.get_db())
     .await?;
 
-    return Ok(Json(activity))
+    Ok(Json(activity))
 }
 
 pub fn routes() -> Vec<rocket::Route> {

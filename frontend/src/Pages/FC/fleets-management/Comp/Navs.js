@@ -19,7 +19,7 @@ const Tabs = styled.div`
   button {
     background-color: inherit;
     border: none;
-    color:  ${(props) => props.theme.colors.text};
+    color: ${(props) => props.theme.colors.text};
     cursor: pointer;
     flex-grow: 1;
     font-size: 17px;
@@ -41,30 +41,29 @@ const Tabs = styled.div`
   }
 `;
 
-
-const Navs = ({ categories = [], activeTab, tabVariant = 'primary', onClick }) => {
+const Navs = ({ categories = [], activeTab, tabVariant = "primary", onClick }) => {
   const Button = ({ id, name, count }) => {
-    return <button className={id === activeTab ? 'active' : null} onClick={_ => onClick(id)}>
-      {name}
-      <Badge variant="primary">
-        {count ?? '-' }
-      </Badge>
-    </button>
-  }
+    return (
+      <button className={id === activeTab ? "active" : null} onClick={(_) => onClick(id)}>
+        {name}
+        <Badge variant="primary">{count ?? "-"}</Badge>
+      </button>
+    );
+  };
 
   return (
     <Tabs variant={tabVariant}>
-      { categories?.map((category, key) => {
+      {categories?.map((category, key) => {
         let count = 0;
 
-        category?.ships.forEach(ship => {
+        category?.ships.forEach((ship) => {
           count += ship?.pilots.length;
-        })
+        });
 
-        return <Button {...category} count={count} key={key} />
+        return <Button {...category} count={count} key={key} />;
       })}
     </Tabs>
-  )
-}
+  );
+};
 
 export default Navs;

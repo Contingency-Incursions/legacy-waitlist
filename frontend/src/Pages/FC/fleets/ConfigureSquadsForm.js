@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect } from "react";
 import { Label, Select } from "../../../Components/Form";
 import styled from "styled-components";
 
@@ -13,62 +13,67 @@ const DOM = styled.div`
 `;
 
 const SquadSelect = ({ options, category, squadMappings, setSquadMappings }) => {
-  const handleSelect = (evt) => { 
+  const handleSelect = (evt) => {
     setSquadMappings({
       ...squadMappings,
-      [category.id]: options.find(o => o.label == evt.target.value)
-    })
+      [category.id]: options.find((o) => o.label === evt.target.value),
+    });
   };
 
   return (
     <FormGroup>
-      <Label htmlFor={category.name}>
-        {category.name}
-      </Label>
-      <Select value={squadMappings[category.id]?.label}  onChange={handleSelect}>
+      <Label htmlFor={category.name}>{category.name}</Label>
+      <Select value={squadMappings[category.id]?.label} onChange={handleSelect}>
         {options?.map((squad, key) => {
-          return <option value={squad.label} key={key}>{squad.label}</option>
+          return (
+            <option value={squad.label} key={key}>
+              {squad.label}
+            </option>
+          );
         })}
       </Select>
     </FormGroup>
-  )
-}
+  );
+};
 
 const ConfigureSquadsForm = ({ squads, categories, squadMappings, setSquadMappings }) => {
-  
   useEffect(() => {
     let mappings = {};
-    for (const category of categories){
-      let found_option = squads.find(option => {
-        if(category.auto_detect_names !== null && category.auto_detect_names !== undefined){
-          return category.auto_detect_names.find((a) => option?.label.toLowerCase().includes(a.toLowerCase()));
+    for (const category of categories) {
+      let found_option = squads.find((option) => {
+        if (category.auto_detect_names !== null && category.auto_detect_names !== undefined) {
+          return category.auto_detect_names.find((a) =>
+            option?.label.toLowerCase().includes(a.toLowerCase())
+          );
         } else {
-          return option?.label.toLowerCase().includes(category.name.toLowerCase())
+          return option?.label.toLowerCase().includes(category.name.toLowerCase());
         }
-      })
-      if(found_option === null || found_option === undefined){
+      });
+      if (found_option === null || found_option === undefined) {
         found_option = squads[0];
       }
       mappings[category.id] = found_option;
     }
     setSquadMappings({
       ...squadMappings,
-      ...mappings
-    })
-  }, [squads, categories, setSquadMappings]);
+      ...mappings,
+    });
+  }, [squads, categories, setSquadMappings, squadMappings]);
 
   return (
     <DOM>
       <Label>Any on-grid squads not directly mapped will be turned into boxer squads</Label>
-      {categories?.map((category, key) => <SquadSelect 
-        category={category}
-        options={squads}
-        squadMappings={squadMappings}
-        setSquadMappings={setSquadMappings}
-        key={key}
-      />)}
+      {categories?.map((category, key) => (
+        <SquadSelect
+          category={category}
+          options={squads}
+          squadMappings={squadMappings}
+          setSquadMappings={setSquadMappings}
+          key={key}
+        />
+      ))}
     </DOM>
-  )
-}
+  );
+};
 
 export default ConfigureSquadsForm;

@@ -1,19 +1,20 @@
-import { useState } from 'react';
-import { ErrorBoundary as ErrorCatch } from 'react-error-boundary';
+import { useState } from "react";
+import { ErrorBoundary as ErrorCatch } from "react-error-boundary";
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheckCircle, faClone } from '@fortawesome/free-solid-svg-icons';
-import { faGithub } from '@fortawesome/free-brands-svg-icons';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCheckCircle, faClone } from "@fortawesome/free-solid-svg-icons";
+import { faGithub } from "@fortawesome/free-brands-svg-icons";
 import styled from "styled-components";
 
 const StackTraceDOM = styled.div`
   h2 {
-    font-family: 'Monaco', monospace;
+    font-family: "Monaco", monospace;
     font-size: 24px;
     margin-bottom: 10px;
   }
 
-  button, a {
+  button,
+  a {
     background: #0c786f;
     border: none;
     border-radius: 10px;
@@ -31,7 +32,7 @@ const StackTraceDOM = styled.div`
     }
 
     &:disabled {
-      cursor: not-allowed!important;
+      cursor: not-allowed !important;
     }
 
     &:not(button) {
@@ -41,10 +42,10 @@ const StackTraceDOM = styled.div`
 
   pre {
     background: #1f2937;
-    border-radius: .375rem;
-    color: #E5E7EB;
+    border-radius: 0.375rem;
+    color: #e5e7eb;
     font-size: 1.2em;
-    font-family: 'Monaco', monospace;
+    font-family: "Monaco", monospace;
     font-weight: 400;
     line-height: 1.9;
     overflow-x: hidden;
@@ -63,14 +64,14 @@ const StackTraceDOM = styled.div`
 `;
 
 const StackTrace = ({ error }) => {
-  const [ copied, isCopied ] = useState(false);
+  const [copied, isCopied] = useState(false);
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(error.stack);
     isCopied(true);
 
-    setTimeout(() => isCopied(false), 5 * 1000)
-  }
+    setTimeout(() => isCopied(false), 5 * 1000);
+  };
 
   return (
     <StackTraceDOM>
@@ -87,27 +88,21 @@ const StackTrace = ({ error }) => {
 
         <a
           href={`https://github.com/Contingency-Incursions/legacy-waitlist/issues/new`}
-          target='_blank'
-          rel='noreferrer'
+          target="_blank"
+          rel="noreferrer"
           data-tooltip-id="_tip"
           data-tooltip-content="Create Bug Report"
         >
           <FontAwesomeIcon fixedWidth icon={faGithub} />
         </a>
-        <code>
-          {error.stack}
-        </code>
+        <code>{error.stack}</code>
       </pre>
     </StackTraceDOM>
-  )
-}
+  );
+};
 
-const  ErrorBoundary = ({ children }) => {
-  return (
-    <ErrorCatch FallbackComponent={StackTrace}>
-      {children}  
-    </ErrorCatch>
-  )
-}
+const ErrorBoundary = ({ children }) => {
+  return <ErrorCatch FallbackComponent={StackTrace}>{children}</ErrorCatch>;
+};
 
 export default ErrorBoundary;

@@ -7,7 +7,7 @@ import styled from "styled-components";
 const ButtonsDOM = styled.div`
   box-sizing: border-box;
   display: grid;
-  grid-template-columns: repeat(2,minmax(0px,1fr));
+  grid-template-columns: repeat(2, minmax(0px, 1fr));
   gap: 5px;
 
   button {
@@ -31,7 +31,7 @@ const FleetButtons = ({ fleetId }) => {
       <ClearWaitlist fleetId={fleetId} />
       <CloseFleet fleetId={fleetId} />
     </ButtonsDOM>
-  )
-}
+  );
+};
 
 export default FleetButtons;

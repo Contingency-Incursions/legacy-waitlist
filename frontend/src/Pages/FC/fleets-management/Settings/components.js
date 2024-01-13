@@ -77,13 +77,12 @@ const Details = styled.div`
   }
 `;
 
-
 const Button = ({ onClick }) => {
   return (
     <button onClick={onClick}>
       <FontAwesomeIcon fixedWidth icon={faPencilAlt} />
     </button>
-  )
-}
+  );
+};
 
 export { Button, Card, Details, Feature };

@@ -5,7 +5,7 @@ import { apiCall, errorToaster } from "../../../../api";
 import { Box } from "../../../../Components/Box";
 import { Button as EditButton, Card, Details } from "./components";
 import { Button, Buttons, Select } from "../../../../Components/Form";
-import { Modal } from '../../../../Components/Modal';
+import { Modal } from "../../../../Components/Modal";
 
 import styled from "styled-components";
 
@@ -27,9 +27,9 @@ const H2 = styled.h2`
 const SiteType = ({ fleetId, type }) => {
   const toastContext = useContext(ToastContext);
 
-  const [ open, setOpen ] = useState(false);
-  const [ selectedValue, setSelectedValue ] = useState(type);
-  const [ pending, isPending ] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [selectedValue, setSelectedValue] = useState(type);
+  const [pending, isPending] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -42,15 +42,15 @@ const SiteType = ({ fleetId, type }) => {
     errorToaster(
       toastContext,
       apiCall(`/api/v2/fleets/${fleetId}/type`, {
-        method: 'POST',
+        method: "POST",
         json: {
-          site_type: selectedValue
-        }
+          site_type: selectedValue,
+        },
       })
-      .then(() => setOpen(false))
-      .finally(() => isPending(false))
+        .then(() => setOpen(false))
+        .finally(() => isPending(false))
     );
-  }
+  };
 
   return (
     <>
@@ -59,8 +59,8 @@ const SiteType = ({ fleetId, type }) => {
           <Details>
             <p>Site Type</p>
             <div>
-              {type ?? '-'}
-              <EditButton onClick={_ => setOpen(true)} />
+              {type ?? "-"}
+              <EditButton onClick={(_) => setOpen(true)} />
             </div>
           </Details>
         </div>
@@ -71,22 +71,26 @@ const SiteType = ({ fleetId, type }) => {
           <H2>Set Site Type</H2>
           <form onSubmit={handleSubmit}>
             <FormGroup>
-              <Select value={selectedValue}  onChange={e => setSelectedValue(e.target.value)}>
-               <option value={'hq'}>Headquarters</option>
-               <option value={'kundi'}>Kundi Pop</option>
-               <option value={'assault'}>Assaults</option>
-               <option value={'vg'}>Vanguards</option>
+              <Select value={selectedValue} onChange={(e) => setSelectedValue(e.target.value)}>
+                <option value={"hq"}>Headquarters</option>
+                <option value={"kundi"}>Kundi Pop</option>
+                <option value={"assault"}>Assaults</option>
+                <option value={"vg"}>Vanguards</option>
               </Select>
             </FormGroup>
             <Buttons>
-              <Button type="submit" variant="primary">Submit</Button>
-              <Button type="button" onClick={_ => setOpen(false)}>Cancel</Button>
+              <Button type="submit" variant="primary">
+                Submit
+              </Button>
+              <Button type="button" onClick={(_) => setOpen(false)}>
+                Cancel
+              </Button>
             </Buttons>
           </form>
         </Box>
       </Modal>
     </>
-  )
-}
+  );
+};
 
 export default SiteType;

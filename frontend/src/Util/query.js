@@ -24,9 +24,12 @@ export function useQuery() {
         queryParams.set(key, value);
       }
       if (replace) {
-        navigate({
-          search: queryParams.toString(),
-        }, {replace: true});
+        navigate(
+          {
+            search: queryParams.toString(),
+          },
+          { replace: true }
+        );
       } else {
         navigate({
           search: queryParams.toString(),

@@ -42,8 +42,8 @@ export const FireNotificationApi = ({ title, body }) => {
 
 const handleEmergency = (event) => {
   FireNotificationApi({
-    title: 'Emergency Fleet Invite!',
-    body: 'test'
+    title: "Emergency Fleet Invite!",
+    body: "test",
   });
 
   let audio = new Audio(emergencyAlarm);
@@ -53,8 +53,14 @@ const handleEmergency = (event) => {
   document.title = "Emergency Fleet Invite";
 
   // Delay the alert by 2 seconds, otherwise it may stop the alarm from playing!
-  setTimeout(_ => alert(`**This is an Emergency** \n\n\n Join TS - Accept invite - Warp Your ${event.data} to FC!`), 2*1000);
-}
+  setTimeout(
+    (_) =>
+      alert(
+        `**This is an Emergency** \n\n\n Join TS - Accept invite - Warp Your ${event.data} to FC!`
+      ),
+    2 * 1000
+  );
+};
 
 const handleNotification = (event) => {
   let data = event?.data;
@@ -133,21 +139,27 @@ const BrowserNotification = () => {
       return;
     }
 
-    const emergency = eventContext.subscriptions.create({channel: 'EmergencyChannel'}, {
-      received(data){
-        handleEmergency(data);
+    const emergency = eventContext.subscriptions.create(
+      { channel: "EmergencyChannel" },
+      {
+        received(data) {
+          handleEmergency(data);
+        },
       }
-    })
+    );
 
-    const char_sub = eventContext.subscriptions.create({channel: 'CharacterChannel'}, {
-      received(data){
-        if(data.event == 'message'){
-          handleMessage(data);
-        } else if(data.event == 'notification'){
-          handleNotification(data);
-        }
+    const char_sub = eventContext.subscriptions.create(
+      { channel: "CharacterChannel" },
+      {
+        received(data) {
+          if (data.event === "message") {
+            handleMessage(data);
+          } else if (data.event === "notification") {
+            handleNotification(data);
+          }
+        },
       }
-    })
+    );
 
     //eventContext.addEventListener("emergency", handleEmergency);
     //eventContext.addEventListener("message", handleMessage);
@@ -155,8 +167,8 @@ const BrowserNotification = () => {
     return () => {
       emergency.unsubscribe();
       char_sub.unsubscribe();
-    }
-  }, [eventContext]);
+    };
+  }, [eventContext, handleMessage]);
 
   if (notification?.sound) {
     new Audio(notification.sound).play();
@@ -198,9 +210,9 @@ const PreloadNotification = () => {
     let audio = new Audio(notificationAlarm);
     audio.volume = 0.1;
     audio.play();
-    console.log('Audio alert preloaded...');
+    console.log("Audio alert preloaded...");
   }
-}
+};
 
 export default BrowserNotification;
-export { PreloadNotification }
+export { PreloadNotification };

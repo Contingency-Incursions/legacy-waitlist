@@ -7,7 +7,7 @@ import { Button, Buttons } from "../../../../Components/Form";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { FitDisplay } from "../../../../Components/FitDisplay";
-import { Modal } from "../../../../Components/Modal"
+import { Modal } from "../../../../Components/Modal";
 import { Title } from "../../../../Components/Page";
 import { SkillDisplay } from "../../../../Components/SkillDisplay";
 
@@ -25,8 +25,8 @@ async function rejectFit(id, review_comment) {
 
 const FitModal = ({ fit, open, setOpen, skills }) => {
   const toastContext = useContext(ToastContext);
-  const [ acceptPending, isAcceptPending ] = useState(false);
-  const [ rejectPending, isRejectPending ] = useState(false);
+  const [acceptPending, isAcceptPending] = useState(false);
+  const [rejectPending, isRejectPending] = useState(false);
 
   if (!fit) {
     return null; // this modal cannot load until a fit is supplied
@@ -39,7 +39,7 @@ const FitModal = ({ fit, open, setOpen, skills }) => {
       toastContext,
       approveFit(fit.id).then(setOpen(false)).finally(isAcceptPending(false))
     );
-  }
+  };
 
   const handleRejectClick = () => {
     var reason = prompt("Why is the fit being rejected? (Will be displayed to pilot)");
@@ -51,30 +51,47 @@ const FitModal = ({ fit, open, setOpen, skills }) => {
         rejectFit(fit.id, reason).then(setOpen(false)).finally(isRejectPending(false))
       );
     }
-  }
+  };
 
   return (
     <Modal open={open} setOpen={setOpen}>
       <Box>
         <Buttons>
-          <Button variant="success" onClick={handleApproveClick} style={{ minWidth: '91px' }} disabled={acceptPending} pending={acceptPending}>
-            { !acceptPending ? "Approve" : <FontAwesomeIcon fixedWidth icon={faSpinner} spin /> }
+          <Button
+            variant="success"
+            onClick={handleApproveClick}
+            style={{ minWidth: "91px" }}
+            disabled={acceptPending}
+            pending={acceptPending}
+          >
+            {!acceptPending ? "Approve" : <FontAwesomeIcon fixedWidth icon={faSpinner} spin />}
           </Button>
-          <Button variant="danger" onClick={handleRejectClick} style={{ minWidth: '91px' }} disabled={rejectPending} pending={rejectPending}>
-          { !acceptPending ? "Reject" : <FontAwesomeIcon fixedWidth icon={faSpinner} spin /> }
+          <Button
+            variant="danger"
+            onClick={handleRejectClick}
+            style={{ minWidth: "91px" }}
+            disabled={rejectPending}
+            pending={rejectPending}
+          >
+            {!acceptPending ? "Reject" : <FontAwesomeIcon fixedWidth icon={faSpinner} spin />}
           </Button>
         </Buttons>
 
         <FitDisplay fit={fit} />
-        { fit.tags.includes("STARTER") && (
+        {fit.tags.includes("STARTER") && (
           <>
             <Title>Starter Skills</Title>
-            <SkillDisplay characterId={fit.character.id} ship={fit.hull.name} filterMin skills={skills} />
+            <SkillDisplay
+              characterId={fit.character.id}
+              ship={fit.hull.name}
+              filterMin
+              skills={skills}
+            />
           </>
         )}
       </Box>
     </Modal>
-  )
-}
+  );
+};
 
 export default FitModal;

@@ -165,14 +165,10 @@ async fn assign_badge(
     let badge = badge.unwrap();
     let character = character.unwrap();
 
-    if sqlx::query!(
-        "SELECT id FROM character WHERE id=$1 LIMIT 1",
-        character.id
-    )
-    .fetch_all(app.get_db())
-    .await?
-    .len()
-        <= 0
+    if sqlx::query!("SELECT id FROM character WHERE id=$1 LIMIT 1", character.id)
+        .fetch_all(app.get_db())
+        .await?
+        .is_empty()
     {
         return Err(Madness::BadRequest(format!(
             "Character not found (ID: {})",
@@ -181,15 +177,14 @@ async fn assign_badge(
     }
 
     // Make sure we don't duplicate this record
-    if sqlx::query!(
+    if !sqlx::query!(
         "SELECT * FROM badge_assignment WHERE characterid=$1 AND badgeId=$2",
         character.id,
         badge_id
     )
     .fetch_all(app.get_db())
     .await?
-    .len()
-        > 0
+    .is_empty()
     {
         return Err(Madness::BadRequest(format!(
             "{} already has {} and cannot be assigned it a second time",
@@ -201,7 +196,7 @@ async fn assign_badge(
     // we need make sure the pilot does not have the excluded badge
     // if they do we want to return an error. This will prompt the
     // FC to remove the existing badge before they can assign the new badge.
-    if !badge.exclude_badge_id.is_none() {
+    if badge.exclude_badge_id.is_some() {
         let exclude_id = badge.exclude_badge_id.unwrap();
 
         if let Some(excluded_badge) = sqlx::query!(
