@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import SkillRow from "./SkillRow";
 import CopyToSkillplan from "./EveSkillPlan";
+import Spinner from "../../Components/Spinner";
 
 const SkillSheet = styled.div`
   box-sizing: border-box;
@@ -55,7 +56,7 @@ const CharacterSkills = ({ mastery, selectedHull, skills, hidePlans = false }) =
   const requirements = skills?.requirements[selectedHull];
 
   if (!categories || !current || !ids || !requirements) {
-    return null;
+    return <Spinner />
   }
 
   const skillGroups = {};
