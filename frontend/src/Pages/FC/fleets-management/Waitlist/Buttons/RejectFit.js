@@ -1,6 +1,6 @@
-import { useContext, useState } from "react"
+import { useContext, useState } from "react";
 import { apiCall, errorToaster } from "../../../../../api";
-import { ToastContext } from "../../../../../contexts"
+import { ToastContext } from "../../../../../contexts";
 
 import { Box } from "../../../../../Components/Box";
 import { Button } from "./Button";
@@ -11,11 +11,11 @@ import { Modal } from "../../../../../Components/Modal";
 
 import styled from "styled-components";
 
-
 const FormGroup = styled.div`
   margin-bottom: 15px;
 
-  textarea, small {
+  textarea,
+  small {
     display: block;
     margin-bottom: 10px;
     min-width: 450px;
@@ -42,9 +42,9 @@ async function rejectFit(id, review_comment) {
 const RejectFitButton = ({ fitId, isRejected }) => {
   const toastContext = useContext(ToastContext);
 
-  const [ open, setOpen ] = useState(false);
-  const [ reason, setReason ] = useState('');
-  const [ pending, isPending ] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [reason, setReason] = useState("");
+  const [pending, isPending] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -53,22 +53,23 @@ const RejectFitButton = ({ fitId, isRejected }) => {
     errorToaster(
       toastContext,
       rejectFit(fitId, reason)
-      .then(_ => {
-        setOpen(false);
-        setReason('');
-      })
-      .finally(_ => isPending(false))
-    )
-  }
+        .then((_) => {
+          setOpen(false);
+          setReason("");
+        })
+        .finally((_) => isPending(false))
+    );
+  };
 
   return (
     <>
-      <Button type="button"
+      <Button
+        type="button"
         variant="primary"
         data-tooltip-id="tip"
         data-tooltip-html={!isRejected ? "Reject Fit" : "Fit already rejected"}
         disabled={isRejected}
-        onClick={_ => setOpen(true)}
+        onClick={(_) => setOpen(true)}
       >
         <FontAwesomeIcon fixedWidth icon={faTimes} />
       </Button>
@@ -79,15 +80,22 @@ const RejectFitButton = ({ fitId, isRejected }) => {
           <form onSubmit={handleSubmit}>
             <FormGroup>
               <Label htmlFor={`${fitId}:reject-reason`}>Message to the pilot:</Label>
-              <Textarea id={`${fitId}:reject-reason`} value={reason} onChange={e => setReason(e.target.value)} maxLength={512} required />
+              <Textarea
+                id={`${fitId}:reject-reason`}
+                value={reason}
+                onChange={(e) => setReason(e.target.value)}
+                maxLength={512}
+                required
+              />
               <small>{reason?.length ?? 0} of 512 characters.</small>
             </FormGroup>
 
             <Buttons>
-              <BaseButton type="button"
+              <BaseButton
+                type="button"
                 onClick={() => {
                   setOpen(false);
-                  setReason('');
+                  setReason("");
                 }}
               >
                 Cancel
@@ -101,7 +109,7 @@ const RejectFitButton = ({ fitId, isRejected }) => {
         </Box>
       </Modal>
     </>
-  )
-}
+  );
+};
 
 export default RejectFitButton;

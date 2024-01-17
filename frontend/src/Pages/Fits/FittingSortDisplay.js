@@ -89,23 +89,23 @@ const DisplayDOM = styled.div`
 `;
 
 const hullOrder = [
-  641,    // Mega
-  17726,  // Navy Apoc
-  17740,  // Vindicator
-  28661,  // Kronos
-  17736,  // Nightmare
-  28659,  // Paladin
-  11989,  // Oneiros
-  33472,  // Nestor
-  22442,  // Eos
-  22474,  // Damnation
+  641, // Mega
+  17726, // Navy Apoc
+  17740, // Vindicator
+  28661, // Kronos
+  17736, // Nightmare
+  28659, // Paladin
+  11989, // Oneiros
+  33472, // Nestor
+  22442, // Eos
+  22474, // Damnation
 ];
 
 function Fitout({ data, tier }) {
   var fits = {
     antigank: [],
     dps: [],
-    logi: []    
+    logi: [],
   };
 
   var logiid = [];
@@ -126,10 +126,10 @@ function Fitout({ data, tier }) {
   _.forEach(data.notes, (note) => {
     notes[note.name] = note.description;
   });
-  
+
   ships = _.sortBy(ships, (ship) => {
-    return hullOrder.indexOf(parseInt(ship.dna.split(":", 1)[0]))
-  })
+    return hullOrder.indexOf(parseInt(ship.dna.split(":", 1)[0]));
+  });
 
   ships.forEach((ship) => {
     if (!(ship.dna && ship.name)) {
@@ -140,57 +140,49 @@ function Fitout({ data, tier }) {
 
     if (ship.name in notes) {
       fitnote = notes[ship.name];
-    }
-    else
-    {
+    } else {
       fitnote = null;
     }
 
     if (ship.name.toLowerCase().includes("antigank")) {
-      fits['antigank'].push(
-        <ShipDisplay key={ship.name} fit={ship} id={ship.id} note={fitnote} />
-      );
-    }
-    else if (logiid.includes(ship.id)) {
-      fits['logi'].push(
-        <ShipDisplay key={ship.name} fit={ship} id={ship.id} note={fitnote} />
-      );
-    }
-    else
-    {
-      if (ship.name.toLowerCase().includes(tier.toLowerCase()) || tier == "Elite" && ship.name.toLowerCase().includes("web specialist")) {
-        fits['dps'].push(
-          <ShipDisplay key={ship.name} fit={ship} id={ship.id} note={fitnote} />
-        );
+      fits["antigank"].push(<ShipDisplay key={ship.name} fit={ship} id={ship.id} note={fitnote} />);
+    } else if (logiid.includes(ship.id)) {
+      fits["logi"].push(<ShipDisplay key={ship.name} fit={ship} id={ship.id} note={fitnote} />);
+    } else {
+      if (
+        ship.name.toLowerCase().includes(tier.toLowerCase()) ||
+        (tier === "Elite" && ship.name.toLowerCase().includes("web specialist"))
+      ) {
+        fits["dps"].push(<ShipDisplay key={ship.name} fit={ship} id={ship.id} note={fitnote} />);
       }
     }
   });
-  
+
   return (
     <>
-        <div>
-          <div style={{ padding: "1em 0 0.4em" }}>
-            {tier in notes ? <Markdown>{notes[tier]}</Markdown> : <br />}
-          </div>
-          {fits.length !== 0 && (
-            <>
-              { tier == "Antigank" ? (
-                <DisplayDOM>{fits['antigank']}</DisplayDOM>
-              ) : tier == "Logistics" ? (
-                <DisplayDOM>{fits['logi']}</DisplayDOM>
-              ) : (
-                <DisplayDOM>{fits['dps']}</DisplayDOM>
-              )}
-            </>
-          )}
+      <div>
+        <div style={{ padding: "1em 0 0.4em" }}>
+          {tier in notes ? <Markdown>{notes[tier]}</Markdown> : <br />}
         </div>
-      </>
-  )  
+        {fits.length !== 0 && (
+          <>
+            {tier === "Antigank" ? (
+              <DisplayDOM>{fits["antigank"]}</DisplayDOM>
+            ) : tier === "Logistics" ? (
+              <DisplayDOM>{fits["logi"]}</DisplayDOM>
+            ) : (
+              <DisplayDOM>{fits["dps"]}</DisplayDOM>
+            )}
+          </>
+        )}
+      </div>
+    </>
+  );
 }
 
 function ShipDisplay({ fit, id, note }) {
   const [modalOpen, setModalOpen] = React.useState(false);
-  
+
   // Guardians are being removed. Do not display them on the fit page.
   if (fit.name.toLowerCase().indexOf("guardian") !== -1) {
     return null;
@@ -213,11 +205,17 @@ function ShipDisplay({ fit, id, note }) {
             ) : null}
             {fit.name.toLowerCase().indexOf("amulet") !== -1 ? (
               <Note variant={"danger"}>
-                <p>This fit requires slot 1-5 Amulet implants. Click the implant button above for details.</p>
+                <p>
+                  This fit requires slot 1-5 Amulet implants. Click the implant button above for
+                  details.
+                </p>
               </Note>
             ) : fit.name.toLowerCase().indexOf("ascendancy") !== -1 ? (
               <Note variant={"danger"}>
-                <p>This fit requires slot 1-5 Ascendancy &amp; the WS-618 implant. Click the implants button above for details.</p>
+                <p>
+                  This fit requires slot 1-5 Ascendancy &amp; the WS-618 implant. Click the implants
+                  button above for details.
+                </p>
               </Note>
             ) : null}
           </Box>
@@ -240,9 +238,7 @@ function ShipDisplay({ fit, id, note }) {
                 ) : fit.name.toLowerCase().indexOf("ascendancy") !== -1 ? (
                   <Shield color="red" letter="W" title="Requires Ascendancy Clone" />
                 ) : null}
-                {fit.name.toLowerCase().includes("web specialist") && (
-                  <BadgeIcon type="WEB" />
-                )}
+                {fit.name.toLowerCase().includes("web specialist") && <BadgeIcon type="WEB" />}
               </FitCard.Content.Badges>
             </FitCard.Content>
           </a>

@@ -38,24 +38,24 @@ const RegisterFleetBtn = ({ refreshFunction }) => {
   const authContext = useContext(AuthContext);
   const toastContext = useContext(ToastContext);
 
-  const [ open, setOpen ] = useState(false);
-  const [ pending, isPending ] = useState(false);
-  const [ defaultSquads, isDefaultSquads ] = useState(true);
-  const [ defaultMotd, isDefaultMotd ] = useState(true);
-  const [ squadMappings, setSquadMappings ] = useState({});
-  const [ fleet ] = useApi(`/api/fleet/info?character_id=${authContext?.current?.id}`, true);
-  const [ data ] = useApi('/api/categories');
+  const [open, setOpen] = useState(false);
+  const [pending, isPending] = useState(false);
+  const [defaultSquads, isDefaultSquads] = useState(true);
+  const [defaultMotd, isDefaultMotd] = useState(true);
+  const [squadMappings, setSquadMappings] = useState({});
+  const [fleet] = useApi(`/api/fleet/info?character_id=${authContext?.current?.id}`, true);
+  const [data] = useApi("/api/categories");
 
   // Flatten fleet squads into single array
   let squads = useMemo(() => {
     let squads = [];
-    fleet?.wings.forEach(wing => {
-      wing?.squads.map(squad => {
-        squads.push({ 
+    fleet?.wings.forEach((wing) => {
+      wing?.squads.forEach((squad) => {
+        squads.push({
           label: `${wing.name} > ${squad.name}`,
           id: squad.id,
-          wing_id: wing.id
-        })
+          wing_id: wing.id,
+        });
       });
     });
 
@@ -64,10 +64,10 @@ const RegisterFleetBtn = ({ refreshFunction }) => {
 
   let categories = useMemo(() => {
     return data?.categories;
-  })
+  }, [data]);
 
   // Only fleet admins: Instructor/Leadership should see this
-  if (!authContext?.access['fleet-invite']) {
+  if (!authContext?.access["fleet-invite"]) {
     return null;
   }
 
@@ -84,39 +84,39 @@ const RegisterFleetBtn = ({ refreshFunction }) => {
       default_squads: defaultSquads,
       boss_id: authContext.current.id,
       squads: null,
-      all_squads: squads
+      all_squads: squads,
     };
 
     if (!defaultSquads) {
       // todo: this needs to load in data from the wizard
-      json.squads = Object.keys(squadMappings).map(category => {
+      json.squads = Object.keys(squadMappings).map((category) => {
         return {
           category: category,
-          ...squadMappings[category]
-        }
-      })
+          ...squadMappings[category],
+        };
+      });
     }
 
     errorToaster(
       toastContext,
       apiCall(`/api/v2/fleets`, {
-        method: 'POST',
-        json
+        method: "POST",
+        json,
       })
-      .then((e) => {
-        window.location.assign(e);
-      })
-      .finally(() => isPending(false))
+        .then((e) => {
+          window.location.assign(e);
+        })
+        .finally(() => isPending(false))
     );
-  }
+  };
 
-  if(fleet === null){
+  if (fleet === null) {
     return null;
   }
 
   return (
     <>
-      <Button variant="primary" onClick={_ => setOpen(true)}>
+      <Button variant="primary" onClick={(_) => setOpen(true)}>
         Register Fleet
       </Button>
 
@@ -130,33 +130,41 @@ const RegisterFleetBtn = ({ refreshFunction }) => {
           <Form onSubmit={handleSubmit}>
             <FormGroup>
               <Label htmlFor="motd">
-                <input id="motd" type="checkbox" checked={defaultMotd} onChange={e => isDefaultMotd(!defaultMotd)} />
+                <input
+                  id="motd"
+                  type="checkbox"
+                  checked={defaultMotd}
+                  onChange={(e) => isDefaultMotd(!defaultMotd)}
+                />
                 Use Default MOTD?
               </Label>
             </FormGroup>
 
-            <FormGroup style={{ }}>
+            <FormGroup style={{}}>
               <Label htmlFor="squad">
-                <input id="squad" type="checkbox" checked={defaultSquads} onChange={e => isDefaultSquads(!defaultSquads)} />
+                <input
+                  id="squad"
+                  type="checkbox"
+                  checked={defaultSquads}
+                  onChange={(e) => isDefaultSquads(!defaultSquads)}
+                />
                 Use Default Squads?
               </Label>
             </FormGroup>
 
-            { 
-            !defaultSquads && <ConfigureSquadsForm 
-            squads={squads} 
-            categories={categories} 
-            squadMappings={squadMappings} 
-            setSquadMappings={setSquadMappings} 
-            /> 
-            }
+            {!defaultSquads && (
+              <ConfigureSquadsForm
+                squads={squads}
+                categories={categories}
+                squadMappings={squadMappings}
+                setSquadMappings={setSquadMappings}
+              />
+            )}
 
-            <Buttons style={{ width: '100%' }}>
-              <Button variant='primary'>
-                Submit
-              </Button>
+            <Buttons style={{ width: "100%" }}>
+              <Button variant="primary">Submit</Button>
 
-              <Button type="button" onClick={_ => setOpen(false)}>
+              <Button type="button" onClick={(_) => setOpen(false)}>
                 Cancel
               </Button>
             </Buttons>
@@ -164,7 +172,7 @@ const RegisterFleetBtn = ({ refreshFunction }) => {
         </Box>
       </Modal>
     </>
-  )
-}
+  );
+};
 
 export default RegisterFleetBtn;

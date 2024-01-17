@@ -35,21 +35,30 @@ async fn fleet_status(
 ) -> Result<Json<FleetStatusResponse>, Madness> {
     account.require_access("fleet-view")?;
 
-    let fleets = sqlx::query!("SELECT fleet.id, boss_id, name FROM fleet JOIN character ON fleet.boss_id = character.id").fetch_all(app.get_db()).await?.into_iter()
-    .map(|fleet| FleetStatusFleet{
-        id: fleet.id.unwrap(),
-        boss: Character{
-            id: fleet.boss_id.unwrap(),
-            name: fleet.name.unwrap(),
-            corporation_id: None
-        }
-    }).collect();
+    let fleets = sqlx::query!(
+        "SELECT fleet.id, boss_id, name FROM fleet JOIN character ON fleet.boss_id = character.id"
+    )
+    .fetch_all(app.get_db())
+    .await?
+    .into_iter()
+    .map(|fleet| FleetStatusFleet {
+        id: fleet.id,
+        boss: Character {
+            id: fleet.boss_id,
+            name: fleet.name,
+            corporation_id: None,
+        },
+    })
+    .collect();
 
     let visible_fleets = sqlx::query!("SELECT id FROM fleet WHERE visible=true")
         .fetch_optional(app.get_db())
         .await?;
 
-    Ok(Json(FleetStatusResponse { fleets, wl_open: visible_fleets.is_some() }))
+    Ok(Json(FleetStatusResponse {
+        fleets,
+        wl_open: visible_fleets.is_some(),
+    }))
 }
 
 async fn get_current_fleet_id(
@@ -216,7 +225,7 @@ async fn register_fleet(
 
     let mut tx = app.get_db().begin().await?;
     sqlx::query!("DELETE FROM fleet_squad WHERE fleet_id=$1", input.fleet_id)
-        .execute(&mut tx)
+        .execute(&mut *tx)
         .await?;
     sqlx::query!(
         "INSERT INTO fleet (id, boss_id) VALUES ($1, $2) ON CONFLICT (id)
@@ -225,13 +234,13 @@ async fn register_fleet(
         input.fleet_id,
         input.character_id
     )
-    .execute(&mut tx)
+    .execute(&mut *tx)
     .await?;
 
     for category in crate::data::categories::categories() {
         if let Some((wing_id, squad_id)) = input.assignments.get(&category.id) {
             sqlx::query!("INSERT INTO fleet_squad (fleet_id, wing_id, squad_id, category) VALUES ($1, $2, $3, $4)",
-            input.fleet_id, wing_id, squad_id, category.id).execute(&mut tx).await?;
+            input.fleet_id, wing_id, squad_id, category.id).execute(&mut *tx).await?;
         } else {
             return Err(Madness::BadRequest(format!(
                 "Missing assignment for {}",
@@ -281,14 +290,11 @@ async fn close_fleet(
             .await;
 
         if let Err(e) = res {
-            match e {
-                ESIError::Status(code) => match code {
-                    404 => continue,
-                    _ => (),
-                },
-                _ => (),
+            if let ESIError::Status(code) = e {
+                if code == 404 {
+                    continue;
+                }
             }
-
             return Err(util::madness::Madness::ESIError(e));
         }
 
@@ -298,7 +304,7 @@ async fn close_fleet(
     }
 
     if (success + 1) == total {
-        return Ok(format!("All fleet members kicked."));
+        return Ok("All fleet members kicked.".to_string());
     }
 
     Ok(format!(

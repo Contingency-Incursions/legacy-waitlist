@@ -161,7 +161,7 @@ export function Legend() {}
 export function SkillDisplay({ ship, skills, setShip = null, filterMin = false }) {
   return (
     <>
-      {setShip != null && (
+      {setShip && (
         <Buttons style={{ marginBottom: "1em" }}>
           <InputGroup>
             <Button active={ship === "Vindicator"} onClick={(evt) => setShip("Vindicator")}>
@@ -170,8 +170,8 @@ export function SkillDisplay({ ship, skills, setShip = null, filterMin = false }
             <Button active={ship === "Kronos"} onClick={(evt) => setShip("Kronos")}>
               Kronos
             </Button>
-            </InputGroup>
-            <InputGroup>
+          </InputGroup>
+          <InputGroup>
             <Button active={ship === "Nightmare"} onClick={(evt) => setShip("Nightmare")}>
               Nightmare
             </Button>
@@ -199,7 +199,7 @@ export function SkillDisplay({ ship, skills, setShip = null, filterMin = false }
         </Buttons>
       )}
 
-      { skills ? (
+      {skills ? (
         <SkillList mySkills={skills} shipName={ship} filterMin={filterMin} />
       ) : (
         <p>Loading skill information</p>

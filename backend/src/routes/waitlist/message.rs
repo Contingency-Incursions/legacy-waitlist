@@ -45,12 +45,9 @@ async fn send_message(
     .execute(app.get_db())
     .await?;
 
-    let user = sqlx::query!(
-        "SELECT name FROM character WHERE id=$1",
-        account.id
-    )
-    .fetch_one(app.get_db())
-    .await?;
+    let user = sqlx::query!("SELECT name FROM character WHERE id=$1", account.id)
+        .fetch_one(app.get_db())
+        .await?;
 
     super::notify::notify_waitlist_update(app).await?;
     app.sse_client
@@ -59,8 +56,7 @@ async fn send_message(
             "message",
             &MessageNotification {
                 message: input.message.to_string(),
-                title: format!("{} has sent you a message.", user.name)
-                    .to_string(),
+                title: format!("{} has sent you a message.", user.name).to_string(),
             },
         )])
         .await?;

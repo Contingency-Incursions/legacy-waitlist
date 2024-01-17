@@ -28,7 +28,7 @@ const Users = styled.div`
   span {
     display: inline-block;
     padding: 0.35em 0.65em;
-    font-size: .80em;
+    font-size: 0.8em;
     font-weight: 700;
     line-height: 1;
     color: ${(props) => props.theme.colors.text};
@@ -76,9 +76,7 @@ async function removeEntry(id) {
 function useWaitlist(waitlistId) {
   const eventContext = React.useContext(EventContext);
 
-  const [waitlistData, refreshFn] = useApi(
-    waitlistId ? `/api/waitlist` : null
-  );
+  const [waitlistData, refreshFn] = useApi(waitlistId ? `/api/waitlist` : null);
 
   // Listen for events
   useEffect(() => {
@@ -89,17 +87,23 @@ function useWaitlist(waitlistId) {
       updateFn();
     };
 
-    const waitlist_sub = eventContext.subscriptions.create({channel: 'WaitlistChannel'}, {
-      received(data){
-        handleEvent(data);
+    const waitlist_sub = eventContext.subscriptions.create(
+      { channel: "WaitlistChannel" },
+      {
+        received(data) {
+          handleEvent(data);
+        },
       }
-    })
+    );
 
-    const vis_sub = eventContext.subscriptions.create({channel: 'VisibilityChannel'}, {
-      received(data){
-        updateFn(data);
+    const vis_sub = eventContext.subscriptions.create(
+      { channel: "VisibilityChannel" },
+      {
+        received(data) {
+          updateFn(data);
+        },
       }
-    })
+    );
 
     return function () {
       clearUpdateFn();
@@ -136,12 +140,14 @@ function useFleetComposition() {
 
     const [updateFn, clearUpdateFn] = coalesceCalls(refreshFn, 2000);
 
-    
-    const sub = eventContext.subscriptions.create({channel: 'FleetChannel'}, {
-      received(data){
-        updateFn(data);
+    const sub = eventContext.subscriptions.create(
+      { channel: "FleetChannel" },
+      {
+        received(data) {
+          updateFn(data);
+        },
       }
-    })
+    );
 
     //eventContext.addEventListener("open", updateFn);
     return function () {
@@ -215,22 +221,22 @@ export function Waitlist() {
       return null;
     }
 
-   let ids = [];
-   for (let i = 0; i < waitlist.length; i++) {
-    let fits = waitlist[i].fits;
-    for (let ii = 0; ii < fits.length; ii++) {
-      if (!ids.includes(fits[ii].character.id)) {
-        ids.push(fits[ii].character.id);
+    let ids = [];
+    for (let i = 0; i < waitlist.length; i++) {
+      let fits = waitlist[i].fits;
+      for (let ii = 0; ii < fits.length; ii++) {
+        if (!ids.includes(fits[ii].character.id)) {
+          ids.push(fits[ii].character.id);
+        }
       }
     }
-   }
 
     return (
       <span>
         <FontAwesomeIcon fixedWidth icon={faUsers} /> {ids.length}
       </span>
-    )
-  }
+    );
+  };
 
   return (
     <>

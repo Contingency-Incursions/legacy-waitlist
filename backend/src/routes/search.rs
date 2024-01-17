@@ -86,10 +86,7 @@ async fn esi_search(
                 account.id,
                 req_body.category,
                 req_body.search,
-                match req_body.strict {
-                    Some(bool) => bool,
-                    None => false,
-                }
+                req_body.strict.unwrap_or(false)
             ),
             account.id,
             ESIScope::Search_v1,

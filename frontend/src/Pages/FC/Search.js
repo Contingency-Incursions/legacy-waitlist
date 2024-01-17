@@ -30,7 +30,7 @@ export function Search() {
           <Input value={query ?? ""} onChange={(evt) => setSearchTerm(evt.target.value)} />
         </label>
       </div>
-      {results == null ? null : results.results.length ? (
+      {results === null ? null : results.results.length ? (
         <Table fullWidth>
           <TableHead>
             <Row>

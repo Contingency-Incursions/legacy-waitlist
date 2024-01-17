@@ -28,62 +28,63 @@ export const Link = styled(NavLink).attrs((props) => ({
   line-height: 2.5em;
 `;
 
-
-const FleetSize = ({ size = '-', size_max = '-' }) => {
+const FleetSize = ({ size = "-", size_max = "-" }) => {
   let count = `${size} / ${size_max}`;
 
   if (size > size_max) {
     count = (
-      <Badge variant='warning' data-tooltip-id="tip" data-tooltip-html="Fleet overgrid">
+      <Badge variant="warning" data-tooltip-id="tip" data-tooltip-html="Fleet overgrid">
         {count}
       </Badge>
-    )
+    );
   }
 
   return count;
-}
+};
 
 const FleetStatus = ({ is_listed = false }) => {
   return (
-    <Badge variant={is_listed ? 'success' : 'danger'}>
-      <FontAwesomeIcon fixedWidth icon={ is_listed ? faEye : faEyeSlash } />
-      &nbsp; { is_listed ? 'Listed' : 'Unlisted' }
+    <Badge variant={is_listed ? "success" : "danger"}>
+      <FontAwesomeIcon fixedWidth icon={is_listed ? faEye : faEyeSlash} />
+      &nbsp; {is_listed ? "Listed" : "Unlisted"}
     </Badge>
-  )
-}
-
+  );
+};
 
 const FleetsIndexPage = () => {
   const authContext = useContext(AuthContext);
   const eventContext = useContext(EventContext);
 
-  const [ data, refresh ] = useApi('/api/v2/fleets')
-
+  const [data, refresh] = useApi("/api/v2/fleets");
 
   useEffect(() => {
     if (!eventContext) return;
 
-    const fleet_sub = eventContext.subscriptions.create({channel: 'FleetChannel'}, {
-      received(data){
-        refresh(data);
+    const fleet_sub = eventContext.subscriptions.create(
+      { channel: "FleetChannel" },
+      {
+        received(data) {
+          refresh(data);
+        },
       }
-    })
+    );
 
-    const fc_sub = eventContext.subscriptions.create({channel: 'FcChannel'}, {
-      received(data){
-        refresh(data);
+    const fc_sub = eventContext.subscriptions.create(
+      { channel: "FcChannel" },
+      {
+        received(data) {
+          refresh(data);
+        },
       }
-    })
+    );
 
     return () => {
       fleet_sub.unsubscribe();
       fc_sub.unsubscribe();
-    }
-  }, [refresh, eventContext])
+    };
+  }, [refresh, eventContext]);
 
-
-
-  usePageTitle('Fleets')
+  usePageTitle("Fleets");
 
   return (
     <>
@@ -103,12 +104,13 @@ const FleetsIndexPage = () => {
             { name: "Size", selector: (r) => <FleetSize {...r} /> },
             { name: "System", selector: (r) => r?.boss_system?.name ?? "Unknown" },
             {
-              name: "", selector: (r) => (
+              name: "",
+              selector: (r) => (
                 <Link to={`/fc/fleets/${r.id}`}>
                   <FontAwesomeIcon fixedWidth icon={faCog} /> Manage
                 </Link>
-              )
-            }
+              ),
+            },
           ]}
           data={data ?? []}
           progressPending={!data}
@@ -116,9 +118,9 @@ const FleetsIndexPage = () => {
         />
       </DOM>
 
-      {authContext?.access['fleet-history-view'] && <RecentFleets />}
+      {authContext?.access["fleet-history-view"] && <RecentFleets />}
     </>
   );
-}
+};
 
 export default FleetsIndexPage;

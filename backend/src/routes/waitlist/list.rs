@@ -159,13 +159,12 @@ async fn list(
             dna: None,
             implants: None,
             fit_analysis: None,
-            is_alt: record.wef_is_alt == true,
+            is_alt: record.wef_is_alt,
         };
 
         let tags = record
             .wef_tags
             .split(',')
-            .into_iter()
             .filter(|s| !s.is_empty())
             .map(|s| s.to_string());
 
@@ -207,7 +206,7 @@ async fn list(
     Ok(Json(WaitlistResponse {
         open: true,
         categories: waitlist_categories,
-        waitlist: Some(entries.into_iter().map(|(_id, entry)| entry).collect()),
+        waitlist: Some(entries.into_values().collect()),
     }))
 }
 

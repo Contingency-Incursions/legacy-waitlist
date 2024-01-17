@@ -71,15 +71,13 @@ const Box = styled(BaseBox)`
   }
 `;
 
-
-
 async function submitFit({ character_id, fits, is_alt, max_alts }) {
   await apiCall("/api/waitlist/xup", {
     json: {
       eft: fits,
       character_id,
       is_alt,
-      max_alts
+      max_alts,
     },
   });
 }
@@ -89,21 +87,21 @@ const JoinWaitlist = ({ hasFits }) => {
   const toastContext = useContext(ToastContext);
   const queryParams = new URLSearchParams(useLocation().search);
 
-  const [ open, setOpen ] = useState(false);
+  const [open, setOpen] = useState(false);
 
-  const [ alt, setAlt ] = useState(false);
-  const [ badFits, setBadFits ] = useState(undefined);
-  const [ fits, setFits ] = useState(undefined);
-  const [ validatedFits, setValidatedFits ] = useState(undefined);
-  const [ max_alts, setMaxAlts] = useState(0);
-  const [ isMarauder, setMarauder ] = useState(false);
+  const [alt, setAlt] = useState(false);
+  const [badFits, setBadFits] = useState(undefined);
+  const [fits, setFits] = useState(undefined);
+  const [validatedFits, setValidatedFits] = useState(undefined);
+  const [max_alts, setMaxAlts] = useState(0);
+  const [isMarauder, setMarauder] = useState(false);
 
   const reset = () => {
     setAlt(false);
     setBadFits(null);
-    setFits('');
+    setFits("");
     setMarauder(false);
-  }
+  };
 
   const submit = () => {
     errorToaster(
@@ -112,7 +110,7 @@ const JoinWaitlist = ({ hasFits }) => {
         character_id: authContext.current.id,
         fits,
         is_alt: alt,
-        max_alts
+        max_alts,
       })
         .then(() => {
           addToast(toastContext, {
@@ -125,7 +123,7 @@ const JoinWaitlist = ({ hasFits }) => {
         })
         .finally(() => setMarauder(false))
     );
-  }
+  };
 
   return (
     <>
@@ -136,22 +134,29 @@ const JoinWaitlist = ({ hasFits }) => {
       <Modal open={open} setOpen={setOpen}>
         <Box>
           {badFits ? (
-            <WrongFit fits={badFits} goBack={() => reset()} xupAnyway={() => {
-              setBadFits(null);
-              // Check if the ship has a 'Bastion Module I' fitted
-              if (validatedFits.some((fit) => fit?.dna.includes(':33400'))) {
-                setMarauder(true);
-                return;
-              }
-              submit();
-            }} />
+            <WrongFit
+              fits={badFits}
+              goBack={() => reset()}
+              xupAnyway={() => {
+                setBadFits(null);
+                // Check if the ship has a 'Bastion Module I' fitted
+                if (validatedFits.some((fit) => fit?.dna.includes(":33400"))) {
+                  setMarauder(true);
+                  return;
+                }
+                submit();
+              }}
+            />
           ) : isMarauder ? (
             <VirdianMarauderCheck onPass={() => submit()} />
           ) : (
             <ValidateFit
-              alt={alt} setAlt={(a) => setAlt(a)}
-              fits={fits} setFits={(f) => setFits(f)}
-              max_alts={max_alts} setMaxAlts={setMaxAlts}
+              alt={alt}
+              setAlt={(a) => setAlt(a)}
+              fits={fits}
+              setFits={(f) => setFits(f)}
+              max_alts={max_alts}
+              setMaxAlts={setMaxAlts}
               callback={(fits) => {
                 setValidatedFits(fits);
 
@@ -163,14 +168,18 @@ const JoinWaitlist = ({ hasFits }) => {
                     return false;
                   }
 
-                  return !IsEmptyObject(fit.fit_analysis.missing) || !IsEmptyObject(fit.fit_analysis.downgraded) || !IsEmptyObject(fit.fit_analysis.cargo_missing);
+                  return (
+                    !IsEmptyObject(fit.fit_analysis.missing) ||
+                    !IsEmptyObject(fit.fit_analysis.downgraded) ||
+                    !IsEmptyObject(fit.fit_analysis.cargo_missing)
+                  );
                 });
                 if (_badFits.length > 0) {
                   setBadFits(_badFits);
                   return;
                 }
                 // Check if the ship has a 'Bastion Module I' fitted
-                if (fits.some((fit) => fit?.dna.includes(':33400'))) {
+                if (fits.some((fit) => fit?.dna.includes(":33400"))) {
                   setMarauder(true);
                   return;
                 }
@@ -178,7 +187,6 @@ const JoinWaitlist = ({ hasFits }) => {
               }}
             />
           )}
-
         </Box>
       </Modal>
     </>

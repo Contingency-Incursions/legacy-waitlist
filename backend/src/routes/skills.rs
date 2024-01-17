@@ -22,15 +22,18 @@ struct SkillsResponse {
 async fn list_skills(
     app: &rocket::State<crate::app::Application>,
     character_id: i64,
-    account: AuthenticatedAccount,
+    account: Option<AuthenticatedAccount>,
 ) -> Result<Json<SkillsResponse>, Madness> {
-    authorize_character(&app.db, &account, character_id, Some("skill-view")).await?;
-
-    let skills =
-        crate::data::skills::load_skills(&app.esi_client, app.get_db(), character_id).await?;
     let mut relevant_skills = HashMap::new();
-    for &skill_id in tdf_skills::skill_data().relevant_skills.iter() {
-        relevant_skills.insert(skill_id, skills.get(skill_id));
+
+    if let Some(account) = account {
+        authorize_character(&app.db, &account, character_id, Some("skill-view")).await?;
+
+        let skills =
+            crate::data::skills::load_skills(&app.esi_client, app.get_db(), character_id).await?;
+        for &skill_id in tdf_skills::skill_data().relevant_skills.iter() {
+            relevant_skills.insert(skill_id, skills.get(skill_id));
+        }
     }
 
     Ok(Json(SkillsResponse {

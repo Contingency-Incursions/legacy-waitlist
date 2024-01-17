@@ -15,8 +15,8 @@ const HullContainerDOM = styled.div`
 
 const Fleet = ({ fleetBoss, fleetId, myFleet = false }) => {
   const eventContext = useContext(EventContext);
-  const [ activeTab, selectTab ] = useState('on_grid');
-  const [ pilots, refresh ] = useApi(`/api/v2/fleets/${fleetId}/comp`);
+  const [activeTab, selectTab] = useState("on_grid");
+  const [pilots, refresh] = useApi(`/api/v2/fleets/${fleetId}/comp`);
 
   useEffect(() => {
     if (!eventContext) return;
@@ -26,91 +26,91 @@ const Fleet = ({ fleetBoss, fleetId, myFleet = false }) => {
       if (data.id === fleetId) {
         refresh();
       }
-    }
+    };
 
     let sub = null;
 
-    if(fleetId){
-      sub = eventContext.subscriptions.create({channel: 'FcChannel'}, {
-        received(data){
-          comp_updated(data);
+    if (fleetId) {
+      sub = eventContext.subscriptions.create(
+        { channel: "FcChannel" },
+        {
+          received(data) {
+            comp_updated(data);
+          },
         }
-      })
+      );
     }
-
 
     return () => {
-      if(sub !== null){
+      if (sub !== null) {
         sub.unsubscribe();
       }
-    }
-  }, [eventContext, fleetId, refresh])
+    };
+  }, [eventContext, fleetId, refresh]);
 
   let fleet = useMemo(() => {
-    let _fleet = {}
-    pilots?.forEach(p => {
+    let _fleet = {};
+    pilots?.forEach((p) => {
       if (!_fleet[p.hull.id]) {
         _fleet[p.hull.id] = {
           id: p.hull.id,
           name: p.hull.name,
-          pilots: [{
-            id: p.character.id,
-            name: p.character.name,
-            badges: p.position.badges,
-            squad: p.position.squad,
-            wing: p.position.wing,
-            is_alt: p.position.is_alt
-          }]
-        }
-      }
-      else {
+          pilots: [
+            {
+              id: p.character.id,
+              name: p.character.name,
+              badges: p.position.badges,
+              squad: p.position.squad,
+              wing: p.position.wing,
+              is_alt: p.position.is_alt,
+            },
+          ],
+        };
+      } else {
         _fleet[p.hull.id].pilots.push({
           id: p.character.id,
           name: p.character.name,
           badges: p.position.badges,
           squad: p.position.squad,
           wing: p.position.wing,
-          is_alt: p.position.is_alt
-        })
+          is_alt: p.position.is_alt,
+        });
       }
-    })
-    return _fleet
+    });
+    return _fleet;
   }, [pilots]);
-
 
   const categories = useMemo(() => {
     let _categories = {
-      on_grid: { id: 'on_grid', name: 'On Grid', ships: []},
-      logi: { id: 'logi', name: 'Logistics', ships: []},
-      cqc: { id: 'cqc', name: 'CQC', ships: []},
-      bastion: { id: 'bastion', name: 'Marauders', ships: []},
-      sniper: {id: 'sniper', name: 'Sniper', ships: []},
-      starter: {id: 'starter', name: 'Starter', ships: []},
-      alt: {id: 'alt', name: 'Alts', ships: []},
-      boxer: {id: 'boxer', name: 'Boxers', ships: []},
-      off_grid: {id: 'off_grid', name: 'Off Grid', ships: []}
-    }
-    Object.keys(_categories).forEach(key => {
+      on_grid: { id: "on_grid", name: "On Grid", ships: [] },
+      logi: { id: "logi", name: "Logistics", ships: [] },
+      cqc: { id: "cqc", name: "CQC", ships: [] },
+      bastion: { id: "bastion", name: "Marauders", ships: [] },
+      sniper: { id: "sniper", name: "Sniper", ships: [] },
+      starter: { id: "starter", name: "Starter", ships: [] },
+      alt: { id: "alt", name: "Alts", ships: [] },
+      boxer: { id: "boxer", name: "Boxers", ships: [] },
+      off_grid: { id: "off_grid", name: "Off Grid", ships: [] },
+    };
+    Object.keys(_categories).forEach((key) => {
       let category = _categories[key];
-      Object.keys(fleet).forEach(ship_key => {
+      Object.keys(fleet).forEach((ship_key) => {
         let ship = structuredClone(fleet[ship_key]);
-        if(category.id == 'on_grid' || category.id == 'off_grid'){
-          ship.pilots = ship.pilots.filter((p) => p.wing == category.name)
+        if (category.id === "on_grid" || category.id === "off_grid") {
+          ship.pilots = ship.pilots.filter((p) => p.wing === category.name);
         } else {
-          ship.pilots = ship.pilots.filter((p) => p.squad == category.id)
+          ship.pilots = ship.pilots.filter((p) => p.squad === category.id);
         }
-        if(ship.pilots.length > 0){
+        if (ship.pilots.length > 0) {
           _categories[key].ships.push(ship);
         }
-      })
-    })
+      });
+    });
     return _categories;
-  }, [fleet])
-
-
+  }, [fleet]);
 
   let hulls = useMemo(() => {
-    let _hulls = []
+    let _hulls = [];
     if (categories[activeTab]) {
       _hulls = categories[activeTab].ships;
     }
@@ -120,41 +120,33 @@ const Fleet = ({ fleetBoss, fleetId, myFleet = false }) => {
       return a.name.localeCompare(b.name);
     });
     return _hulls;
-  }, [activeTab, categories])
-
-
-
-
+  }, [activeTab, categories]);
 
   return (
     <div>
       <strong>
-        { myFleet ? "Your Fleet": (
+        {myFleet ? (
+          "Your Fleet"
+        ) : (
           <>
             Boss: <CharacterName {...fleetBoss} avatar={false} />
           </>
         )}
-
       </strong>
       <Navs
         categories={Object.values(categories)}
         activeTab={activeTab}
-        tabVariant={myFleet ? 'primary' : 'secondary'}
+        tabVariant={myFleet ? "primary" : "secondary"}
         onClick={selectTab}
       />
 
       <HullContainerDOM>
-      { hulls.map((hull, key) => {
-        return <Ship
-          typeId={hull.id}
-          name={hull.name}
-          characters={hull.pilots}
-          key={key}
-        />
-      })}
+        {hulls.map((hull, key) => {
+          return <Ship typeId={hull.id} name={hull.name} characters={hull.pilots} key={key} />;
+        })}
       </HullContainerDOM>
     </div>
   );
-}
+};
 
 export default Fleet;

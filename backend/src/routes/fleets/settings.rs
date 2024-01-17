@@ -1,5 +1,5 @@
 use crate::util::types::{Character, System};
-use crate::{core::auth::AuthenticatedAccount, util::madness::Madness, app::Application};
+use crate::{app::Application, core::auth::AuthenticatedAccount, util::madness::Madness};
 use eve_data_core::TypeDB;
 use rocket::serde::json::Json;
 use serde::{Deserialize, Serialize};
@@ -13,22 +13,22 @@ struct FleetSettings {
     size: i64,
     size_max: i64,
     visible: bool,
-    error_count: i64
+    error_count: i64,
 }
 
 #[derive(Debug, Deserialize)]
 struct FleetBossReq {
-    fleet_boss: i64
+    fleet_boss: i64,
 }
 
 #[derive(Debug, Deserialize)]
 struct FleetVisibilityReq {
-    visible: bool
+    visible: bool,
 }
 
 #[derive(Debug, Deserialize)]
 struct FleetSizeReq {
-    max_size: i64
+    max_size: i64,
 }
 
 #[get("/api/v2/fleets/<fleet_id>")]
@@ -57,33 +57,30 @@ async fn get_fleet(
         fleet_id
     )
     .fetch_optional(app.get_db())
-    .await? {
+    .await?
+    {
         return Ok(Json(FleetSettings {
             boss: Character {
                 id: fleet.boss_id,
                 name: fleet.boss_name,
-                corporation_id: None
+                corporation_id: None,
             },
-            boss_system: match fleet.boss_system_id {
-                Some(system_id) => Some(System{
-                    id: system_id,
-                    name: match TypeDB::name_of_system(system_id) {
-                        Ok(name) => name.to_string(),
-                        _ => "Unknown System".to_string()
-                    }
-                }),
-                None => None
-            },
+            boss_system: fleet.boss_system_id.map(|system_id| System {
+                id: system_id,
+                name: match TypeDB::name_of_system(system_id) {
+                    Ok(name) => name.to_string(),
+                    _ => "Unknown System".to_string(),
+                },
+            }),
             size: fleet.size.unwrap(),
             size_max: fleet.max_size,
             visible: fleet.visible,
-            error_count: fleet.error_count
-        }))
+            error_count: fleet.error_count,
+        }));
     }
 
-    return Err(Madness::NotFound("Fleet not found."))
+    Err(Madness::NotFound("Fleet not found."))
 }
-
 
 #[post("/api/v2/fleets/<fleet_id>/boss", data = "<body>")]
 async fn set_boss(
@@ -94,15 +91,21 @@ async fn set_boss(
 ) -> Result<&'static str, Madness> {
     account.require_access("fleet-view")?;
 
-    if let Some(_) = sqlx::query!("SELECT * FROM fleet WHERE id=$1", fleet_id)
-    .fetch_optional(app.get_db())
-    .await? {
-        sqlx::query!("UPDATE fleet SET boss_id=$1, error_count=0 WHERE id=$2", body.fleet_boss, fleet_id)
+    if sqlx::query!("SELECT * FROM fleet WHERE id=$1", fleet_id)
+        .fetch_optional(app.get_db())
+        .await?
+        .is_some()
+    {
+        sqlx::query!(
+            "UPDATE fleet SET boss_id=$1, error_count=0 WHERE id=$2",
+            body.fleet_boss,
+            fleet_id
+        )
         .execute(app.get_db())
         .await?;
     }
 
-    notify::fleets_updated(&app, "fleet_settings", Some(fleet_id)).await?;
+    notify::fleets_updated(app, "fleet_settings", Some(fleet_id)).await?;
 
     Ok("Ok")
 }
@@ -116,17 +119,22 @@ async fn set_visibility(
 ) -> Result<&'static str, Madness> {
     account.require_access("fleet-view")?;
 
-
-    if let Some(_) = sqlx::query!("SELECT * FROM fleet WHERE id=$1", fleet_id)
+    if sqlx::query!("SELECT * FROM fleet WHERE id=$1", fleet_id)
         .fetch_optional(app.get_db())
-        .await? {
-            sqlx::query!("UPDATE fleet SET visible=$1 WHERE id=$2", body.visible, fleet_id)
-            .execute(app.get_db())
-            .await?;
-        }
+        .await?
+        .is_some()
+    {
+        sqlx::query!(
+            "UPDATE fleet SET visible=$1 WHERE id=$2",
+            body.visible,
+            fleet_id
+        )
+        .execute(app.get_db())
+        .await?;
+    }
 
-    notify::fleets_updated(&app, "fleet_settings", Some(fleet_id)).await?;
-    notify::waitlist_state(&app, "visibility").await?;
+    notify::fleets_updated(app, "fleet_settings", Some(fleet_id)).await?;
+    notify::waitlist_state(app, "visibility").await?;
 
     Ok("Ok")
 }
@@ -140,19 +148,24 @@ async fn set_size(
 ) -> Result<&'static str, Madness> {
     account.require_access("fleet-view")?;
 
-    if let Some(_) = sqlx::query!("SELECT * FROM fleet WHERE id=$1", fleet_id)
-    .fetch_optional(app.get_db())
-    .await? {
-        sqlx::query!("UPDATE fleet SET max_size=$1 WHERE id=$2", body.max_size, fleet_id)
+    if sqlx::query!("SELECT * FROM fleet WHERE id=$1", fleet_id)
+        .fetch_optional(app.get_db())
+        .await?
+        .is_some()
+    {
+        sqlx::query!(
+            "UPDATE fleet SET max_size=$1 WHERE id=$2",
+            body.max_size,
+            fleet_id
+        )
         .execute(app.get_db())
         .await?;
     }
 
-    notify::fleets_updated(&app, "fleet_settings", Some(fleet_id)).await?;
+    notify::fleets_updated(app, "fleet_settings", Some(fleet_id)).await?;
 
     Ok("Ok")
 }
-
 
 pub fn routes() -> Vec<rocket::Route> {
     routes![

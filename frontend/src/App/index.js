@@ -7,17 +7,17 @@ import { ThemeProvider, createGlobalStyle } from "styled-components";
 import { WaitlistRoutes } from "./routes";
 import { Container } from "react-awesome-styled-grid";
 import { Menu } from "./Menu";
-import { Tooltip } from 'react-tooltip'
+import { Tooltip } from "react-tooltip";
 import { createConsumer } from "@rails/actioncable";
 import { SettingsProvider } from "../Contexts/Settings";
-import AntiGankBanner from "../Components/AntiGankBanner"
+import AntiGankBanner from "../Components/AntiGankBanner";
 
 import AnnouncementBanner from "../Components/AnnouncementBanner";
-import ErrorBoundary from './ErrorBoundary';
+import ErrorBoundary from "./ErrorBoundary";
 import Footer from "./Footer";
 import theme from "./theme.js";
 
-import 'react-tooltip/dist/react-tooltip.css'
+import "react-tooltip/dist/react-tooltip.css";
 import "./reset.css";
 
 const GlobalStyle = createGlobalStyle`
@@ -61,8 +61,7 @@ export default class App extends React.Component {
 
   componentDidUpdate() {
     if (this.state.auth && !this.state.events) {
-
-      const consumer = createConsumer('/api/cable');
+      const consumer = createConsumer("/api/cable");
       this.setState({ events: consumer });
     }
   }
@@ -82,10 +81,6 @@ export default class App extends React.Component {
     this.setState({ auth: newState });
   };
 
-
-  
-
-
   render() {
     return (
       <React.StrictMode>
@@ -94,41 +89,40 @@ export default class App extends React.Component {
           <ToastContext.Provider value={this.addToast}>
             <EventContext.Provider value={this.state.events}>
               <AuthContext.Provider value={this.state.auth}>
-              <SettingsProvider>
+                <SettingsProvider>
                   <BrowserRouter>
-                  <Container style={{ height: "auto", minHeight: `calc(100vh - 70px)` }}>
-                    <Menu
-                      onChangeCharacter={(char) => this.changeCharacter(char)}
-                      theme={this.state.theme}
-                      setTheme={(newTheme) => {
-                        this.setState({ theme: newTheme });
-                        if (window.localStorage) {
-                          window.localStorage.setItem("theme", newTheme);
-                        }
-                      }}
-                      sticker={this.state.sticker}
-                      setSticker={(newSticker) => {
-                        this.setState({ sticker: newSticker });
-                        if (window.localStorage) {
-                          window.localStorage.setItem("Sticker", newSticker);
-                        }
-                      }}
-                    />
-                    <AntiGankBanner />
-                    <AnnouncementBanner />
-                    <ErrorBoundary>
-                    <WaitlistRoutes />
-                      <ToastDisplay
-                        toasts={this.state.toasts}
-                        setToasts={(toasts) => this.setState({ toasts })}
+                    <Container style={{ height: "auto", minHeight: `calc(100vh - 70px)` }}>
+                      <Menu
+                        onChangeCharacter={(char) => this.changeCharacter(char)}
+                        theme={this.state.theme}
+                        setTheme={(newTheme) => {
+                          this.setState({ theme: newTheme });
+                          if (window.localStorage) {
+                            window.localStorage.setItem("theme", newTheme);
+                          }
+                        }}
+                        sticker={this.state.sticker}
+                        setSticker={(newSticker) => {
+                          this.setState({ sticker: newSticker });
+                          if (window.localStorage) {
+                            window.localStorage.setItem("Sticker", newSticker);
+                          }
+                        }}
                       />
-                    </ErrorBoundary>
-                  </Container>
-                </BrowserRouter>
-                <Tooltip id="tip" style={{ zIndex: 150 }} />
-                <Footer />
-                  </SettingsProvider>
-
+                      <AntiGankBanner />
+                      <AnnouncementBanner />
+                      <ErrorBoundary>
+                        <WaitlistRoutes />
+                        <ToastDisplay
+                          toasts={this.state.toasts}
+                          setToasts={(toasts) => this.setState({ toasts })}
+                        />
+                      </ErrorBoundary>
+                    </Container>
+                  </BrowserRouter>
+                  <Tooltip id="tip" style={{ zIndex: 150 }} />
+                  <Footer />
+                </SettingsProvider>
               </AuthContext.Provider>
             </EventContext.Provider>
           </ToastContext.Provider>

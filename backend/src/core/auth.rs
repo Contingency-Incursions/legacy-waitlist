@@ -61,7 +61,7 @@ fn decode_token(token: &str, secret: &[u8]) -> Result<AuthToken, AuthenticationE
         Ok(p) => p,
     };
 
-    let decoded: AuthToken = match rmp_serde::from_read_ref(&payload) {
+    let decoded: AuthToken = match rmp_serde::from_slice(&payload) {
         Err(_) => return Err(AuthenticationError::InvalidToken),
         Ok(d) => d,
     };
@@ -98,33 +98,35 @@ impl<'r> FromRequest<'r> for AuthenticatedAccount {
 
         let token = match req.cookies().get(COOKIE_NAME) {
             None => {
-                return Outcome::Failure((Status::Unauthorized, AuthenticationError::MissingCookie))
+                return Outcome::Error((Status::Unauthorized, AuthenticationError::MissingCookie))
             }
             Some(t) => match decode_token(t.value(), &app.token_secret) {
                 Ok(d) => d,
-                Err(e) => return Outcome::Failure((Status::Unauthorized, e)),
+                Err(e) => return Outcome::Error((Status::Unauthorized, e)),
             },
         };
 
-        let access_level =
-            match sqlx::query!("SELECT * FROM admin WHERE character_id=$1", token.account_id)
-                .fetch_optional(app.get_db())
-                .await
-            {
-                Err(e) => {
-                    return Outcome::Failure((
-                        Status::InternalServerError,
-                        AuthenticationError::DatabaseError(e),
-                    ))
-                }
-                Ok(Some(r)) => r.role,
-                Ok(None) => "user".to_string(),
-            };
+        let access_level = match sqlx::query!(
+            "SELECT * FROM admin WHERE character_id=$1",
+            token.account_id
+        )
+        .fetch_optional(app.get_db())
+        .await
+        {
+            Err(e) => {
+                return Outcome::Error((
+                    Status::InternalServerError,
+                    AuthenticationError::DatabaseError(e),
+                ))
+            }
+            Ok(Some(r)) => r.role,
+            Ok(None) => "user".to_string(),
+        };
 
         let access_keys = match ACCESS_LEVELS.get(&access_level) {
             Some(l) => l,
             None => {
-                return Outcome::Failure((Status::Unauthorized, AuthenticationError::InvalidToken))
+                return Outcome::Error((Status::Unauthorized, AuthenticationError::InvalidToken))
             }
         };
 
@@ -144,14 +146,14 @@ impl AuthenticatedAccount {
     }
 
     pub fn require_one_of_access(&self, keys: &'static str) -> Result<(), AuthorizationError> {
-        let scopes : Vec<&str> = keys.split(",").collect();
+        let scopes: Vec<&str> = keys.split(',').collect();
         for scope in scopes {
             if self.access.contains(scope) {
-                return Ok(())
+                return Ok(());
             }
         }
 
-        return Err(AuthorizationError::AccessDenied)
+        Err(AuthorizationError::AccessDenied)
     }
 }
 
@@ -172,14 +174,7 @@ fn build_access_levels() -> BTreeMap<String, BTreeSet<String>> {
     let mut result = BTreeMap::new();
     result.insert("user".to_string(), BTreeSet::new());
 
-    build_level(
-        &mut result,
-        "user",
-        "Wiki Team",
-        vec![
-            "wiki-editor"
-        ],
-    );
+    build_level(&mut result, "user", "Wiki Team", vec!["wiki-editor"]);
     build_level(
         &mut result,
         "user",
@@ -193,7 +188,7 @@ fn build_access_levels() -> BTreeMap<String, BTreeSet<String>> {
             "waitlist-tag:TRAINEE",
             "fit-view",
             "skill-view",
-            "waitlist-manage"
+            "waitlist-manage",
         ],
     );
     build_level(
@@ -225,7 +220,7 @@ fn build_access_levels() -> BTreeMap<String, BTreeSet<String>> {
             "commanders-manage:Trainee",
             "commanders-manage:FC",
             "fleet-admin",
-            "reports-view"
+            "reports-view",
         ],
     );
     build_level(
@@ -235,7 +230,7 @@ fn build_access_levels() -> BTreeMap<String, BTreeSet<String>> {
         vec![
             "commanders-manage:Wiki Team",
             "commanders-manage:Instructor",
-            "commanders-manage:Leadership"
+            "commanders-manage:Leadership",
         ],
     );
 

@@ -1,13 +1,7 @@
 import React, { useContext, useEffect } from "react";
 import { AuthContext, EventContext, ToastContext } from "../../contexts";
 import { Confirm } from "../../Components/Modal";
-import {
-  Button,
-  Buttons,
-  InputGroup,
-  NavButton,
-  Select,
-} from "../../Components/Form";
+import { Button, Buttons, InputGroup, NavButton, Select } from "../../Components/Form";
 import { Content, Title } from "../../Components/Page";
 import { apiCall, errorToaster, toaster, useApi } from "../../api";
 import { Cell, CellHead, Row, Table, TableBody, TableHead } from "../../Components/Table";
@@ -37,7 +31,6 @@ async function closeFleet(characterId) {
   });
 }
 
-
 export function Fleet() {
   const [fleetCloseModalOpen, setFleetCloseModalOpen] = React.useState(false);
   const [emptyWaitlistModalOpen, setEmptyWaitlistModalOpen] = React.useState(false);
@@ -46,23 +39,26 @@ export function Fleet() {
   const toastContext = React.useContext(ToastContext);
 
   const [fleets, refreshFleet] = useApi("/api/fleet/status");
-  const handleNotification = (e) => refreshFleet();
 
   useEffect(() => {
+    const handleNotification = (_) => refreshFleet();
     if (!eventContext) {
       return;
     }
 
-    const sub = eventContext.subscriptions.create({channel: 'WaitlistChannel'}, {
-      received(data){
-        handleNotification(data);
+    const sub = eventContext.subscriptions.create(
+      { channel: "WaitlistChannel" },
+      {
+        received(data) {
+          handleNotification(data);
+        },
       }
-    })
+    );
 
     return () => {
       sub.unsubscribe();
-    }
-  }, [eventContext]);
+    };
+  }, [eventContext, refreshFleet]);
 
   useEffect(() => {
     // FCs will need this, request it now
@@ -83,10 +79,15 @@ export function Fleet() {
             </Button>
           ) : (
             <>
-              <Button variant="success" onClick={() => toaster(toastContext, setWaitlistOpen(1, true))}>
+              <Button
+                variant="success"
+                onClick={() => toaster(toastContext, setWaitlistOpen(1, true))}
+              >
                 Open waitlist
               </Button>
-              <Button variant="warning" onClick={() => setEmptyWaitlistModalOpen(true)}>Empty waitlist</Button>
+              <Button variant="warning" onClick={() => setEmptyWaitlistModalOpen(true)}>
+                Empty waitlist
+              </Button>
             </>
           )}
         </InputGroup>
@@ -107,10 +108,10 @@ export function Fleet() {
         {!fleets
           ? null
           : fleets.fleets.map((fleet) => (
-            <div key={fleet.id}>
-              STATUS: Fleet {fleet.id}, boss {fleet.boss.name}
-            </div>
-          ))}
+              <div key={fleet.id}>
+                STATUS: Fleet {fleet.id}, boss {fleet.boss.name}
+              </div>
+            ))}
       </Content>
       {authContext.access["fleet-history-view"] && (
         <Buttons>

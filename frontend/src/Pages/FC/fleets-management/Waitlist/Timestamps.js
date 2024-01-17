@@ -11,7 +11,8 @@ const Badge = styled(BaseBadge)`
     margin-right: 7.5px;
   }
 
-  &.fleet-time, &.wait-time {
+  &.fleet-time,
+  &.wait-time {
     svg path {
       color: ${(props) => props.theme.colors.primary.text};
     }
@@ -37,29 +38,29 @@ const TotalFleetTime = ({ hours = 0 }) => {
   return (
     <Badge className="fleet-time" data-tooltip-id="tip" data-tooltip-html="Hours in Fleet">
       <FontAwesomeIcon fixedWidth icon={faClock} />
-      { hours } H
+      {hours} H
     </Badge>
-  )
-}
+  );
+};
 
 const WaitTime = ({ joined_at }) => {
-  const [ time, setTime ] = useState(Date.now() / 1000);
+  const [time, setTime] = useState(Date.now() / 1000);
 
   useEffect(() => {
     const interval = setInterval(() => setTime(Date.now() / 1000), 1000 * 15);
     return () => {
       clearInterval(interval);
-    }
-  }, [])
+    };
+  }, []);
 
   let totalSeconds = time - joined_at;
-  if(totalSeconds < 0){
+  if (totalSeconds < 0) {
     totalSeconds = 0;
   }
   var hours = Math.floor(totalSeconds / 3600);
-  var minutes = Math.floor((totalSeconds - (hours * 3600)) / 60);
+  var minutes = Math.floor((totalSeconds - hours * 3600) / 60);
 
-  let label = '';
+  let label = "";
   if (hours > 0) {
     label += `${hours}H `;
   }
@@ -69,10 +70,10 @@ const WaitTime = ({ joined_at }) => {
     <WaitTimeDOM data-tooltip-id="tip" data-tooltip-html={`On the waitlist for ${label}`}>
       <Badge className="wait-time">
         <FontAwesomeIcon fixedWidth icon={faHourglass} />
-        { label }
+        {label}
       </Badge>
     </WaitTimeDOM>
-  )
-}
+  );
+};
 
-export { TotalFleetTime, WaitTime }
+export { TotalFleetTime, WaitTime };

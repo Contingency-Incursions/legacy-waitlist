@@ -137,7 +137,7 @@ const Fitcheck = () => {
           if (!res.some((xup) => !xup.approved)) {
             addToast(toastContext, {
               variant: "success",
-              message: "Your fit is valid, thank you!"
+              message: "Your fit is valid, thank you!",
             });
             setFit("");
             setOpen(false);
@@ -148,24 +148,32 @@ const Fitcheck = () => {
         .finally(() => {
           setPending(false);
         })
-    )
-  }
+    );
+  };
 
   const FailedFitsDisplay = () => {
     return (
       <>
         <div style={{ width: "100%", paddingBottom: "25px" }}>
-          <Button style={{ float: "right" }} onClick={() => {
-            setBadFit(null);
-            setFit("");
-            setOpen(false);
-          }}>
+          <Button
+            style={{ float: "right" }}
+            onClick={() => {
+              setBadFit(null);
+              setFit("");
+              setOpen(false);
+            }}
+          >
             <FontAwesomeIcon fixedWidth icon={faUndo} />
             Reset
           </Button>
           <InfoNote>There is something wrong with one (or more) of your fits.</InfoNote>
-          <p><FontAwesomeIcon fixedWidth icon={faCheck} /> You have the minimum skills </p>
-          <p style={{ color: 'red' }}><FontAwesomeIcon fixedWidth icon={faTimes} /> Your fit is incorrect, please fix the red and yellow items below</p>
+          <p>
+            <FontAwesomeIcon fixedWidth icon={faCheck} /> You have the minimum skills
+          </p>
+          <p style={{ color: "red" }}>
+            <FontAwesomeIcon fixedWidth icon={faTimes} /> Your fit is incorrect, please fix the red
+            and yellow items below
+          </p>
         </div>
 
         {badFit?.map((fit, key) => {
@@ -194,9 +202,18 @@ const Fitcheck = () => {
 
           {!badFit ? (
             <form onSubmit={handleFitValidation}>
-              <Label htmlFor="fit" required>Paste your fit(s) here:</Label>
-              <Textarea value={fit} onChange={(e) => setFit(e.target.value)} placeholder={exampleFit} required />
-              <Button variant="success" disabled={pending}>Check Fit</Button>
+              <Label htmlFor="fit" required>
+                Paste your fit(s) here:
+              </Label>
+              <Textarea
+                value={fit}
+                onChange={(e) => setFit(e.target.value)}
+                placeholder={exampleFit}
+                required
+              />
+              <Button variant="success" disabled={pending}>
+                Check Fit
+              </Button>
             </form>
           ) : (
             <FailedFitsDisplay />
@@ -204,7 +221,7 @@ const Fitcheck = () => {
         </Box>
       </Modal>
     </>
-  )
-}
+  );
+};
 
 export default Fitcheck;

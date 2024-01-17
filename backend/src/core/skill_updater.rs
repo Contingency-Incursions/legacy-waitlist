@@ -57,11 +57,10 @@ impl SkillUpdater {
             .await?;
 
         if to_update.is_empty() {
-            return Ok(())
+            return Ok(());
         }
 
-        let runtime_per_char =
-            (self.config.skill_updater.runtime as f64) / (to_update.len() as f64);
+        let runtime_per_char = self.config.skill_updater.runtime / (to_update.len() as f64);
         let sleep_duration = tokio::time::Duration::from_secs_f64(runtime_per_char);
 
         to_update.shuffle(&mut rand::thread_rng());

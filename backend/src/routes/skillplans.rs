@@ -3,7 +3,6 @@ use rocket::serde::json::Json;
 use serde::Serialize;
 
 use crate::{
-    core::auth::AuthenticatedAccount,
     data::skillplans::{self, SkillPlan, SkillPlanError, SkillPlanLevel},
     util::types::Hull,
 };
@@ -74,7 +73,7 @@ lazy_static::lazy_static! {
 }
 
 #[get("/api/skills/plans")]
-fn get_skill_plans(_account: AuthenticatedAccount) -> Json<&'static Vec<SkillPlansResponsePlan>> {
+fn get_skill_plans() -> Json<&'static Vec<SkillPlansResponsePlan>> {
     Json(&PLAN_DATA)
 }
 

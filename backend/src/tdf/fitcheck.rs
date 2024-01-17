@@ -1,14 +1,14 @@
+use super::{fitmatch, implantmatch, skills::SkillTier};
+use crate::data::{categories, fits::DoctrineFit, skills::Skills};
+use eve_data_core::{FitError, Fitting, TypeDB, TypeID};
+use inflector::Inflector;
+use reqwest::Method;
+use serde::{Deserialize, Serialize};
+use std::time::Duration;
 use std::{
     cmp::min,
     collections::{BTreeMap, BTreeSet},
 };
-use reqwest::Method;
-use super::{fitmatch, implantmatch, skills::SkillTier};
-use crate::data::{categories, fits::DoctrineFit, skills::Skills};
-use eve_data_core::{FitError, Fitting, TypeDB, TypeID};
-use serde::Serialize;
-use inflector::Inflector;
-use std::time::Duration;
 
 #[derive(Debug)]
 pub struct Output {
@@ -34,7 +34,7 @@ pub struct PilotData<'a> {
     pub time_in_fleet: i64,
     pub skills: &'a Skills,
     pub access_keys: &'a BTreeSet<String>,
-    pub id: &'a i64
+    pub id: &'a i64,
 }
 
 pub struct FitChecker<'a> {
@@ -77,7 +77,7 @@ impl<'a> FitChecker<'a> {
         checker.set_category();
         checker.add_snowflake_tags();
         checker.add_implant_tag();
-        checker.add_war_tags().await;
+        checker.add_war_tags().await?;
         checker.merge_tags();
         checker.check_time_in_fleet();
 
@@ -142,7 +142,8 @@ impl<'a> FitChecker<'a> {
     }
 
     fn check_logi_implants(&mut self) {
-        if self.fit.hull == type_id!("Nestor") && !self.pilot.implants.contains(&type_id!("% EM-806"))
+        if self.fit.hull == type_id!("Nestor")
+            && !self.pilot.implants.contains(&type_id!("% EM-806"))
         {
             self.approved = false;
             self.tags.insert("NO-EM-806");
@@ -167,7 +168,9 @@ impl<'a> FitChecker<'a> {
             if doctrine_fit.name.contains("Starter") {
                 self.tags.insert("STARTER-FIT");
             }
-            if fit_ok && doctrine_fit.name.contains("Elite") || doctrine_fit.name.contains("Web Specialist") {
+            if fit_ok && doctrine_fit.name.contains("Elite")
+                || doctrine_fit.name.contains("Web Specialist")
+            {
                 self.tags.insert("ELITE-FIT");
             }
 
@@ -243,12 +246,24 @@ impl<'a> FitChecker<'a> {
 
     fn check_time_in_fleet(&mut self) {
         let pilot_is_elite = self.tags.contains("ELITE")
-        || self.tags.contains("ELITE-GOLD")
-        || self.tags.contains("WEB")
-        || self.tags.contains("BASTION");
+            || self.tags.contains("ELITE-GOLD")
+            || self.tags.contains("WEB")
+            || self.tags.contains("BASTION");
 
-        let has_t2_blaster = self.fit.modules.get(&type_id!("Neutron Blaster Cannon II")).copied().unwrap_or(0) > 0;
-        let has_t2_lasers = self.fit.modules.get(&type_id!("Mega Pulse Laser II")).copied().unwrap_or(0) > 0;
+        let has_t2_blaster = self
+            .fit
+            .modules
+            .get(&type_id!("Neutron Blaster Cannon II"))
+            .copied()
+            .unwrap_or(0)
+            > 0;
+        let has_t2_lasers = self
+            .fit
+            .modules
+            .get(&type_id!("Mega Pulse Laser II"))
+            .copied()
+            .unwrap_or(0)
+            > 0;
 
         // Oneiros pilots only have one upgrade milestone. Elite by 105H
         if self.fit.hull == type_id!("Oneiros") {
@@ -257,36 +272,47 @@ impl<'a> FitChecker<'a> {
             }
         }
         // The Megathron and N. Apoc pilots only have one upgrade milestone. Get out of the hull by 22H
-        else if self.fit.hull == type_id!("Megathron") || self.fit.hull == type_id!("Apocalypse Navy Issue") {
+        else if self.fit.hull == type_id!("Megathron")
+            || self.fit.hull == type_id!("Apocalypse Navy Issue")
+        {
             if self.pilot.time_in_fleet >= (22 * 3600) {
-              self.tags.insert("UPGRADE-HOURS-REACHED");
+                self.tags.insert("UPGRADE-HOURS-REACHED");
             }
         }
         // All other pilots are subject to multiple checks; however, we only want to check DPS ships.
-        else if self.fit.hull == type_id!("Kronos") || self.fit.hull == type_id!("Nightmare") || self.fit.hull == type_id!("Paladin") || self.fit.hull == type_id!("Vindicator") {
+        else if self.fit.hull == type_id!("Kronos")
+            || self.fit.hull == type_id!("Nightmare")
+            || self.fit.hull == type_id!("Paladin")
+            || self.fit.hull == type_id!("Vindicator")
+        {
             if self.pilot.time_in_fleet >= (220 * 3600) && !pilot_is_elite {
                 self.tags.insert("ELITE-HOURS-REACHED");
-            }
-            else if self.pilot.time_in_fleet >= (130 * 3600) {
+            } else if self.pilot.time_in_fleet >= (130 * 3600) {
                 // Vindicator requires the Web Badge by 130H
                 if self.fit.hull == type_id!("Vindicator") {
                     if !self.badges.contains(&String::from("WEB")) {
                         self.tags.insert("UPGRADE-HOURS-REACHED");
                     }
                 // and Marauders require T2 guns
-                } else if !((self.fit.hull == type_id!("Kronos") && has_t2_blaster) || (self.fit.hull == type_id!("Paladin") && has_t2_lasers)) {
+                } else if !((self.fit.hull == type_id!("Kronos") && has_t2_blaster)
+                    || (self.fit.hull == type_id!("Paladin") && has_t2_lasers))
+                {
                     self.tags.insert("UPGRADE-HOURS-REACHED");
                 }
             }
             // By 85H the pilot must be in a marauder or have T2 guns
-            else if self.pilot.time_in_fleet >= (85 * 3600) {
-                if !(self.fit.hull == type_id!("Kronos") || self.fit.hull == type_id!("Paladin") || has_t2_blaster || has_t2_lasers) {
-                    self.tags.insert("UPGRADE-HOURS-REACHED");
-                }
+            else if self.pilot.time_in_fleet >= (85 * 3600)
+                && !(self.fit.hull == type_id!("Kronos")
+                    || self.fit.hull == type_id!("Paladin")
+                    || has_t2_blaster
+                    || has_t2_lasers)
+            {
+                self.tags.insert("UPGRADE-HOURS-REACHED");
             }
         }
 
-        if self.tags.contains("ELITE-HOURS-REACHED") || self.tags.contains("UPGRADE-HOURS-REACHED") {
+        if self.tags.contains("ELITE-HOURS-REACHED") || self.tags.contains("UPGRADE-HOURS-REACHED")
+        {
             self.approved = false;
         }
     }
@@ -312,7 +338,7 @@ impl<'a> FitChecker<'a> {
                         }
                     }
                 }
-                if implants_nok != "" {
+                if !implants_nok.is_empty() {
                     self.errors.push(format!(
                         "Missing required implants to fly {} fit",
                         implants_nok
@@ -332,8 +358,7 @@ impl<'a> FitChecker<'a> {
                 if set_tag == "SAVIOR" {
                     self.tags.insert("SAVIOR");
                 } else if doctrine_fit.name.contains(&set_tag.to_title_case())
-                    || (set_tag == "WARPSPEED"
-                        && !(doctrine_fit.name.contains("Amulet")))
+                    || (set_tag == "WARPSPEED" && !(doctrine_fit.name.contains("Amulet")))
                     || self.fit.hull == type_id!("Oneiros")
                 {
                     self.tags.insert(set_tag);
@@ -360,32 +385,35 @@ impl<'a> FitChecker<'a> {
     }
 
     async fn add_war_tags(&mut self) -> Result<(), Box<dyn std::error::Error>> {
-
-        use serde::Deserialize;
-
         #[derive(Debug, Deserialize)]
-        pub struct WarCheckerResponse<> {
+        pub struct WarCheckerResponse {
             pub id: i64,
             pub active_war: bool,
-            pub faction_war: bool
+            pub faction_war: bool,
         }
 
         let client = reqwest::Client::new();
 
         let response = client
-        .request(Method::GET, format!("https://evetools.flightleveltech.co.nz/char_checker/{}", self.pilot.id))
-        .timeout(Duration::from_secs(5))
-        .send()
-        .await?;
+            .request(
+                Method::GET,
+                format!(
+                    "https://evetools.flightleveltech.co.nz/char_checker/{}",
+                    self.pilot.id
+                ),
+            )
+            .timeout(Duration::from_secs(5))
+            .send()
+            .await?;
 
         let data = response.json::<Vec<WarCheckerResponse>>().await?;
         let war_data = &data[0];
 
-        if war_data.active_war == true {
+        if war_data.active_war {
             self.tags.insert("AT-WAR");
         }
 
-        if war_data.faction_war  == true {
+        if war_data.faction_war {
             self.tags.insert("FACTION-WAR");
         }
 

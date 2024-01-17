@@ -2,9 +2,11 @@ import { useApi } from "../../api";
 import { InputGroup, Button, Buttons, AButton } from "../../Components/Form";
 import { Fitout, ImplantOut } from "./FittingSortDisplay";
 import { PageTitle } from "../../Components/Page";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { usePageTitle } from "../../Util/title";
 import { InfoNote } from "../../Components/NoteBox";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faExternalLinkAlt } from "@fortawesome/free-solid-svg-icons";
 
 export function Fits() {
   const queryParams = new URLSearchParams(useLocation().search);
@@ -12,7 +14,7 @@ export function Fits() {
   var tier = queryParams.get("Tier") || "Starter";
   const setTier = (newTier) => {
     queryParams.set("Tier", newTier);
-    navigate({search: queryParams.toString()})
+    navigate({ search: queryParams.toString() });
   };
 
   return <FitsDisplay tier={tier} setTier={setTier} />;
@@ -28,10 +30,10 @@ function FitsDisplay({ tier, setTier = null }) {
   return (
     <>
       <PageTitle>HQ FITS</PageTitle>
-      <AButton href="/skills" style={{ float: "right" }}>
+      <AButton as={Link} to="/skills/plans" style={{ float: "right" }}>
         Skill Plans
       </AButton>
-      {setTier != null && (
+      {setTier && (
         <Buttons style={{ marginBottom: "0.5em" }}>
           <InputGroup>
             <Button active={tier === "Starter"} onClick={(evt) => setTier("Starter")}>
@@ -49,7 +51,7 @@ function FitsDisplay({ tier, setTier = null }) {
           </InputGroup>
           <InputGroup>
             <Button active={tier === "Logistics"} onClick={(evt) => setTier("Logistics")}>
-            Logistics
+              Logistics
             </Button>
           </InputGroup>
           <InputGroup>
@@ -62,7 +64,7 @@ function FitsDisplay({ tier, setTier = null }) {
               href={`https://wiki.${window.location.host}/guides/travelling-between-focuses#incursion-ship-travel-fits`}
               target="_blank"
             >
-              Travel
+              Travel <FontAwesomeIcon fixedWidth icon={faExternalLinkAlt} />
             </AButton>
           </InputGroup>
         </Buttons>
@@ -80,7 +82,9 @@ function FitsDisplay({ tier, setTier = null }) {
         <Fitout data={fitData} tier="Logistics" />
       ) : tier === "Antigank" ? (
         <>
-          <p style={{ margin: '15px 0px 20px 3px', marginBottom: '20px', fontWeight: 'bold' }}>Our anti-gank doctrine used when gankers are in focus.</p>
+          <p style={{ margin: "15px 0px 20px 3px", marginBottom: "20px", fontWeight: "bold" }}>
+            Our anti-gank doctrine used when gankers are in focus.
+          </p>
           <InfoNote>Cruisers are not used with this doctrine.</InfoNote>
           <Fitout data={fitData} tier="Antigank" />
         </>

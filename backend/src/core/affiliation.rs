@@ -44,9 +44,10 @@ impl AffiliationService {
         self.update_corp_affiliation(character.corporation_id)
             .await?;
 
-        if let None = sqlx::query!("SELECT * FROM character WHERE id=$1", id)
+        if sqlx::query!("SELECT * FROM character WHERE id=$1", id)
             .fetch_optional(self.db.as_ref())
             .await?
+            .is_none()
         {
             sqlx::query!(
                 "INSERT INTO character (id, name, corporation_id) VALUES ($1, $2, $3)",
@@ -125,9 +126,10 @@ impl AffiliationService {
             .esi_client
             .get_unauthenticated(&format!("/latest/alliances/{}", id))
             .await?;
-        if let None = sqlx::query!("SELECT * FROM alliance WHERE id=$1", id)
+        if sqlx::query!("SELECT * FROM alliance WHERE id=$1", id)
             .fetch_optional(self.db.as_ref())
             .await?
+            .is_none()
         {
             sqlx::query!(
                 "INSERT INTO alliance (id, name) VALUES ($1, $2)",

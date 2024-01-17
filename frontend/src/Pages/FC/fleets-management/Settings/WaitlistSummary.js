@@ -5,8 +5,8 @@ import { useMemo } from "react";
 
 const WaitlistSummary = ({ xups }) => {
   let characters = [];
-  xups?.forEach(x => {
-    x.fits?.forEach(f => {
+  xups?.forEach((x) => {
+    x.fits?.forEach((f) => {
       if (!characters.includes(f.character.id)) {
         characters.push(f.character.id);
       }
@@ -15,16 +15,16 @@ const WaitlistSummary = ({ xups }) => {
 
   const boxer_alts_count = useMemo(() => {
     let sum = 0;
-    if(xups === undefined){
+    if (xups === undefined) {
       return sum;
     }
-    xups.forEach(xup => {
-      if(xup.max_alts !== null){
+    xups.forEach((xup) => {
+      if (xup.max_alts !== null) {
         sum = sum + xup.max_alts;
       }
     });
     return sum;
-  }, [xups])
+  }, [xups]);
 
   return (
     <Card>
@@ -36,15 +36,25 @@ const WaitlistSummary = ({ xups }) => {
           <p>Waitlist</p>
           <div>
             <p>
-              <span data-tooltip-id="tip" data-tooltip-html={`${xups?.length + boxer_alts_count} users on WL`}>{xups?.length + boxer_alts_count}</span>
+              <span
+                data-tooltip-id="tip"
+                data-tooltip-html={`${xups?.length + boxer_alts_count} users on WL`}
+              >
+                {xups?.length + boxer_alts_count}
+              </span>
               &nbsp; // &nbsp;
-              <span data-tooltip-id="tip" data-tooltip-html={`${characters?.length + boxer_alts_count} characters on WL`}>{characters?.length + boxer_alts_count}</span>
+              <span
+                data-tooltip-id="tip"
+                data-tooltip-html={`${characters?.length + boxer_alts_count} characters on WL`}
+              >
+                {characters?.length + boxer_alts_count}
+              </span>
             </p>
           </div>
         </Details>
       </div>
     </Card>
-  )
-}
+  );
+};
 
 export default WaitlistSummary;

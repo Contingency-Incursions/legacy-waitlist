@@ -12,7 +12,8 @@ import styled from "styled-components";
 const FormGroup = styled.div`
   margin-bottom: 15px;
 
-  textarea, small {
+  textarea,
+  small {
     display: block;
     margin-bottom: 10px;
     min-width: 450px;
@@ -21,7 +22,7 @@ const FormGroup = styled.div`
       min-height: 150px;
     }
   }
-`
+`;
 
 const H2 = styled.h2`
   font-weight: 700;
@@ -29,7 +30,6 @@ const H2 = styled.h2`
   line-height: 1.35;
   margin: 0px;
 `;
-
 
 async function sendMessage(id, message) {
   return await apiCall("/api/waitlist/message", {
@@ -40,9 +40,9 @@ async function sendMessage(id, message) {
 const MessagePilot = ({ fitId }) => {
   const toastContext = useContext(ToastContext);
 
-  const [ message, setMessage ] = useState('');
-  const [ open, setOpen ] = useState(false);
-  const [ pending, isPending ] = useState(false);
+  const [message, setMessage] = useState("");
+  const [open, setOpen] = useState(false);
+  const [pending, isPending] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -51,19 +51,23 @@ const MessagePilot = ({ fitId }) => {
     errorToaster(
       toastContext,
       sendMessage(fitId, message)
-      .then(_ => {
-        setMessage('');
-        setOpen(false)
-      })
-      .finally(_ => isPending(false))
-    )
-  }
+        .then((_) => {
+          setMessage("");
+          setOpen(false);
+        })
+        .finally((_) => isPending(false))
+    );
+  };
 
   return (
     <>
-      <Button type="submit" variant="primary"         
-      data-tooltip-id="tip"
-        data-tooltip-html={`Message pilot`} onClick={_ => setOpen(true)}>
+      <Button
+        type="submit"
+        variant="primary"
+        data-tooltip-id="tip"
+        data-tooltip-html={`Message pilot`}
+        onClick={(_) => setOpen(true)}
+      >
         <FontAwesomeIcon fixedWidth icon={faComment} />
       </Button>
 
@@ -74,28 +78,35 @@ const MessagePilot = ({ fitId }) => {
           <form onSubmit={handleSubmit}>
             <FormGroup>
               <Label htmlFor={`${fitId}:message`}>Message:</Label>
-              <Textarea id={`${fitId}:message`} value={message} onChange={e => setMessage(e.target.value)} maxLength={512} />
+              <Textarea
+                id={`${fitId}:message`}
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                maxLength={512}
+              />
               <small>{message?.length ?? 0} of 512 characters.</small>
             </FormGroup>
 
             <Buttons>
-              <BaseButton type="button"
+              <BaseButton
+                type="button"
                 onClick={() => {
-                  setMessage('');
+                  setMessage("");
                   setOpen(false);
-                }}>
+                }}
+              >
                 Cancel
               </BaseButton>
 
               <BaseButton variant="primary" disabled={pending}>
-                {!pending ? "Send Message" : <FontAwesomeIcon fixedWidth icon={faSpinner} spin /> }
+                {!pending ? "Send Message" : <FontAwesomeIcon fixedWidth icon={faSpinner} spin />}
               </BaseButton>
             </Buttons>
           </form>
         </Box>
       </Modal>
     </>
-  )
-}
+  );
+};
 
 export default MessagePilot;

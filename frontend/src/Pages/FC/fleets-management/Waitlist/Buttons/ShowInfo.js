@@ -14,26 +14,28 @@ async function openWindow(target_id, character_id) {
 const ShowInfo = ({ id }) => {
   const authContext = useContext(AuthContext);
   const toastContext = useContext(ToastContext);
-  const [ pending, isPending ] = useState(false)
+  const [pending, isPending] = useState(false);
 
   const handleClick = (e) => {
     isPending(true);
     errorToaster(
       toastContext,
-      openWindow(id, authContext.current.id)
-      .finally(_ => isPending(false))
+      openWindow(id, authContext.current.id).finally((_) => isPending(false))
     );
-  }
+  };
 
   return (
-    <Button type="button"
+    <Button
+      type="button"
       variant="primary"
       data-tooltip-id="tip"
       data-tooltip-html="Open in-game profile"
-      onClick={handleClick} disabled={pending}>
+      onClick={handleClick}
+      disabled={pending}
+    >
       <FontAwesomeIcon fixedWidth icon={!pending ? faExternalLinkAlt : faSpinner} spin={pending} />
     </Button>
-  )
-}
+  );
+};
 
 export default ShowInfo;

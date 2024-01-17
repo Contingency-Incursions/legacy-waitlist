@@ -125,10 +125,10 @@ const IssueBanModal = ({ isOpen, setOpen, refreshFunction }) => {
       const reset = () => {
         return setEntity({ id: null, name: "" });
       };
-  
+
       // Require >= 4 characters to query ESI
       if (searchVal.length < 3) return reset();
-  
+
       setSearchPending(true);
       errorToaster(
         toastContext,
@@ -152,7 +152,7 @@ const IssueBanModal = ({ isOpen, setOpen, refreshFunction }) => {
         })
       );
     }, 500);
-    return () => clearTimeout(timeOutId)
+    return () => clearTimeout(timeOutId);
   }, [searchVal, category, toastContext]);
 
   return (

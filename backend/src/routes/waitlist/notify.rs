@@ -20,9 +20,7 @@ pub async fn notify_waitlist_update(app: &Application) -> Result<(), SSEError> {
     Ok(())
 }
 
-pub async fn notify_waitlist_update_and_xup(
-    app: &Application,
-) -> Result<(), SSEError> {
+pub async fn notify_waitlist_update_and_xup(app: &Application) -> Result<(), SSEError> {
     app.sse_client
         .submit(vec![Event::new_json(
             "waitlist",

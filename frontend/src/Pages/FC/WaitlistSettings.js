@@ -15,10 +15,10 @@ import { ToastContext } from "../../contexts";
 
 export function WaitlistSettings() {
   usePageTitle("Waitlist Settings");
-  const {settings} = useContext(SettingsContext);
+  const { settings } = useContext(SettingsContext);
   const toastContext = useContext(ToastContext);
 
-  const [ pending, isPending ] = useState(false);
+  const [pending, isPending] = useState(false);
 
   const change_anti_gank = (e) => {
     if (pending) {
@@ -29,30 +29,27 @@ export function WaitlistSettings() {
     errorToaster(
       toastContext,
       apiCall(`/api/v2/settings/anti_gank`, {
-        method: 'POST',
+        method: "POST",
         json: {
-          setting: e
-        }
-      })
-      .finally(() => isPending(false))
+          setting: e,
+        },
+      }).finally(() => isPending(false))
     );
-  }
+  };
 
   let anti_gank_mode = useMemo(() => {
-    return settings.anti_gank == 't' ? true : false;
-  }, [settings])
+    return settings.anti_gank === "t" ? true : false;
+  }, [settings]);
 
   return (
     <Content>
       <h2>Waitlist Settings</h2>
       <Card>
         <div>
-          <Switch checked={anti_gank_mode} onChange={change_anti_gank}/>
+          <Switch checked={anti_gank_mode} onChange={change_anti_gank} />
           <Details>
             <p>Anti-gank mode</p>
-            <div>
-              { anti_gank_mode ? "On" : "Off" }
-            </div>
+            <div>{anti_gank_mode ? "On" : "Off"}</div>
           </Details>
         </div>
       </Card>

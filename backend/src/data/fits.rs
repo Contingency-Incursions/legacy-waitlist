@@ -13,7 +13,7 @@ lazy_static::lazy_static! {
 pub struct DoctrineFit {
     pub name: String,
     pub fit: Fitting,
-    pub hidden: bool
+    pub hidden: bool,
 }
 
 fn load_fits() -> FitData {

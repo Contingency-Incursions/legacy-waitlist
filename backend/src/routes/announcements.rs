@@ -71,10 +71,10 @@ async fn get_active_announcements(app: &Application) -> Result<Vec<AnnouncementP
         )
         .fetch_optional(app.get_db())
         .await?
-        .map(|cb| Character{
+        .map(|cb| Character {
             id: cb.id,
             name: cb.name,
-            corporation_id: None
+            corporation_id: None,
         });
 
         payloads.push(AnnouncementPayload {
@@ -95,7 +95,7 @@ async fn get_active_announcements(app: &Application) -> Result<Vec<AnnouncementP
 #[get("/api/v2/announcements")]
 async fn list(app: &rocket::State<Application>) -> Result<Json<Vec<AnnouncementPayload>>, Madness> {
     let payloads = get_active_announcements(app).await?;
-    return Ok(Json(payloads));
+    Ok(Json(payloads))
 }
 
 #[post("/api/v2/announcements", data = "<body>")]
@@ -130,7 +130,7 @@ async fn create(
         )])
         .await?;
 
-    return Ok("Ok");
+    Ok("Ok")
 }
 
 #[put("/api/v2/announcements/<announcement_id>", data = "<body>")]
@@ -163,9 +163,9 @@ async fn update(
     .await?;
 
     if announcement.is_none() {
-        return Err(Madness::BadRequest(format!(
-            "Announcment could not be found."
-        )));
+        return Err(Madness::BadRequest(
+            "Announcment could not be found.".to_string(),
+        ));
     }
 
     sqlx::query!(
@@ -190,7 +190,7 @@ async fn update(
         )])
         .await?;
 
-    return Ok("Ok");
+    Ok("Ok")
 }
 
 #[delete("/api/v2/announcements/<announcement_id>")]
@@ -222,9 +222,9 @@ async fn revoke(
     .await?;
 
     if announcement.is_none() {
-        return Err(Madness::BadRequest(format!(
-            "Announcment could not be found or has already been deleted."
-        )));
+        return Err(Madness::BadRequest(
+            "Announcment could not be found or has already been deleted.".to_string(),
+        ));
     }
 
     let now = chrono::Utc::now().timestamp();
@@ -249,7 +249,7 @@ async fn revoke(
         )])
         .await?;
 
-    return Ok("Ok");
+    Ok("Ok")
 }
 
 pub fn routes() -> Vec<rocket::Route> {

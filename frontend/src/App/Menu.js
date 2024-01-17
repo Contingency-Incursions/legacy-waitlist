@@ -116,11 +116,13 @@ export function Menu({ onChangeCharacter, theme, setTheme, sticker, setSticker }
         <NavBar>
           <NavBar.Header>
             <MobileNavButton isOpen={isOpenMobileView} setIsOpen={setOpenMobileView} />
-
           </NavBar.Header>
           <NavBar.Menu>
-          <NavBar.LogoLink to="/">
-              <NavBar.Logo src={theme == "Light" ? logoLightImage : logoDarkImage} alt="Contingency Incursions" />
+            <NavBar.LogoLink to="/">
+              <NavBar.Logo
+                src={theme === "Light" ? logoLightImage : logoDarkImage}
+                alt="Contingency Incursions"
+              />
             </NavBar.LogoLink>
             <NavBar.Main>
               <NavLinks whoami={whoami} />

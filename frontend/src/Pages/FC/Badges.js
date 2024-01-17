@@ -144,7 +144,6 @@ const BadgesPage = () => {
     const handleClear = () => setFilters({ type: null, name: "" });
 
     return (
-
       <TableControls>
         <FilterComponents
           badgeOptions={badges}
@@ -174,7 +173,7 @@ const BadgesPage = () => {
     (row) =>
       row &&
       row.character &&
-      (!filters.type || row.badge.id == filters.type) && // eslint-disable-line
+      (!filters.type || row.badge.id === filters.type) && // eslint-disable-line
       row.character.name.toLowerCase().includes(filters?.name.toLowerCase())
   );
 

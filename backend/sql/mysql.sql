@@ -201,11 +201,11 @@ CREATE TABLE `character_note` (
 
 CREATE TABLE `fleet` (
   `id` bigint NOT NULL,
-  `boss_id` NOT NULL bigint,
+  `boss_id` bigint NOT NULL,
   `boss_system_id` BIGINT,
   `max_size` BIGINT NOT NULL,
   `visible` BOOL NOT NULL DEFAULT FALSE,
-  `error_count` BIGINT NOT NULL DEFAULT(0)
+  `error_count` BIGINT NOT NULL DEFAULT(0),
   PRIMARY KEY (`id`),
   KEY `boss_id` (`boss_id`),
   CONSTRAINT `fleet_ibfk_1` FOREIGN KEY (`boss_id`) REFERENCES `character` (`id`)
@@ -225,8 +225,7 @@ CREATE TABLE `waitlist_entry` (
   `account_id` bigint NOT NULL,
   `joined_at` bigint NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `account_id`,
-  KEY `account_id` (`account_id`),
+  UNIQUE KEY `account_id` (`account_id`),
   CONSTRAINT `waitlist_entry_ibfk_2` FOREIGN KEY (`account_id`) REFERENCES `character` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 

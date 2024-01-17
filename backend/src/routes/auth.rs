@@ -31,34 +31,43 @@ async fn set_wiki_passwd(
         .fetch_one(app.get_db())
         .await?;
 
-    let wiki_user = character.name.replace(" ", "_").replace("'", "").to_lowercase();
-    let mail_user = character.name.replace(" ", ".").replace("'", "");
+    static SPACE: char = ' ';
+    static TICK: char = '\'';
+
+    let wiki_user = character
+        .name
+        .replace(SPACE, "_")
+        .replace(TICK, "")
+        .to_lowercase();
+    let mail_user = character.name.replace(SPACE, ".").replace(TICK, "");
     let mail_domain = &app.config.dokuwiki.mail_domain;
 
-    let estimate = zxcvbn(input.password.as_ref(), &[&character.name, &wiki_user])
-        .map_err(|err| match err {
-            ZxcvbnError::BlankPassword => Madness::BadRequest("Password rejected: Empty password not allowed".to_string()),
+    let estimate = zxcvbn(input.password.as_ref(), &[&character.name, &wiki_user]).map_err(
+        |err| match err {
+            ZxcvbnError::BlankPassword => {
+                Madness::BadRequest("Password rejected: Empty password not allowed".to_string())
+            }
             err => Madness::GeneralError(err),
-        })?;
+        },
+    )?;
 
     if estimate.score() < 3 {
         let feedback = estimate.feedback().as_ref().unwrap();
         let warning = feedback.warning().map_or("".to_string(), |x| x.to_string());
         let suggestions: String = Itertools::intersperse(
-            feedback.suggestions()
-                .iter()
-                .map(|x| x.to_string()),
-            " ".to_string()
-        ).collect();
+            feedback.suggestions().iter().map(|x| x.to_string()),
+            " ".to_string(),
+        )
+        .collect();
 
         let mut message = String::with_capacity(26 + warning.len() + suggestions.len());
-        if warning.len() > 0 {
+        if !warning.is_empty() {
             message.push_str("Password rejected: ");
             message.push_str(&warning);
         } else {
             message.push_str("Password rejected.");
         }
-        if suggestions.len() > 0 {
+        if !suggestions.is_empty() {
             message.push_str(" Tips: ");
             message.push_str(&suggestions);
         }
@@ -70,7 +79,7 @@ async fn set_wiki_passwd(
         "INSERT INTO wiki_user (character_id, \"user\", hash, mail) VALUES ($1, $2, $3, $4) ON CONFLICT (character_id)
         DO UPDATE
         SET \"user\" = excluded.user,
-        hash = excluded.hash, 
+        hash = excluded.hash,
         mail = excluded.mail;",
         account.id,
         wiki_user,
@@ -174,10 +183,11 @@ fn login_url(alt: bool, fc: bool, app: &rocket::State<app::Application>) -> Stri
     }
 
     format!(
-        "https://login.eveonline.com/v2/oauth/authorize?redirect_uri={}&client_id={}&scope={}&state={}",
+        "https://login.eveonline.com/v2/oauth/authorize?response_type={}&redirect_uri={}&client_id={}&scope={}&state={}",
+        "code",
         app.config.esi.url,
         app.config.esi.client_id,
-        scopes.iter().fold(String::new(), |acc, scope| acc + " " + scope.as_str()).trim_end(),
+        scopes.iter().map(|s| s.as_str()).join("%20"),
         state
     )
 }
@@ -230,29 +240,29 @@ async fn callback(
         if let Ok(json) = serde_json::to_string(&payload) {
             return Err(Madness::Forbidden(json));
         }
-        return Err(Madness::BadRequest(format!(
-            "You cannot login due to a ban. An error occurred when trying to retreive the details, please contact council for more information."
-        )));
+        return Err(Madness::BadRequest("You cannot login due to a ban. An error occurred when trying to retrieve the details, please contact council for more information.".to_string()));
     }
 
-    let logged_in_account =
-        if input.state.is_some() && input.state.unwrap() == "alt" && account.is_some() {
-            let account = account.unwrap();
-            if account.id != character_id {
-                let is_admin = sqlx::query!(
-                    "SELECT character_id FROM admin WHERE character_id = $1",
-                    character_id
-                )
-                .fetch_optional(app.get_db())
-                .await?;
+    let logged_in_account = if input.state.is_some()
+        && input.state.unwrap() == "alt"
+        && account.is_some()
+    {
+        let account = account.unwrap();
+        if account.id != character_id {
+            let is_admin = sqlx::query!(
+                "SELECT character_id FROM admin WHERE character_id = $1",
+                character_id
+            )
+            .fetch_optional(app.get_db())
+            .await?;
 
-                if is_admin.is_some() {
-                    return Err(Madness::BadRequest(
-                        "Character is flagged as a main and cannot be added as an alt".to_string(),
-                    ));
-                }
+            if is_admin.is_some() {
+                return Err(Madness::BadRequest(
+                    "Character is flagged as a main and cannot be added as an alt".to_string(),
+                ));
+            }
 
-                sqlx::query!(
+            sqlx::query!(
                     "INSERT INTO alt_character (account_id, alt_id) VALUES ($1, $2) ON CONFLICT (account_id, alt_id)
                     DO NOTHING;",
                     account.id,
@@ -260,11 +270,11 @@ async fn callback(
                 )
                 .execute(app.get_db())
                 .await?;
-            }
-            account.id
-        } else {
-            character_id
-        };
+        }
+        account.id
+    } else {
+        character_id
+    };
 
     Ok(crate::core::auth::create_cookie(app, logged_in_account))
 }

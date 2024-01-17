@@ -1,4 +1,4 @@
-import React, {useMemo} from "react";
+import React, { useMemo } from "react";
 // import { useApi } from "../../api";
 import { Input, InputGroup } from "../../Components/Form";
 // import _ from "lodash";
@@ -19,7 +19,7 @@ export function FcStats() {
   const parsedEndDate = useMemo(() => {
     return end_date && end_time ? new Date(`${end_date}T${end_time}Z`) : null;
   }, [end_date, end_time]);
-  
+
   //const parsedDateUnix = parsedDate ? parsedDate.getTime() / 1000 : null;
 
   //const [result] = useApi(parsedDateUnix ? `/api/history/fleet-comp?time=${parsedDateUnix}` : null);

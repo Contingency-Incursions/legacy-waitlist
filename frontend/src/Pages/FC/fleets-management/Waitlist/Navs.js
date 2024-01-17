@@ -19,7 +19,7 @@ const Tabs = styled.div`
   button {
     background-color: inherit;
     border: none;
-    color:  ${(props) => props.theme.colors.text};
+    color: ${(props) => props.theme.colors.text};
     cursor: pointer;
     flex-grow: 1;
     font-size: 17px;
@@ -41,43 +41,43 @@ const Tabs = styled.div`
   }
 `;
 
-const Navs = ({ categories = [], tab, variant = 'success', onClick, fits = [] }) => {
+const Navs = ({ categories = [], tab, variant = "success", onClick, fits = [] }) => {
   const Button = ({ name, count }) => {
-    return <button className={name === tab ? 'active' : null} onClick={_ => onClick(name)}>
-      {name}
-      <Badge variant="primary">
-        {count ?? '-' }
-      </Badge>
-    </button>
-  }
+    return (
+      <button className={name === tab ? "active" : null} onClick={(_) => onClick(name)}>
+        {name}
+        <Badge variant="primary">{count ?? "-"}</Badge>
+      </button>
+    );
+  };
 
   let nav_categories = useMemo(() => {
-    return ['All'].concat(...categories);
-  },[ categories])
+    return ["All"].concat(...categories);
+  }, [categories]);
 
   let counts = useMemo(() => {
     let counts = {};
-    nav_categories.forEach(category => {
+    nav_categories.forEach((category) => {
       let count = 0;
-      if(category == 'All'){
-        count = fits.length
-      } else if(category == 'Alts'){
-        count = fits.filter(fit => fit.is_alt === true).length
+      if (category === "All") {
+        count = fits.length;
+      } else if (category === "Alts") {
+        count = fits.filter((fit) => fit.is_alt === true).length;
       } else {
-        count = fits.filter(fit => fit.category === category).length
+        count = fits.filter((fit) => fit.category === category).length;
       }
       counts[category] = count;
-    })
+    });
     return counts;
-  },[nav_categories])
+  }, [nav_categories, fits]);
 
   return (
     <Tabs variant={variant}>
-      { nav_categories?.map((category) => {
-        return <Button name={category} count={counts[category]} key={category} />
+      {nav_categories?.map((category) => {
+        return <Button name={category} count={counts[category]} key={category} />;
       })}
     </Tabs>
-  )
-}
+  );
+};
 
 export default Navs;

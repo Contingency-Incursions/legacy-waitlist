@@ -51,26 +51,26 @@ async fn list(
     let bans = rows
         .into_iter()
         .map(|ban| Ban {
-            id: Some(ban.id.unwrap()),
+            id: Some(ban.id),
             entity: Some(Entity {
-                id: ban.entity_id.unwrap(),
+                id: ban.entity_id,
                 name: ban.entity_name,
-                category: ban.entity_type.unwrap(),
+                category: ban.entity_type,
             }),
-            issued_at: Some(ban.issued_at.unwrap()),
+            issued_at: Some(ban.issued_at),
             issued_by: Some(Character {
-                id: ban.issued_by_id.unwrap(),
-                name: ban.issued_by_name.unwrap(),
+                id: ban.issued_by_id,
+                name: ban.issued_by_name,
                 corporation_id: None,
             }),
-            reason: ban.reason.unwrap(),
+            reason: ban.reason,
             public_reason: ban.public_reason,
             revoked_at: ban.revoked_at,
             revoked_by: None,
         })
         .collect();
 
-    return Ok(Json(bans));
+    Ok(Json(bans))
 }
 
 #[post("/api/v2/bans", data = "<req_body>")]
@@ -83,7 +83,7 @@ async fn create(
 
     let now = Utc::now().timestamp();
 
-    if let None = &req_body.entity {
+    if req_body.entity.is_none() {
         return Err(Madness::BadRequest(format!(
             "One or more body paramaters are missing: [\"{}\", \"{}\", \"{}\"]",
             "id", "name", "kind"
@@ -102,12 +102,10 @@ async fn create(
 
     // Stop FCs from banning other FCs
     // See: https://github.com/Contingency-Incursions/legacy-waitlist/issues/43
-    if let Some(admin) = sqlx::query!(
-        "SELECT * FROM admin WHERE character_id=$1",
-        e.id
-    )
-    .fetch_optional(app.get_db())
-    .await? {
+    if let Some(admin) = sqlx::query!("SELECT * FROM admin WHERE character_id=$1", e.id)
+        .fetch_optional(app.get_db())
+        .await?
+    {
         return Err(Madness::BadRequest(format!(
             "{} accounts cannot be banned.",
             admin.role
@@ -165,17 +163,18 @@ async fn update(
 
     let now = Utc::now().timestamp();
 
-    if let None = sqlx::query!(
+    if sqlx::query!(
         "SELECT * FROM ban WHERE id=$1 AND (revoked_at IS NULL OR revoked_at > $2)",
         ban_id,
         now
     )
     .fetch_optional(app.get_db())
     .await?
+    .is_none()
     {
-        return Err(Madness::BadRequest(format!(
-            "Cannot revoke invalid ban. It is either invalid or doesn't exist"
-        )));
+        return Err(Madness::BadRequest(
+            "Cannot revoke invalid ban. It is either invalid or doesn't exist".to_string(),
+        ));
     }
 
     let expires_at = match req_body.revoked_at.as_ref() {
@@ -223,11 +222,11 @@ async fn revoke(
         .await?
     {
         let now = Utc::now().timestamp();
-        if !ban.revoked_at.is_none() && ban.revoked_at.unwrap() < now {
+        if ban.revoked_at.is_some() && ban.revoked_at.unwrap() < now {
             if ban.revoked_by.is_none() {
-                return Err(Madness::BadRequest(format!(
-                    "Cannot revoke the ban as it has already expired"
-                )));
+                return Err(Madness::BadRequest(
+                    "Cannot revoke the ban as it has already expired".to_string(),
+                ));
             }
 
             let fc_id = ban.revoked_by.unwrap();
@@ -253,10 +252,10 @@ async fn revoke(
         return Ok("Ok");
     }
 
-    return Err(Madness::BadRequest(format!(
+    Err(Madness::BadRequest(format!(
         "Could not find a ban with the ID of {}",
         ban_id
-    )));
+    )))
 }
 
 pub fn routes() -> Vec<rocket::Route> {

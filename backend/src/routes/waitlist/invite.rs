@@ -2,11 +2,7 @@ use rocket::serde::json::Json;
 
 use crate::{
     app::Application,
-    core::{
-        auth::{authorize_character, AuthenticatedAccount},
-        esi::ESIScope,
-        sse::Event,
-    },
+    core::{auth::AuthenticatedAccount, esi::ESIScope, sse::Event},
     util::madness::Madness,
 };
 use eve_data_core::{TypeDB, TypeID};
@@ -45,7 +41,7 @@ async fn invite(
     .fetch_one(app.get_db())
     .await?;
     // needs to match category.yaml file
-    let select_cat = if xup.wef_is_alt == true {
+    let select_cat = if xup.wef_is_alt {
         "alt".to_string()
     } else {
         xup.wef_category
@@ -76,8 +72,7 @@ async fn invite(
                 xup.wef_character_id
             )
             .fetch_all(app.get_db())
-            .await?
-            .len() == 0 {
+            .await?.is_empty() {
                 // Pilot does not have an L badge, they are either a Training Nestor or a Retired Logi
                 return Err(Madness::BadRequest("You are not allowed to invite a training Nestor to fleet.".to_string()));
             }

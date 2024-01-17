@@ -1,7 +1,7 @@
 import { useContext, useMemo } from "react";
 import { AuthContext, ToastContext } from "../../../../contexts";
 import { apiCall, errorToaster } from "../../../../api";
-import BadgeIcon, {Badge} from "../../../../Components/Badge";
+import BadgeIcon, { Badge } from "../../../../Components/Badge";
 import { Button as BaseButton } from "../../../../Components/Form";
 import { CharacterName } from "../../../../Components/EntityLinks";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -101,10 +101,10 @@ const ShipDropdownDOM = styled.div`
     display: block;
     opacity: 1;
     transition: opacity 250ms ease-in-out;
-   -moz-transition: opacity 250ms ease-in-out;
-   -webkit-transition: opacity 250ms ease-in-out;
+    -moz-transition: opacity 250ms ease-in-out;
+    -webkit-transition: opacity 250ms ease-in-out;
   }
-`
+`;
 
 const ShowInfo = (id, whoami, toastContext) => {
   errorToaster(
@@ -119,32 +119,30 @@ const ShowInfo = (id, whoami, toastContext) => {
   );
 };
 
-const BadgeDisplay = ({ship, badges}) => {
+const BadgeDisplay = ({ ship, badges }) => {
   let type = useMemo(() => {
-    if(badges === null) {
-      return '';
+    if (badges === null) {
+      return "";
     }
-    if(ship === 33472){
-      if(badges.includes('LOGI')) {
-        return 'LOGI';
+    if (ship === 33472) {
+      if (badges.includes("LOGI")) {
+        return "LOGI";
       }
-      if(badges.includes('RETIRED-LOGI')){
-        return 'RETIRED-LOGI';
+      if (badges.includes("RETIRED-LOGI")) {
+        return "RETIRED-LOGI";
       }
     }
-    if((ship === 28661 || ship === 28659) && badges.includes('BASTION')){
-      return 'BASTION';
+    if ((ship === 28661 || ship === 28659) && badges.includes("BASTION")) {
+      return "BASTION";
     }
-    if(ship === 17740 && badges.includes('WEB')){
-      return 'WEB'
+    if (ship === 17740 && badges.includes("WEB")) {
+      return "WEB";
     }
-    return ''
-  }, [ship, badges])
+    return "";
+  }, [ship, badges]);
 
-  return (
-    (type == '') ? (<></>) : (<BadgeIcon type={type} height={'1em'} />)
-  )
-}
+  return type === "" ? <></> : <BadgeIcon type={type} height={"1em"} />;
+};
 
 const Ship = ({ characters = [], name, typeId }) => {
   const authContext = useContext(AuthContext);
@@ -159,25 +157,26 @@ const Ship = ({ characters = [], name, typeId }) => {
       </ShipDOM>
 
       <div className="dropdown-child">
-        { characters?.map((pilot, key) => {
+        {characters?.map((pilot, key) => {
           return (
             <div key={key}>
               <CharacterName {...pilot} />
               <span>
-                {pilot.is_alt && (
-                   <Badge variant="danger">ALT</Badge>
-                )}
+                {pilot.is_alt && <Badge variant="danger">ALT</Badge>}
                 <BadgeDisplay ship={typeId} badges={pilot.badges} />
               </span>
-              <Button variant="primary" onClick={() => ShowInfo(pilot.id, authContext.current, toastContext)}>
+              <Button
+                variant="primary"
+                onClick={() => ShowInfo(pilot.id, authContext.current, toastContext)}
+              >
                 <FontAwesomeIcon fixedWidth icon={faExternalLinkAlt} />
               </Button>
             </div>
-          )
+          );
         })}
       </div>
     </ShipDropdownDOM>
   );
-}
+};
 
 export default Ship;

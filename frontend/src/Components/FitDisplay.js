@@ -378,7 +378,7 @@ export function DNADisplay({ dna, analysis = null, name = null }) {
         </DOM.Warning>
       ) : null}
       {Object.entries(slots).map(([slot, groups]) => (
-        <DisplaySlot key={slot} isDiff={analysis != null} groups={groups} moduleInfo={moduleInfo} />
+        <DisplaySlot key={slot} isDiff={!!analysis} groups={groups} moduleInfo={moduleInfo} />
       ))}
     </div>
   );

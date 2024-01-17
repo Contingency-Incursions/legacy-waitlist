@@ -348,7 +348,9 @@ impl TypeDB {
 
     pub fn name_of_system(id: i64) -> Result<String, TypeError> {
         Ok(CONN.with(|conn| {
-            conn.query_row("SELECT name FROM systems WHERE id=?", [id], |row| row.get(0))
+            conn.query_row("SELECT name FROM systems WHERE id=?", [id], |row| {
+                row.get(0)
+            })
         })?)
     }
 

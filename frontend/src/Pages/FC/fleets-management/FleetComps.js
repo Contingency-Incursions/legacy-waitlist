@@ -21,34 +21,32 @@ const FleetCompDOM = styled.div`
 
 const FleetComps = ({ fleetId }) => {
   const eventContext = useContext(EventContext);
-  let [ fleets, refresh ] = useApi(`/api/v2/fleets`);
+  let [fleets, refresh] = useApi(`/api/v2/fleets`);
 
   useEffect(() => {
     if (!eventContext) return;
 
-    
-    const sub = eventContext.subscriptions.create({channel: 'FleetChannel'}, {
-      received(data){
-        refresh(data);
+    const sub = eventContext.subscriptions.create(
+      { channel: "FleetChannel" },
+      {
+        received(data) {
+          refresh(data);
+        },
       }
-    })
+    );
 
     return () => {
       sub.unsubscribe();
-    }
-  }, [refresh, eventContext])
+    };
+  }, [refresh, eventContext]);
 
   return (
     <FleetCompDOM count={fleets?.length <= 2 ? fleets.length : 2}>
-      {fleets?.map((fleet, key) => <Fleet
-      fleetId={fleet.id}
-      myFleet={fleet.id == fleetId}
-      fleetBoss={fleet.boss}
-      key={key}
-      />)}
-
+      {fleets?.map((fleet, key) => (
+        <Fleet fleetId={fleet.id} myFleet={fleet.id === fleetId} fleetBoss={fleet.boss} key={key} />
+      ))}
     </FleetCompDOM>
-  )
-}
+  );
+};
 
 export default FleetComps;

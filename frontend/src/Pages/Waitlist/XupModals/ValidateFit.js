@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { Label as BaseLabel,Input as BaseInput, Button, Textarea } from "../../../Components/Form";
+import { Label as BaseLabel, Input as BaseInput, Button, Textarea } from "../../../Components/Form";
 import { ImplantDisplay } from "../../../Components/FitDisplay";
 import { useContext, useState, useMemo, useEffect } from "react";
 import { AuthContext, ToastContext } from "../../../contexts";
@@ -30,10 +30,9 @@ const Input = styled(BaseInput)`
   -moz-appearance: textfield;
   &::-webkit-outer-spin-button,
   &::-webkit-inner-spin-button {
-      -webkit-appearance: none;
+    -webkit-appearance: none;
   }
 `;
-
 
 const exampleFit = String.raw`
 [Kronos, CI Kronos Elite]
@@ -64,9 +63,9 @@ const ValidateFit = ({ alt, fits, max_alts, callback, setAlt, setFits, setMaxAlt
   const authContext = useContext(AuthContext);
   const toastContext = useContext(ToastContext);
 
-  const [ pending, setPending ] = useState(false);
+  const [pending, setPending] = useState(false);
 
-  const [ implants ] = useApi(`/api/implants?character_id=${authContext.current.id}`);
+  const [implants] = useApi(`/api/implants?character_id=${authContext.current.id}`);
 
   const handleFitValidation = (e) => {
     e.preventDefault();
@@ -81,23 +80,22 @@ const ValidateFit = ({ alt, fits, max_alts, callback, setAlt, setFits, setMaxAlt
       toastContext,
       validateFit({
         character_id: authContext?.current.id,
-        eft: fits
+        eft: fits,
       })
-      .then((res) => callback(res))
-      .finally(() => setPending(false))
+        .then((res) => callback(res))
+        .finally(() => setPending(false))
     );
-  }
+  };
 
   const is_boxer = useMemo(() => {
     const main = authContext.characters.find((e) => e.main);
-    return main.badges.includes('BOXER');
-  }, [authContext])
+    return main.badges.includes("BOXER");
+  }, [authContext]);
 
   useEffect(() => {
     const main = authContext.characters.find((e) => e.main);
     setMaxAlts(main.boxer_alts);
-  }, [setMaxAlts, authContext])
-
+  }, [setMaxAlts, authContext]);
 
   return (
     <>
@@ -105,8 +103,16 @@ const ValidateFit = ({ alt, fits, max_alts, callback, setAlt, setFits, setMaxAlt
 
       <form onSubmit={handleFitValidation}>
         <FormGroup>
-          <Label htmlFor="fit" required>Paste Fit(s):</Label>
-          <Textarea id="fit" value={fits} onChange={(e) => setFits(e.target.value)} placeholder={exampleFit} required />
+          <Label htmlFor="fit" required>
+            Paste Fit(s):
+          </Label>
+          <Textarea
+            id="fit"
+            value={fits}
+            onChange={(e) => setFits(e.target.value)}
+            placeholder={exampleFit}
+            required
+          />
         </FormGroup>
 
         <FormGroup>
@@ -117,34 +123,42 @@ const ValidateFit = ({ alt, fits, max_alts, callback, setAlt, setFits, setMaxAlt
         </FormGroup>
 
         {is_boxer && (
-                  <FormGroup>
-                  <Label htmlFor="boxer_alts">What is max boxer alts you can bring?</Label>
-                    <Input id="boxer_alts"
-                      type="number"
-                      min="0"
-                      max="20"
-                     value={max_alts}
-                     onChange={(e) => setMaxAlts(e.target.value)}
-                     step='1'
-                      required
-                    /> alts
-                </FormGroup>
+          <FormGroup>
+            <Label htmlFor="boxer_alts">What is max boxer alts you can bring?</Label>
+            <Input
+              id="boxer_alts"
+              type="number"
+              min="0"
+              max="20"
+              value={max_alts}
+              onChange={(e) => setMaxAlts(e.target.value)}
+              step="1"
+              required
+            />{" "}
+            alts
+          </FormGroup>
         )}
 
-
-        <Button variant="success" disabled={pending}>X UP</Button>
+        <Button variant="success" disabled={pending}>
+          X UP
+        </Button>
         {/* <A href={`https://wiki.${window.location.host}/guides/waitlist`} target="_blank">
           How do I join the waitlist?
         </A> */}
       </form>
 
       <div id="implants">
-        { implants ?
-           <ImplantDisplay implants={implants.implants} name={`${authContext.current.name}'s capsule`} /> :
-           <Spinner /> }
+        {implants ? (
+          <ImplantDisplay
+            implants={implants.implants}
+            name={`${authContext.current.name}'s capsule`}
+          />
+        ) : (
+          <Spinner />
+        )}
       </div>
     </>
-  )
-}
+  );
+};
 
 export default ValidateFit;

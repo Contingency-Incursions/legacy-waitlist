@@ -1,10 +1,10 @@
 mod actions;
-mod configure;
 mod comp;
+mod configure;
+mod historic;
 mod notify;
 mod settings;
 mod waitlist;
-mod historic;
 
 pub fn routes() -> Vec<rocket::Route> {
     [
@@ -13,7 +13,7 @@ pub fn routes() -> Vec<rocket::Route> {
         comp::routes(),
         settings::routes(),
         waitlist::routes(),
-        historic::routes()
+        historic::routes(),
     ]
     .concat()
 }

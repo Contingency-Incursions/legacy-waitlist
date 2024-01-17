@@ -103,7 +103,6 @@ const Details = styled.div`
 const FleetSettings = ({ fleetId, xups, settings, settingsRefresh }) => {
   const eventContext = useContext(EventContext);
 
-
   useEffect(() => {
     if (!eventContext) return;
 
@@ -113,35 +112,40 @@ const FleetSettings = ({ fleetId, xups, settings, settingsRefresh }) => {
       if (data.id === fleetId) {
         settingsRefresh();
       }
-    }
+    };
 
-    
-    const sub = eventContext.subscriptions.create({channel: 'FcChannel'}, {
-      received(data){
-        handleEvent(data);
+    const sub = eventContext.subscriptions.create(
+      { channel: "FcChannel" },
+      {
+        received(data) {
+          handleEvent(data);
+        },
       }
-    })
+    );
 
     return () => {
       sub.unsubscribe();
-    }
-  },
-    [eventContext, fleetId, settingsRefresh]
-  );
+    };
+  }, [eventContext, fleetId, settingsRefresh]);
 
   usePageTitle(`${settings?.boss?.name}'s Fleet`);
 
   return (
     <SettingsDOM>
-      <FleetBoss fleetBoss={settings?.boss} fleetSystem={settings?.boss_system} error_count={settings?.error_count} fleetId={fleetId} />
+      <FleetBoss
+        fleetBoss={settings?.boss}
+        fleetSystem={settings?.boss_system}
+        error_count={settings?.error_count}
+        fleetId={fleetId}
+      />
       <FleetVisibilty visible={settings?.visible} fleetId={fleetId} />
       <FleetSize size={settings?.size} max_size={settings?.size_max} fleetId={fleetId} />
       <SiteType type={settings?.site_type} fleetId={fleetId} />
       <WaitlistSummary xups={xups} />
       <FleetButtons fleetId={fleetId} />
     </SettingsDOM>
-  )
-}
+  );
+};
 
 export default FleetSettings;
-export { Card, Feature, Details};
+export { Card, Feature, Details };

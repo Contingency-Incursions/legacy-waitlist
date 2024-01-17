@@ -132,7 +132,7 @@ const CommandersPage = () => {
       selector: (row) =>
         authContext &&
         authContext.access["commanders-manage"] &&
-        authContext.account_id != row.character.id && (
+        authContext.account_id !== row.character.id && (
           <Buttons>
             <CommanderModal
               character={row.character}
@@ -179,7 +179,7 @@ const CommandersPage = () => {
         )}
       </TableControls>
     );
-  }, [filters, data, refreshData]);
+  }, [filters, data, refreshData, authContext]);
 
   usePageTitle("Commanders");
   return (

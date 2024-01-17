@@ -57,12 +57,7 @@ async fn fittings() -> Result<Json<FittingResponse>, Madness> {
         }
     }
     Ok(Json(FittingResponse {
-        fittingdata: Some(
-            fittingformatted
-                .into_iter()
-                .map(|(_id, entry)| entry)
-                .collect(),
-        ),
+        fittingdata: Some(fittingformatted.into_values().collect()),
         notes: Some(load_notes_from_file()),
         rules: Some(logirules),
     }))

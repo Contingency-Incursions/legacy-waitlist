@@ -3,8 +3,8 @@ use std::collections::HashMap;
 use serde::Deserialize;
 
 use crate::core::esi::{ESIClient, ESIError, ESIScope};
-use eve_data_core::{SkillLevel, TypeID};
 use crate::tdf::skills as tdf_skills;
+use eve_data_core::{SkillLevel, TypeID};
 
 #[derive(Deserialize, Debug)]
 struct SkillResponseSkill {
@@ -90,12 +90,12 @@ pub async fn load_skills(
             sqlx::query!(
                 "INSERT INTO skill_history (character_id, skill_id, old_level, new_level, logged_at) VALUES ($1, $2, $3, $4, $5)",
                 character_id, skill.skill_id, *on_record, skill.trained_skill_level, now
-            ).execute(&mut tx).await?;
+            ).execute(&mut *tx).await?;
         } else if !last_known_skills.is_empty() {
             sqlx::query!(
                 "INSERT INTO skill_history (character_id, skill_id, old_level, new_level, logged_at) VALUES ($1, $2, 0, $3, $4)",
                 character_id, skill.skill_id, skill.trained_skill_level, now
-            ).execute(&mut tx).await?;
+            ).execute(&mut *tx).await?;
         }
 
         sqlx::query!(
@@ -106,7 +106,7 @@ pub async fn load_skills(
             skill.skill_id,
             skill.trained_skill_level
         )
-        .execute(&mut tx)
+        .execute(&mut *tx)
         .await?;
     }
 

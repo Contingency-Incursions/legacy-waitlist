@@ -30,18 +30,19 @@ impl EsiErrorReason {
                 let body_value = json.get("error").unwrap().to_string();
                 let parts: Vec<&str> = body_value.split(", ").collect();
 
-                return EsiErrorReason {
+                // We could grab the remaining JSON value but
+                // I don't know how to do it without the logic
+                // crashing due to index out of bounds
+                EsiErrorReason {
                     error: parts[0].to_string().replace('"', ""),
-                    details: "".to_string(), // We could grab the remaining JSON value but
-                };                           // I don't know how to do it without the logic
-            }                                // crashing due to index out of bounds
-            Err(e) => {
-                return EsiErrorReason {
-                    error: "Failed to parse ESI error reason".to_string(),
-                    details: e.to_string(),
-                };
+                    details: "".to_string(),
+                }
             }
-        };
+            Err(e) => EsiErrorReason {
+                error: "Failed to parse ESI error reason".to_string(),
+                details: e.to_string(),
+            },
+        }
     }
 }
 
@@ -118,7 +119,9 @@ impl ESIRawClient {
     pub fn new(client_id: String, client_secret: String) -> ESIRawClient {
         ESIRawClient {
             http: reqwest::Client::builder()
-                .user_agent("Wedge Rancer (https://github.com/Contingency-Incursions/legacy-waitlist)")
+                .user_agent(
+                    "Wedge Rancer (https://github.com/Contingency-Incursions/legacy-waitlist)",
+                )
                 .build()
                 .unwrap(),
             client_id,
@@ -140,7 +143,7 @@ impl ESIRawClient {
             scope: Option<String>,
         }
 
-        let scope_str = scopes.map(|s| join_scopes(s));
+        let scope_str = scopes.map(join_scopes);
 
         let request = OAuthTokenRequest {
             grant_type,
@@ -208,8 +211,10 @@ impl ESIRawClient {
         })
     }
 
-    async fn log_response_error(response: reqwest::Response) -> Result<reqwest::Response, ESIError> {
-        if let Err(_) = response.error_for_status_ref() {
+    async fn log_response_error(
+        response: reqwest::Response,
+    ) -> Result<reqwest::Response, ESIError> {
+        if response.error_for_status_ref().is_err() {
             let status = response.status();
             let headers = format!("{:?}", response.headers());
             let url = response.url().to_owned();
@@ -218,22 +223,14 @@ impl ESIRawClient {
             warn!("{status}: {response_body}  \n Req URI: {url} \n Headers: {headers}");
 
             let payload: EsiErrorReason = EsiErrorReason::new(response_body);
-            return Err(ESIError::WithMessage(
-                status.as_u16(),
-                payload.error,
-            ));
-            } else {
+            Err(ESIError::WithMessage(status.as_u16(), payload.error))
+        } else {
             Ok(response)
         }
     }
 
     pub async fn get(&self, url: &str, access_token: &str) -> Result<reqwest::Response, ESIError> {
-        let response = self
-            .http
-            .get(url)
-            .bearer_auth(access_token)
-            .send()
-            .await?;
+        let response = self.http.get(url).bearer_auth(access_token).send().await?;
         Self::log_response_error(response).await
     }
 
@@ -339,7 +336,7 @@ impl ESIClient {
         let mut tx = self.db.begin().await?;
 
         if sqlx::query!("SELECT id FROM character WHERE id=$1", auth.character_id)
-            .fetch_optional(&mut tx)
+            .fetch_optional(&mut *tx)
             .await?
             .is_none()
         {
@@ -348,7 +345,7 @@ impl ESIClient {
                 auth.character_id,
                 auth.character_name
             )
-            .execute(&mut tx)
+            .execute(&mut *tx)
             .await?;
         }
 
@@ -356,26 +353,26 @@ impl ESIClient {
         let scopes = join_scopes(&auth.scopes);
         sqlx::query!(
             "INSERT INTO access_token (character_id, access_token, expires, scopes) VALUES ($1, $2, $3, $4) ON CONFLICT (character_id) DO UPDATE
-            SET access_token = excluded.access_token, 
-                expires = excluded.expires, 
+            SET access_token = excluded.access_token,
+                expires = excluded.expires,
                 scopes = excluded.scopes;",
             auth.character_id,
             auth.access_token,
             expiry_timestamp,
             scopes,
         )
-        .execute(&mut tx)
+        .execute(&mut *tx)
         .await?;
 
         sqlx::query!(
             "INSERT INTO refresh_token (character_id, refresh_token, scopes) VALUES ($1, $2, $3) ON CONFLICT (character_id) DO UPDATE
-            SET refresh_token = excluded.refresh_token, 
+            SET refresh_token = excluded.refresh_token,
                 scopes = excluded.scopes;",
             auth.character_id,
             auth.refresh_token,
             scopes,
         )
-        .execute(&mut tx)
+        .execute(&mut *tx)
         .await?;
 
         tx.commit().await?;
@@ -431,13 +428,13 @@ impl ESIClient {
                     "DELETE FROM access_token WHERE character_id=$1",
                     character_id
                 )
-                .execute(&mut tx)
+                .execute(&mut *tx)
                 .await?;
                 sqlx::query!(
                     "DELETE FROM refresh_token WHERE character_id=$1",
                     character_id
                 )
-                .execute(&mut tx)
+                .execute(&mut *tx)
                 .await?;
                 tx.commit().await?;
 
@@ -513,7 +510,12 @@ impl ESIClient {
     ) -> Result<D, ESIError> {
         let access_token = self.access_token(character_id, scope).await?;
         let url = format!("https://esi.evetech.net{}", path);
-        return Ok(self.raw.post::<E>(&url, input, &access_token).await?.json().await?);
+        Ok(self
+            .raw
+            .post::<E>(&url, input, &access_token)
+            .await?
+            .json()
+            .await?)
     }
 
     pub async fn put<E: Serialize + ?Sized>(
@@ -544,7 +546,7 @@ pub mod fleet_members {
         pub ship_type_id: TypeID,
         pub solar_system_id: i64,
         pub squad_id: i64,
-        pub wing_id: i64
+        pub wing_id: i64,
     }
 
     pub async fn get(
@@ -552,13 +554,13 @@ pub mod fleet_members {
         fleet_id: i64,
         boss_id: i64,
     ) -> Result<Vec<ESIFleetMember>, ESIError> {
-        Ok(client
+        client
             .get(
                 &format!("/v1/fleets/{}/members", fleet_id),
                 boss_id,
                 ESIScope::Fleets_ReadFleet_v1,
             )
-            .await?)
+            .await
     }
 }
 

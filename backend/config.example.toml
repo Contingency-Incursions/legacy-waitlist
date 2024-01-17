@@ -1,5 +1,5 @@
 [database]
-url = "mysql://usrname:passwd@localhost/db_name?ssl-mode=disabled"
+url = "postgres://username:password@localhost/waitlist"
 min_connections = 1
 max_connections = 5
 connect_timeout = 2

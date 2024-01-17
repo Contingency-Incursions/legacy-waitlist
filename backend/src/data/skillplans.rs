@@ -24,11 +24,11 @@ struct SkillPlanFile {
 #[derive(Debug, Deserialize, Serialize)]
 pub struct SkillPlan {
     pub name: String,
-    pub description: String,
+    pub description: Option<String>,
     #[serde(default)]
     pub alpha: bool,
     pub plan: Vec<SkillPlanLevel>,
-    pub tier: String
+    pub tier: String,
 }
 
 #[derive(Debug, Deserialize, Serialize)]

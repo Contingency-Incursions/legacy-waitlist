@@ -33,7 +33,8 @@ const ThemeContainer = styled.div`
     font-size: large;
     margin-bottom: 15px;
 
-    label, input[type="radio"] {
+    label,
+    input[type="radio"] {
       cursor: pointer;
     }
   }
@@ -50,7 +51,7 @@ const ThemeContainer = styled.div`
 `;
 
 const ThemeSelect = ({ theme, setTheme }) => {
-  const [ open, setOpen ] = useState(false);
+  const [open, setOpen] = useState(false);
 
   return (
     <>
@@ -58,13 +59,13 @@ const ThemeSelect = ({ theme, setTheme }) => {
         <FontAwesomeIcon fixedWidth icon={faPalette} />
       </Button>
       <Modal open={open} setOpen={setOpen}>
-        <Box style={{ maxWidth: "700px"}}>
+        <Box style={{ maxWidth: "700px" }}>
           <H2>
-            <FontAwesomeIcon fixedWidth icon={faPalette}  />
+            <FontAwesomeIcon fixedWidth icon={faPalette} />
             Theme Selector
           </H2>
           <ThemeContainer>
-            { Object.keys(themeOptions).map((item, key) => {
+            {Object.keys(themeOptions).map((item, key) => {
               const colors = themeOptions[item].colors;
 
               const colorMap = {
@@ -72,8 +73,8 @@ const ThemeSelect = ({ theme, setTheme }) => {
                 success: colors.success,
                 warning: colors.warning,
                 danger: colors.danger,
-                secondary: colors.secondary
-              }
+                secondary: colors.secondary,
+              };
 
               return (
                 <div key={key}>
@@ -83,40 +84,44 @@ const ThemeSelect = ({ theme, setTheme }) => {
                       name="theme"
                       value={item}
                       checked={theme === item}
-                      onChange={e => setTheme(e.target.value)}
+                      onChange={(e) => setTheme(e.target.value)}
                     />
                     <label htmlFor={item}>{item} Theme</label>
                   </h4>
 
-                  { Object.keys(colorMap).map((color, key) => {
+                  {Object.keys(colorMap).map((color, key) => {
                     const style = {
                       background: colorMap[color].color,
                       color: colorMap[color].text,
-                      margin: '0px 10px 10px 0px'
+                      margin: "0px 10px 10px 0px",
                     };
 
                     return (
                       <Badge variant="primary" style={style} key={key}>
                         {color}
                       </Badge>
-                    )
+                    );
                   })}
 
                   <ul className="text">
-                    <li style={{ color: colors.text, background: colors.background  }}>Text Colour</li>
-                    <li style={{ color: colors.highlight.active, background: colors.background }}>Hyperlink Colour</li>
+                    <li style={{ color: colors.text, background: colors.background }}>
+                      Text Colour
+                    </li>
+                    <li style={{ color: colors.highlight.active, background: colors.background }}>
+                      Hyperlink Colour
+                    </li>
                   </ul>
                 </div>
-              )
+              );
             })}
           </ThemeContainer>
-          <Button variant="primary" style={{marginLeft: "65px"}} onClick={_ => setOpen(false)}>
+          <Button variant="primary" style={{ marginLeft: "65px" }} onClick={(_) => setOpen(false)}>
             Close
           </Button>
         </Box>
       </Modal>
     </>
-  )
-}
+  );
+};
 
 export default ThemeSelect;

@@ -36,14 +36,14 @@ async fn remove_fit(
     let mut tx = app.get_db().begin().await?;
 
     sqlx::query!("DELETE FROM waitlist_entry_fit WHERE id = $1", input.id)
-        .execute(&mut tx)
+        .execute(&mut *tx)
         .await?;
 
     let remaining = sqlx::query!(
         "SELECT id FROM waitlist_entry_fit WHERE entry_id=$1",
         waitlist_entry.entry_id
     )
-    .fetch_optional(&mut tx)
+    .fetch_optional(&mut *tx)
     .await?;
 
     if remaining.is_none() {
@@ -51,7 +51,7 @@ async fn remove_fit(
             "DELETE FROM waitlist_entry WHERE id=$1",
             waitlist_entry.entry_id
         )
-        .execute(&mut tx)
+        .execute(&mut *tx)
         .await?;
     }
 
@@ -90,10 +90,10 @@ async fn remove_x(
 
     let mut tx = app.get_db().begin().await?;
     sqlx::query!("DELETE FROM waitlist_entry_fit WHERE entry_id=$1", input.id)
-        .execute(&mut tx)
+        .execute(&mut *tx)
         .await?;
     sqlx::query!("DELETE FROM waitlist_entry WHERE id=$1", input.id)
-        .execute(&mut tx)
+        .execute(&mut *tx)
         .await?;
     tx.commit().await?;
 

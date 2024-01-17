@@ -1,14 +1,14 @@
 use crate::core::esi::ESIScope;
-use crate::{core::auth::AuthenticatedAccount, app::Application, util::madness::Madness};
-use eve_data_core::TypeDB;
 use crate::core::sse::Event;
+use crate::{app::Application, core::auth::AuthenticatedAccount, util::madness::Madness};
+use eve_data_core::TypeDB;
 use serde::Serialize;
 use std::collections::HashMap;
 
 #[derive(Debug, Serialize)]
 struct Invite {
     character_id: i64,
-    role: &'static str
+    role: &'static str,
 }
 
 #[derive(Debug, Serialize)]
@@ -23,63 +23,60 @@ struct SquadInvite {
 async fn delete_fleet(
     account: AuthenticatedAccount,
     app: &rocket::State<Application>,
-    fleet_id: i64
+    fleet_id: i64,
 ) -> Result<&'static str, Madness> {
     account.require_access("fleet-view")?;
 
-    let fleet = sqlx::query!(
-        "SELECT boss_id FROM fleet WHERE id=$1", fleet_id
-    )
-    .fetch_one(app.get_db())
-    .await?;
+    let fleet = sqlx::query!("SELECT boss_id FROM fleet WHERE id=$1", fleet_id)
+        .fetch_one(app.get_db())
+        .await?;
 
-
-    let fleet_members = crate::core::esi::fleet_members::get(&app.esi_client, fleet_id, fleet.boss_id).await?;
+    let fleet_members =
+        crate::core::esi::fleet_members::get(&app.esi_client, fleet_id, fleet.boss_id).await?;
 
     for member in fleet_members {
         if member.character_id == fleet.boss_id {
             continue; // Don't try to kick fleet boss as it will error!
         }
 
-        let res = app
-            .esi_client
+        app.esi_client
             .delete(
                 &format!("/v1/fleets/{}/members/{}/", fleet_id, member.character_id),
                 fleet.boss_id,
-                ESIScope::Fleets_WriteFleet_v1
+                ESIScope::Fleets_WriteFleet_v1,
             )
             .await?;
     }
 
-
     let mut tx = app.get_db().begin().await?;
     sqlx::query!("DELETE FROM fleet_squad WHERE fleet_id=$1", fleet_id)
-        .execute(&mut tx)
+        .execute(&mut *tx)
         .await?;
 
     sqlx::query!("DELETE FROM fleet WHERE id=$1", fleet_id)
-        .execute(&mut tx)
+        .execute(&mut *tx)
         .await?;
 
-    sqlx::query!("UPDATE fleet_activity SET has_left=true WHERE fleet_id=$1 AND has_left=false", fleet_id)
-        .execute(&mut tx)
-        .await?;
+    sqlx::query!(
+        "UPDATE fleet_activity SET has_left=true WHERE fleet_id=$1 AND has_left=false",
+        fleet_id
+    )
+    .execute(&mut *tx)
+    .await?;
 
     tx.commit().await?;
 
-    app.sse_client.submit(vec![Event::new_json(
-        "fleet",
-        "fleets",
-        "closed",
-    )])
-    .await?;
+    app.sse_client
+        .submit(vec![Event::new_json("fleet", "fleets", "closed")])
+        .await?;
 
-    app.sse_client.submit(vec![Event::new_json(
-        "waitlist",
-        "fleets_updated",
-        "fleet_deleted",
-    )])
-    .await?;
+    app.sse_client
+        .submit(vec![Event::new_json(
+            "waitlist",
+            "fleets_updated",
+            "fleet_deleted",
+        )])
+        .await?;
 
     Ok("Ok")
 }
@@ -88,7 +85,7 @@ async fn delete_fleet(
 async fn oh_shit(
     account: AuthenticatedAccount,
     app: &rocket::State<Application>,
-    fleet_id: i64
+    fleet_id: i64,
 ) -> Result<&'static str, Madness> {
     account.require_access("fleet-view")?;
 
@@ -111,11 +108,9 @@ async fn oh_shit(
     .fetch_all(app.get_db())
     .await?;
 
-    let fleet = sqlx::query!(
-        "SELECT boss_id FROM fleet WHERE id=$1", fleet_id
-    )
-    .fetch_one(app.get_db())
-    .await?;
+    let fleet = sqlx::query!("SELECT boss_id FROM fleet WHERE id=$1", fleet_id)
+        .fetch_one(app.get_db())
+        .await?;
 
     let mut max_esi_errors = 10;
     let mut invited_characters = Vec::new();
@@ -127,23 +122,23 @@ async fn oh_shit(
             continue;
         }
 
-        let res = app.esi_client
+        let res = app
+            .esi_client
             .post_204(
                 &format!("/v1/fleets/{}/members", fleet_id),
                 &Invite {
                     character_id: pilot.character_id,
-                    role: "squad_member"
+                    role: "squad_member",
                 },
                 fleet.boss_id,
-                ESIScope::Fleets_WriteFleet_v1
+                ESIScope::Fleets_WriteFleet_v1,
             )
             .await;
 
         if res.is_err() && max_esi_errors > 0 {
-            max_esi_errors =- 1;
+            max_esi_errors -= 1;
             continue;
-        }
-        else if res.is_err() && max_esi_errors == 0 {
+        } else if res.is_err() && max_esi_errors == 0 {
             break;
         }
 
@@ -151,45 +146,39 @@ async fn oh_shit(
         // we don't invite them to fleet a second time
         invited_characters.push(pilot.character_id);
 
-
         // Add the account to our notification list
-        if !accounts.contains_key(&pilot.account_id) {
-            accounts.insert(pilot.account_id, TypeDB::name_of(pilot.hull)?);
+        if let std::collections::hash_map::Entry::Vacant(e) = accounts.entry(pilot.account_id) {
+            e.insert(TypeDB::name_of(pilot.hull)?);
         }
     }
 
     for (account_id, hull_name) in accounts {
-        app.sse_client.submit(vec![Event::new(
-            &format!("account;{}", account_id),
-            "emergency",
-            hull_name
-        )])
-        .await?
+        app.sse_client
+            .submit(vec![Event::new(
+                &format!("account;{}", account_id),
+                "emergency",
+                hull_name,
+            )])
+            .await?
     }
 
     Ok("Ok")
 }
 
-
 #[post("/api/v2/fleets/<fleet_id>/actions/invite-all")]
 async fn invite_all(
     account: AuthenticatedAccount,
     app: &rocket::State<Application>,
-    fleet_id: i64
+    fleet_id: i64,
 ) -> Result<&'static str, Madness> {
     account.require_access("fleet-view")?;
 
-    let fleet = sqlx::query!(
-        "SELECT boss_id, max_size FROM fleet WHERE id=$1", fleet_id
-    )
-    .fetch_one(app.get_db())
-    .await?;
+    let fleet = sqlx::query!("SELECT boss_id, max_size FROM fleet WHERE id=$1", fleet_id)
+        .fetch_one(app.get_db())
+        .await?;
 
-    let fleet_members = crate::core::esi::fleet_members::get(
-        &app.esi_client,
-        fleet_id,
-        fleet.boss_id
-    ).await?;
+    let fleet_members =
+        crate::core::esi::fleet_members::get(&app.esi_client, fleet_id, fleet.boss_id).await?;
 
     let pilots = sqlx::query!(
         "
@@ -210,14 +199,13 @@ async fn invite_all(
         .fetch_one(app.get_db())
         .await?;
 
-
     let mut error_count = 10;
     let mut invite_count = fleet_members.len();
     let mut invited_characters: Vec<i64> = Vec::new();
 
     for pilot in pilots {
         if invited_characters.contains(&pilot.character_id.unwrap()) {
-            continue;   // Character has already been invited
+            continue; // Character has already been invited
         }
 
         if invite_count as i64 >= fleet.max_size {
@@ -226,16 +214,18 @@ async fn invite_all(
 
         let target_squad = match sqlx::query!(
             "SELECT category, wing_id, squad_id FROM fleet_squad WHERE fleet_id=$1 AND category=$2",
-            fleet_id, pilot.category
+            fleet_id,
+            pilot.category
         )
         .fetch_optional(app.get_db())
         .await?
         {
             Some(squad) => squad,
-            None => return Err(Madness::BadRequest(format!("Fleet not configured.")))
+            None => return Err(Madness::BadRequest("Fleet not configured.".to_string())),
         };
 
-        let esi_res = app.esi_client
+        let esi_res = app
+            .esi_client
             .post_204(
                 &format!("/v1/fleets/{}/members", fleet_id),
                 &SquadInvite {
@@ -245,14 +235,16 @@ async fn invite_all(
                     wing_id: target_squad.wing_id,
                 },
                 fleet.boss_id,
-                ESIScope::Fleets_WriteFleet_v1
+                ESIScope::Fleets_WriteFleet_v1,
             )
             .await;
 
         if esi_res.is_err() {
             error_count -= 1;
             if error_count <= 0 {
-                return Err(Madness::BadRequest(format!("ESI Error cap reached, please invite manually!")));
+                return Err(Madness::BadRequest(
+                    "ESI Error cap reached, please invite manually!".to_string(),
+                ));
             }
             continue;
         }
@@ -261,16 +253,16 @@ async fn invite_all(
         invited_characters.push(pilot.character_id.unwrap());
 
         app.sse_client
-        .submit(vec![Event::new(
-            &format!("account;{}", pilot.account_id.unwrap()),
-            "message",
-            format!(
-                "{} has invited your {} to fleet.",
-                fc.name,
-                TypeDB::name_of(pilot.hull.unwrap())?
-            ),
-        )])
-        .await?;
+            .submit(vec![Event::new(
+                &format!("account;{}", pilot.account_id.unwrap()),
+                "message",
+                format!(
+                    "{} has invited your {} to fleet.",
+                    fc.name,
+                    TypeDB::name_of(pilot.hull.unwrap())?
+                ),
+            )])
+            .await?;
     }
 
     let alts = sqlx::query!(
@@ -280,8 +272,8 @@ async fn invite_all(
     .await?;
 
     for alt in alts {
-        if invited_characters.contains(&alt.character_id.unwrap()) {
-            continue;   // Character has already been invited
+        if invited_characters.contains(&alt.character_id) {
+            continue; // Character has already been invited
         }
 
         if invite_count as i64 >= fleet.max_size {
@@ -296,20 +288,21 @@ async fn invite_all(
         .await?
         {
             Some(squad) => squad,
-            None => return Err(Madness::BadRequest(format!("Fleet not configured.")))
+            None => return Err(Madness::BadRequest("Fleet not configured.".to_string()))
         };
 
-        let esi_res = app.esi_client
+        let esi_res = app
+            .esi_client
             .post_204(
                 &format!("/v1/fleets/{}/members", fleet_id),
                 &SquadInvite {
-                    character_id: alt.character_id.unwrap(),
+                    character_id: alt.character_id,
                     role: "squad_member",
                     squad_id: target_squad.squad_id,
                     wing_id: target_squad.wing_id,
                 },
                 fleet.boss_id,
-                ESIScope::Fleets_WriteFleet_v1
+                ESIScope::Fleets_WriteFleet_v1,
             )
             .await;
 
@@ -317,26 +310,28 @@ async fn invite_all(
             error_count -= 1;
 
             if error_count <= 0 {
-                return Err(Madness::BadRequest(format!("ESI Error cap reached, please invite manually!")));
+                return Err(Madness::BadRequest(
+                    "ESI Error cap reached, please invite manually!".to_string(),
+                ));
             }
 
             continue;
         }
 
         invite_count += 1;
-        invited_characters.push(alt.character_id.unwrap());
+        invited_characters.push(alt.character_id);
 
         app.sse_client
-        .submit(vec![Event::new(
-            &format!("account;{}", alt.account_id.unwrap()),
-            "message",
-            format!(
-                "{} has invited your {} to fleet.",
-                fc.name,
-                TypeDB::name_of(alt.hull.unwrap())?
-            ),
-        )])
-        .await?;
+            .submit(vec![Event::new(
+                &format!("account;{}", alt.account_id),
+                "message",
+                format!(
+                    "{} has invited your {} to fleet.",
+                    fc.name,
+                    TypeDB::name_of(alt.hull)?
+                ),
+            )])
+            .await?;
     }
 
     Ok("Ok")
@@ -344,8 +339,8 @@ async fn invite_all(
 
 pub fn routes() -> Vec<rocket::Route> {
     routes![
-        delete_fleet,   //  POST    /api/v2/fleets/<fleet_id>
-        invite_all,     //  POST    /api/v2/fleets/<fleet_id>/actions/invite-all
-        oh_shit,        //  POST    /api/v2/fleets/<fleet_id>/actions/oh-shit
+        delete_fleet, //  POST    /api/v2/fleets/<fleet_id>
+        invite_all,   //  POST    /api/v2/fleets/<fleet_id>/actions/invite-all
+        oh_shit,      //  POST    /api/v2/fleets/<fleet_id>/actions/oh-shit
     ]
 }

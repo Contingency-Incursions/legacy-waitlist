@@ -65,21 +65,21 @@ const CharacterSkills = ({ mastery, selectedHull, skills, hidePlans = false }) =
     const skill = {
       id: Number(skillId),
       // eslint-disable-next-line eqeqeq
-      name: Object.keys(ids)?.find(key => ids[key] == skillId) ?? "Unknown Skill",
+      name: Object.keys(ids)?.find((key) => ids[key] === parseInt(skillId)) ?? "Unknown Skill",
     };
 
     // Map the skill to the correct category
-    let category = Object.keys(categories)?.find(cat =>  categories[cat].includes(skill.id));
+    let category = Object.keys(categories)?.find((cat) => categories[cat].includes(skill.id));
 
     if (!skillGroups[category]) {
       skillGroups[category] = [];
     }
-    skillGroups[category].push(skill)
+    skillGroups[category].push(skill);
   });
 
   return (
     <>
-      { !hidePlans && (
+      {!hidePlans && (
         <SkillWrapper>
           <CopyToSkillplan
             current={current}
@@ -90,27 +90,31 @@ const CharacterSkills = ({ mastery, selectedHull, skills, hidePlans = false }) =
         </SkillWrapper>
       )}
       <SkillSheet>
-        { Object.keys(skillGroups).sort().map((category, key) => {
-          const skills = skillGroups[category];
+        {Object.keys(skillGroups)
+          .sort()
+          .map((category, key) => {
+            const skills = skillGroups[category];
 
-          return (
-            <SkillCategory key={key}>
-              <h3>{category}</h3>
-              { skills.sort((a, b) => a.name.localeCompare(b.name)).map((skill, key) => (
-                <SkillRow
-                  key={key}
-                  {...skill}
-                  current={current[skill.id]}
-                  mastery={mastery}
-                  requirements={requirements[skill.id]}
-                />
-              ))}
-            </SkillCategory>
-          )
-        })}
+            return (
+              <SkillCategory key={key}>
+                <h3>{category}</h3>
+                {skills
+                  .sort((a, b) => a.name.localeCompare(b.name))
+                  .map((skill, key) => (
+                    <SkillRow
+                      key={key}
+                      {...skill}
+                      current={current[skill.id]}
+                      mastery={mastery}
+                      requirements={requirements[skill.id]}
+                    />
+                  ))}
+              </SkillCategory>
+            );
+          })}
       </SkillSheet>
     </>
-  )
-}
+  );
+};
 
 export default CharacterSkills;

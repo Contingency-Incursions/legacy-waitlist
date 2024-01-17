@@ -10,7 +10,7 @@ const FleetBoss = ({ fleetBoss = {}, fleetId, fleetSystem, error_count }) => {
   const authContext = useContext(AuthContext);
   const toastContext = useContext(ToastContext);
 
-  const [ pending, isPending ] = useState(false);
+  const [pending, isPending] = useState(false);
 
   const handleClick = () => {
     if (pending) {
@@ -21,39 +21,43 @@ const FleetBoss = ({ fleetBoss = {}, fleetId, fleetSystem, error_count }) => {
     errorToaster(
       toastContext,
       apiCall(`/api/v2/fleets/${fleetId}/boss`, {
-        method: 'POST',
+        method: "POST",
         json: {
-          fleet_boss: authContext.current.id
-        }
-      })
-      .finally(() => isPending(false))
+          fleet_boss: authContext.current.id,
+        },
+      }).finally(() => isPending(false))
     );
-  }
+  };
 
   return (
     <Card>
       <div>
         <Feature>
-          <img src={`https://images.evetech.net/characters/${fleetBoss?.id ?? 1}/portrait?size=64`} alt='Fleet Boss' />
+          <img
+            src={`https://images.evetech.net/characters/${fleetBoss?.id ?? 1}/portrait?size=64`}
+            alt="Fleet Boss"
+          />
         </Feature>
         <Details>
           <p>Fleet Boss</p>
           <div>
-            {(!error_count || error_count < 10) && (<CharacterName
-              id={fleetBoss.id ?? 1}
-              avatar={false}
-              name={fleetBoss.name ?? ''}
-              noLink={!fleetBoss.id}
-            />)}
-            {(error_count !== undefined && error_count >= 10) && (
-                <p>Fleet error, please reset boss</p>
+            {(!error_count || error_count < 10) && (
+              <CharacterName
+                id={fleetBoss.id ?? 1}
+                avatar={false}
+                name={fleetBoss.name ?? ""}
+                noLink={!fleetBoss.id}
+              />
+            )}
+            {error_count !== undefined && error_count >= 10 && (
+              <p>Fleet error, please reset boss</p>
             )}
             <Button onClick={handleClick} />
           </div>
         </Details>
       </div>
     </Card>
-  )
-}
+  );
+};
 
 export default FleetBoss;

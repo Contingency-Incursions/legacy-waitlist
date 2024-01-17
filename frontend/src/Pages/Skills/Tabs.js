@@ -31,10 +31,10 @@ const ShipsContainer = styled.div`
     }
 
     img:last-of-type {
-
     }
 
-    &:hover, &.active {
+    &:hover,
+    &.active {
       cursor: pointer;
 
       img:first-of-type {
@@ -45,7 +45,7 @@ const ShipsContainer = styled.div`
 `;
 
 const Tabs = ({ selectedHull, ships }) => {
-  const [ data ] = useApi(`/api/module/preload`);
+  const [data] = useApi(`/api/module/preload`);
   const queryParams = new URLSearchParams(useLocation().search);
   const navigate = useNavigate();
 
@@ -62,48 +62,52 @@ const Tabs = ({ selectedHull, ships }) => {
     }
 
     return 0;
-  }
+  };
 
   const onClick = (hull) => {
     queryParams.set("hull", hull);
     navigate({
-      search: queryParams.toString()
-    })
-  }
+      search: queryParams.toString(),
+    });
+  };
 
-  const orderedShips = useMemo(
-    () => {
-      const sort_order = [
-        'Megathron',
-        'Vindicator',
-        'Kronos',
-        'Apocalypse Navy Issue',
-        'Nightmare',
-        'Paladin',
-        'Oneiros',
-        'Nestor',
-        'Eos',
-        'Damnation'
-      ];
+  const orderedShips = useMemo(() => {
+    const sort_order = [
+      "Megathron",
+      "Vindicator",
+      "Kronos",
+      "Apocalypse Navy Issue",
+      "Nightmare",
+      "Paladin",
+      "Oneiros",
+      "Nestor",
+      "Eos",
+      "Damnation",
+    ];
 
-      var keys = Object.keys(ships ?? {});
-      keys = keys.filter((k) => !k.startsWith('_') && !k.startsWith('Loki'));
-      keys = keys.sort((a,b) => sort_order.indexOf(a) - sort_order.indexOf(b))
-      return keys;
-    },
-    [ships]
-  );
+    var keys = Object.keys(ships ?? {});
+    keys = keys.filter((k) => !k.startsWith("_") && !k.startsWith("Loki"));
+    keys = keys.sort((a, b) => sort_order.indexOf(a) - sort_order.indexOf(b));
+    return keys;
+  }, [ships]);
 
   return ships ? (
     <ShipsContainer>
-      { orderedShips.map((ship, key) => (
-        <div className={selectedHull === ship ? 'active' : null} key={key} onClick={e => onClick(ship)}>
-          <img src={`https://images.evetech.net/types/${getShipId(ship)}/icon?size=64`} alt={ship} />
+      {orderedShips.map((ship, key) => (
+        <div
+          className={selectedHull === ship ? "active" : null}
+          key={key}
+          onClick={(e) => onClick(ship)}
+        >
+          <img
+            src={`https://images.evetech.net/types/${getShipId(ship)}/icon?size=64`}
+            alt={ship}
+          />
           {ship}
         </div>
       ))}
     </ShipsContainer>
-  ) : null
-}
+  ) : null;
+};
 
 export default Tabs;

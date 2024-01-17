@@ -19,7 +19,7 @@ pub struct Hull {
 pub struct WaitlistCategory {
     pub id: String,
     pub name: String,
-    pub auto_detect_names: Option<Vec<String>>
+    pub auto_detect_names: Option<Vec<String>>,
 }
 
 #[derive(Serialize, Debug, Clone)]
@@ -41,9 +41,9 @@ pub struct Entity {
 }
 
 #[derive(Clone, Debug, Serialize)]
-pub struct  System {
+pub struct System {
     pub id: i64,
-    pub name: String
+    pub name: String,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]

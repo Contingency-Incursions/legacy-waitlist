@@ -22,8 +22,6 @@ const FitCardDOM = styled.div`
   margin-bottom: 5px;
   margin-right: 5px;
 
-
-
   div.grey {
     background: ${(props) => props.theme.colors.accent1};
     border-radius: 0px 0px 10px 10px;
@@ -117,129 +115,138 @@ const BadgeContainerDOM = styled.div`
 
 const FitState = ({ state, review_comment }) => {
   switch (state) {
-    case 'approved':
-      return 'success';
+    case "approved":
+      return "success";
 
-    case 'rejected':
-      return 'danger';
+    case "rejected":
+      return "danger";
 
     default:
-      return 'warning';
+      return "warning";
   }
-}
+};
 
-const IMAGE_SERVER_URL = 'https://images.evetech.net/';
+const IMAGE_SERVER_URL = "https://images.evetech.net/";
 
 const FitCard = ({ fit, bossId, tab, inviteCounts, onInvite, max_alts }) => {
   const [skills] = useApi(`/api/skills?character_id=${fit.character.id}`);
   const BadgeContainer = ({ tags }) => {
-    const badges = [
-      'BASTION',
-      'WEB',
-      'WEB-ASPERIANT',
-      'ELITE',
-      'ELITE-GOLD'
-    ];
+    const badges = ["BASTION", "WEB", "WEB-ASPERIANT", "ELITE", "ELITE-GOLD"];
 
-    const tag = tags?.find(t => badges.includes(t));
+    const tag = tags?.find((t) => badges.includes(t));
 
-    return (
-      <BadgeContainerDOM>
-        {tag ? <BadgeIcon type={tag} /> : null}
-      </BadgeContainerDOM>
-    )
-  }
+    return <BadgeContainerDOM>{tag ? <BadgeIcon type={tag} /> : null}</BadgeContainerDOM>;
+  };
   const ImageContainer = ({ character, hull, skills }) => {
-    const [ open, setOpen ] = useState(false);
+    const [open, setOpen] = useState(false);
     return (
       <ImageContainerDOM>
         <img
-          className='hull'
-          src={ IMAGE_SERVER_URL + `types/${hull?.id ?? 1}/icon?size=128` }
-          alt={character?.name ?? 'Unknown Pilot'}
-          onClick={_ => setOpen(true)}
+          className="hull"
+          src={IMAGE_SERVER_URL + `types/${hull?.id ?? 1}/icon?size=128`}
+          alt={character?.name ?? "Unknown Pilot"}
+          onClick={(_) => setOpen(true)}
         />
         <img
-          className='character'
-          src={ IMAGE_SERVER_URL + `characters/${character?.id ?? 1}/portrait?size=64`}
-          alt={character?.name ?? 'Unknown Pilot'}
-          onClick={_ => setOpen(true)}
+          className="character"
+          src={IMAGE_SERVER_URL + `characters/${character?.id ?? 1}/portrait?size=64`}
+          alt={character?.name ?? "Unknown Pilot"}
+          onClick={(_) => setOpen(true)}
         />
         <FitModal fit={fit} open={open} setOpen={setOpen} skills={skills} />
       </ImageContainerDOM>
-    )
-  }
+    );
+  };
 
-  const ContentContainer = ({ character, fit_analysis, id, tags, bossId, inviteCounts, onInvite, skills, max_alts }) => {
+  const ContentContainer = ({
+    character,
+    fit_analysis,
+    id,
+    tags,
+    bossId,
+    inviteCounts,
+    onInvite,
+    skills,
+    max_alts,
+  }) => {
     const ALLOWED_TAGS = [
-      'NO-EM-806',
-      'SLOW',
-      'STARTER',
-      'UPGRADE-HOURS-REACHED',
-      'ELITE-HOURS-REACHED',
+      "NO-EM-806",
+      "SLOW",
+      "STARTER",
+      "UPGRADE-HOURS-REACHED",
+      "ELITE-HOURS-REACHED",
       "AT-WAR",
       "FACTION-WAR",
-      'NON-DOCTRINE',
-      'BOXER'
+      "NON-DOCTRINE",
+      "BOXER",
     ];
 
-    tags = tags.filter(tag => ALLOWED_TAGS.includes(tag));
-    if(fit?.is_alt){
-      tags.push('ALT');
+    tags = tags.filter((tag) => ALLOWED_TAGS.includes(tag));
+    if (fit?.is_alt) {
+      tags.push("ALT");
     }
 
     return (
       <ContentContainerDOM>
         <div className="names">
           <div>
-            <p>{character?.name ?? 'Unknown'} {tags.includes('BOXER') && max_alts && `+ ${max_alts}`}</p>
+            <p>
+              {character?.name ?? "Unknown"} {tags.includes("BOXER") && max_alts && `+ ${max_alts}`}
+            </p>
             <p>{fit_analysis?.name}</p>
           </div>
           <BadgeContainer tags={fit?.tags} />
         </div>
         <div className="buttons">
-          <p>
-            { tags?.join(', ')}
-          </p>
+          <p>{tags?.join(", ")}</p>
 
           <RemoveFit fitId={id} />
           <ShowInfo {...character} />
           <ViewSkills character={character} hull={fit?.hull.name} skills={skills} />
           <ViewProfile {...character} />
           <MessagePilot fitId={id} />
-          <RejectFit fitId={id} isRejected={fit.state === 'rejected'} />
-          {fit.state !== 'approved' && (
-            <ApproveFit fitId={id} />
+          <RejectFit fitId={id} isRejected={fit.state === "rejected"} />
+          {fit.state !== "approved" && <ApproveFit fitId={id} />}
+          {fit.state === "approved" && (
+            <Invite
+              fitId={id}
+              bossId={bossId}
+              isRejected={fit.state === "rejected"}
+              inviteCounts={inviteCounts}
+              onInvite={onInvite}
+            />
           )}
-          {fit.state === 'approved' && (
-            <Invite fitId={id} bossId={bossId} isRejected={fit.state === 'rejected'} inviteCounts={inviteCounts} onInvite={onInvite} />
-          )}
-
         </div>
       </ContentContainerDOM>
-    )
-  }
+    );
+  };
 
   let show = useMemo(() => {
-    if(!fit) return false;
-    if(tab == 'All'){
+    if (!fit) return false;
+    if (tab === "All") {
       return true;
     }
-    if(tab == 'Alts') {
+    if (tab === "Alts") {
       return fit.is_alt === true;
     } else {
       return fit.category === tab;
     }
-  },
-  [fit, tab])
+  }, [fit, tab]);
 
   return (
-    <FitCardDOM variant={FitState(fit)} style={{ display: show ? 'flex' : 'none'}}>
+    <FitCardDOM variant={FitState(fit)} style={{ display: show ? "flex" : "none" }}>
       <ImageContainer character={fit?.character} hull={fit.hull} skills={skills} />
-      <ContentContainer {...fit} bossId={bossId} inviteCounts={inviteCounts} onInvite={onInvite} skills={skills} max_alts={max_alts} />
-      <div className='grey' />
+      <ContentContainer
+        {...fit}
+        bossId={bossId}
+        inviteCounts={inviteCounts}
+        onInvite={onInvite}
+        skills={skills}
+        max_alts={max_alts}
+      />
+      <div className="grey" />
     </FitCardDOM>
-  )
-}
+  );
+};
 
 export default FitCard;

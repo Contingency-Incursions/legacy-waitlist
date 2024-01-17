@@ -5,7 +5,7 @@
 categories:
   - id: logi
     name: Logistics
-    auto_detect_names: 
+    auto_detect_names:
     - Logi
     - Logistics
   - id: cqc
