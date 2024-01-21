@@ -98,10 +98,9 @@ const ValidateFit = ({ alt, fits, max_alts, callback, setAlt, setFits, setMaxAlt
     setMaxAlts(main.boxer_alts);
   }, [setMaxAlts, authContext])
 
-
   return (
     <>
-      <H2>{!fits ? "Join" : "Update fits on"} the Waitlist</H2>
+      <H2>Submit fit</H2>
 
       <form onSubmit={handleFitValidation}>
         <FormGroup>

@@ -204,7 +204,7 @@ export function Waitlist() {
 
   var myEntry = _.find(
     waitlistData.waitlist,
-    (entry) => entry.character && entry.character.id === authContext.account_id
+    (entry) => entry.character && authContext.characters.map(c => c.id).includes(entry.character.id)
   );
 
   const UsersOnWaitlist = ({ open, waitlist }) => {
