@@ -3,6 +3,7 @@ import ClearWaitlist from "./Buttons/ClearWaitlist";
 import InviteAll from "./Buttons/InviteAll";
 // import OhShit from "./Buttons/OhShit";
 import styled from "styled-components";
+import ReconfigureFleetBtn from "./Buttons/Reconfigure";
 
 const ButtonsDOM = styled.div`
   box-sizing: border-box;
@@ -27,6 +28,7 @@ const FleetButtons = ({ fleetId }) => {
   return (
     <ButtonsDOM>
       <InviteAll fleetId={fleetId} />
+      <ReconfigureFleetBtn fleetId={fleetId} />
       {/* <OhShit fleetId={fleetId} /> */}
       <ClearWaitlist fleetId={fleetId} />
       <CloseFleet fleetId={fleetId} />

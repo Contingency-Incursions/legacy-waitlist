@@ -81,6 +81,7 @@ const Tabs = ({ selectedHull, ships }) => {
         'Nightmare',
         'Paladin',
         'Oneiros',
+        'Loki',
         'Nestor',
         'Eos',
         'Damnation'
