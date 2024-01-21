@@ -117,6 +117,13 @@ const BadgesPage = () => {
       selector: (row) => <BadgeIcon type={row.badge.name} height="1.8em" />,
     },
     {
+      name: 'Assignment Type',
+      sortable: false,
+      hide: "md",
+      grow: 2,
+      selector: (row) => row.badge.grant_type,
+    },
+    {
       name: "Granted By",
       sortable: true,
       sortFunction: (rowA, rowB) => special_sort(rowA.granted_by, rowB.granted_by),

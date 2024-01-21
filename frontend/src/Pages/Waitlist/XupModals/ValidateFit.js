@@ -88,9 +88,9 @@ const ValidateFit = ({ alt, fits, max_alts, callback, setAlt, setFits, setMaxAlt
     );
   }
 
+
   const is_boxer = useMemo(() => {
-    const main = authContext.characters.find((e) => e.main);
-    return main.badges.includes('BOXER');
+    return authContext.account_badges.includes('BOXER');
   }, [authContext])
 
   useEffect(() => {
