@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { apiCall, errorToaster } from "../../../api";
 import { ToastContext } from "../../../contexts";
 
@@ -21,6 +21,7 @@ const P = styled.p`
 
 const AddBadge = ({ badgeOptions = [], isOpen, setOpen, refreshFunction }) => {
   const [badgeId, setBadgeId] = React.useState(undefined);
+  const [shipId, setShipId] = useState(undefined);
   const [characterId, setCharacterId] = React.useState(undefined);
   const toastContext = React.useContext(ToastContext);
   const [_reset, resetSearch] = React.useState(0);
@@ -40,7 +41,7 @@ const AddBadge = ({ badgeOptions = [], isOpen, setOpen, refreshFunction }) => {
       toastContext,
       apiCall(`/api/badges/${badgeId}/members`, {
         method: "POST",
-        json: { id: parseInt(characterId) },
+        json: { id: parseInt(characterId), ship_id: shipId },
       }).then(() => {
         refreshFunction();
       })
@@ -57,6 +58,15 @@ const AddBadge = ({ badgeOptions = [], isOpen, setOpen, refreshFunction }) => {
       setBadgeId(badgeOptions[0].id);
     }
   }, [badgeOptions, badgeId]);
+
+  const ship_restrictions = useMemo(() => {
+    if (badgeId && badgeOptions && badgeOptions.length > 0) {
+      return badgeOptions.find(o => o.id == badgeId).ship_types
+    } else {
+      setShipId(undefined);
+      return [];
+    }
+  }, [badgeOptions, badgeId, setShipId])
 
   return (
     <Modal open={isOpen} setOpen={setOpen}>
@@ -96,6 +106,31 @@ const AddBadge = ({ badgeOptions = [], isOpen, setOpen, refreshFunction }) => {
               })}
             </Select>
           </FormGroup>
+
+          {ship_restrictions.length > 0 && (
+                      <FormGroup>
+                      <Label htmlFor="ship-select" required>
+                        Select ship type:
+                      </Label>
+                      <Select
+                        id="ship-select"
+                        value={shipId}
+                        onChange={(e) => setShipId(e.target.value)}
+                        style={{ width: "100%", appearance: "auto" }}
+                        required
+                      >
+                        {ship_restrictions?.map((ship, key) => {
+                          return (
+                            <option value={ship.id} key={key}>
+                              {ship.name}
+                            </option>
+                          );
+                        })}
+                      </Select>
+                    </FormGroup>
+          )}
+
+          
 
           <Button variant="success">Confirm</Button>
         </form>

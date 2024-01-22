@@ -124,6 +124,13 @@ const BadgesPage = () => {
       selector: (row) => row.badge.grant_type,
     },
     {
+      name: 'Ship Type',
+      sortable: false,
+      hide: 'md',
+      grow: 2,
+      selector: (row) => row.ship?.name
+    },
+    {
       name: "Granted By",
       sortable: true,
       sortFunction: (rowA, rowB) => special_sort(rowA.granted_by, rowB.granted_by),
