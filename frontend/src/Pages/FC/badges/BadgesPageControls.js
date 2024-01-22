@@ -68,6 +68,12 @@ const AddBadge = ({ badgeOptions = [], isOpen, setOpen, refreshFunction }) => {
     }
   }, [badgeOptions, badgeId, setShipId])
 
+  useEffect(() => {
+    if(ship_restrictions !== undefined && ship_restrictions.length > 0){
+      setShipId(ship_restrictions[0].id)
+    }
+  }, [ship_restrictions, setShipId])
+
   return (
     <Modal open={isOpen} setOpen={setOpen}>
       <Box style={{ overflowY: "hidden" }}>
