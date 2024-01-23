@@ -22,17 +22,30 @@ const Payouts = ({ fleetId }) => {
   useEffect(() => {
     if (!eventContext) return;
 
-    const sub = eventContext.subscriptions.create({ channel: 'FleetChannel' }, {
-      received(data) {
-        // refresh(data);
-        refreshPilots(data);
+    const comp_updated = (e) => {
+      let data = e.data;
+      if (data.id === fleetId) {
+        refreshPilots();
       }
-    })
+    }
+
+    let sub = null;
+
+    if(fleetId){
+      sub = eventContext.subscriptions.create({channel: 'FcChannel'}, {
+        received(data){
+          comp_updated(data);
+        }
+      })
+    }
+
 
     return () => {
-      sub.unsubscribe();
+      if(sub !== null){
+        sub.unsubscribe();
+      }
     }
-  }, [refreshPilots, eventContext])
+  }, [eventContext, fleetId, refreshPilots])
 
   let characters = useMemo(() => {
     let _characters = []
