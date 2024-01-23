@@ -50,7 +50,7 @@ const Payouts = ({ fleetId }) => {
   let characters = useMemo(() => {
     let _characters = []
     if (pilots !== null) {
-      _characters = pilots;
+      _characters = pilots.filter(p => p.characters.length > 1);
     }
     _characters = _characters.sort((a, b) => {
       if (a.characters.length > b.characters.length) return -1;
@@ -64,7 +64,7 @@ const Payouts = ({ fleetId }) => {
   return (
     <div>
       <strong>
-        Fleet Payouts
+        Fleet Multibox Payouts
       </strong>
       <PilotContainerDom>
         {characters.map((pilot, key) => {
