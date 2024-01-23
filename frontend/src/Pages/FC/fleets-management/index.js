@@ -7,6 +7,7 @@ import { FireNotificationApi } from '../../../Components/Event';
 import FleetSettings from './Settings';
 import FleetComps from './FleetComps';
 import Waitlist from './Waitlist';
+import Payouts from './Payouts';
 import { EventContext } from '../../../contexts';
 
 const FleetsManagementPage = () => {
@@ -49,6 +50,7 @@ const FleetsManagementPage = () => {
     <>
       <FleetSettings fleetId={url?.fleetId} xups={xup?.waitlist} settings={settings} settingsRefresh={settingsRefresh} />
       <FleetComps fleetId={url?.fleetId} />
+      <Payouts fleetId={url?.fleetId} />
       <Waitlist xup={xup} settings={settings} />
     </>
   )

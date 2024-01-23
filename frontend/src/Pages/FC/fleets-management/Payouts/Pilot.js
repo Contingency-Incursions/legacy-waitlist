@@ -1,24 +1,13 @@
-import { useContext, useMemo } from "react";
+import { useContext } from "react";
 import { AuthContext, ToastContext } from "../../../../contexts";
-import { apiCall, errorToaster } from "../../../../api";
-import BadgeIcon, {Badge} from "../../../../Components/Badge";
+import { Badge } from "../../../../Components/Badge";
+import styled from "styled-components";
 import { Button as BaseButton } from "../../../../Components/Form";
-import { CharacterName } from "../../../../Components/EntityLinks";
+import { apiCall, errorToaster } from "../../../../api";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faExternalLinkAlt } from "@fortawesome/free-solid-svg-icons";
-import styled from "styled-components";
 
-const Button = styled(BaseButton)`
-  font-size: 12px;
-  padding: 0px;
-  margin-left: 10px;
-  height: 25px;
-  width: 25px;
-  position: absolute;
-  right: 5px;
-`;
-
-const ShipDOM = styled.div`
+const PilotDOM = styled.div`
   position: relative;
   text-align: center;
   width: 65px;
@@ -75,7 +64,7 @@ const ShipDOM = styled.div`
   }
 `;
 
-const ShipDropdownDOM = styled.div`
+const PilotDropdownDOM = styled.div`
   position: relative;
 
   transition: ease-in-out 0.3s;
@@ -106,7 +95,41 @@ const ShipDropdownDOM = styled.div`
   }
 `
 
+const A = styled.a`
+  color: ${(props) => props.theme.colors.highlight.text};
+  text-decoration: none;
+  &:hover {
+    cursor: pointer;
+    color: ${(props) => props.theme.colors.highlight.active};
+    transition: ease-in-out 0.15s;
+  }
+  padding-right: 5px;
 
+  & + svg {
+    margin-left: 5px;
+    font-size: small;
+  }
+`;
+
+const Button = styled(BaseButton)`
+  font-size: 12px;
+  padding: 0px;
+  margin-left: 10px;
+  height: 25px;
+  width: 25px;
+  position: absolute;
+  right: 5px;
+`;
+
+const Avatar = styled.img`
+  border-radius: 25%;
+  margin-right: 10px;
+  vertical-align: middle;
+
+  @media (max-width: 450px) {
+    display: none;
+  }
+`;
 
 const ShowInfo = (id, whoami, toastContext) => {
   errorToaster(
@@ -121,55 +144,28 @@ const ShowInfo = (id, whoami, toastContext) => {
   );
 };
 
-const BadgeDisplay = ({ship, badges}) => {
-  let type = useMemo(() => {
-    if(badges === null) {
-      return '';
-    }
-    if(ship === 33472){
-      if(badges.includes('LOGI')) {
-        return 'LOGI';
-      }
-      if(badges.includes('RETIRED-LOGI')){
-        return 'RETIRED-LOGI';
-      }
-    }
-    if((ship === 28661 || ship === 28659) && badges.includes('BASTION')){
-      return 'BASTION';
-    }
-    if(ship === 17740 && badges.includes('WEB')){
-      return 'WEB'
-    }
-    return ''
-  }, [ship, badges])
-
-  return (
-    (type == '') ? (<></>) : (<BadgeIcon type={type} height={'1em'} />)
-  )
-}
-
-const Ship = ({ characters = [], name, typeId }) => {
+const Pilot = ({ character }) => {
   const authContext = useContext(AuthContext);
   const toastContext = useContext(ToastContext);
 
   return (
-    <ShipDropdownDOM>
-      <ShipDOM className={[670, 33328].includes(typeId) ? "capsule" : ""}>
-        <img src={`https://images.evetech.net/types/${typeId}/render`} alt={name} />
-        <span className="count">{characters?.length}</span>
-        <span className="name">{name}</span>
-      </ShipDOM>
+    <PilotDropdownDOM>
+      <PilotDOM>
+        <img src={`https://images.evetech.net/characters/${character?.main.id}/portrait?size=64`} loading="lazy" alt={character?.main.name} />
+        <span className="count">{character?.characters.length}</span>
+        <span className="name">{character?.main.name}</span>
+      </PilotDOM>
 
       <div className="dropdown-child">
-        { characters?.map((pilot, key) => {
+        {character?.characters.map((pilot, key) => {
           return (
             <div key={key}>
-              <CharacterName {...pilot} />
+              <Avatar src={`https://images.evetech.net/types/${pilot.hull.id}/render?size=32`} loading="lazy" alt={pilot.hull.name} />
+              <A href={`/fc/search?query=${pilot.character.name}`}>{pilot.character.name}</A>
               <span>
                 {pilot.is_alt && (
-                   <Badge variant="danger">ALT</Badge>
+                  <Badge variant="danger">ALT</Badge>
                 )}
-                <BadgeDisplay ship={typeId} badges={pilot.badges} />
               </span>
               <Button variant="primary" onClick={() => ShowInfo(pilot.id, authContext.current, toastContext)}>
                 <FontAwesomeIcon fixedWidth icon={faExternalLinkAlt} />
@@ -178,8 +174,8 @@ const Ship = ({ characters = [], name, typeId }) => {
           )
         })}
       </div>
-    </ShipDropdownDOM>
+    </PilotDropdownDOM>
   );
 }
 
-export default Ship;
+export default Pilot;
