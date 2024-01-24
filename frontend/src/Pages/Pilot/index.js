@@ -29,6 +29,10 @@ const ControlButtons = styled.div`
   border: solid 3px ${(props) => props.theme.colors.secondary.accent};
   border-radius: 5px;
 
+  :has(.buttons:empty){
+    display: none;
+  }
+
   div:first-of-type {
     background: ${(props) => props.theme.colors.secondary.accent};
     padding: 10px;
@@ -256,7 +260,7 @@ function PilotDisplay({ authContext }) {
         <Col xs={4} md={2}>
           <ControlButtons>
             <div>Account Actions</div>
-            <div>
+            <div className={'buttons'}>
               {(authContext.characters.map(c => c.id).includes(characterId) && (
                 <UnlinkChar character_id={characterId} />
               ))}
