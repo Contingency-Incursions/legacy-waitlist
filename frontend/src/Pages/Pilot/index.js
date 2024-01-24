@@ -21,6 +21,7 @@ import { Title, Content } from "../../Components/Page";
 import { PilotHistory } from "./PilotHistory";
 import { Row, Col } from "react-awesome-styled-grid";
 import _ from "lodash";
+import UnlinkChar from "./UnlinkChar";
 
 const ControlButtons = styled.div`
   margin-top: 35px;
@@ -160,8 +161,8 @@ function PilotDisplay({ authContext }) {
     authContext.access["notes-view"] ? `/api/notes?character_id=${characterId}` : null
   );
 
-  usePageTitle("Pilot");
 
+  usePageTitle("Pilot");
   return (
     <>
       {authContext.access["bans-manage"] && <AccountBannedBanner bans={banHistory} />}
@@ -253,20 +254,27 @@ function PilotDisplay({ authContext }) {
           />
         </Col>
         <Col xs={4} md={2}>
-          {(authContext?.access['waitlist-tag:TRAINEE'] || authContext?.access['wiki-editor']) && authContext.current.id === characterId && (
-            <ControlButtons>
-              <div>Account Actions</div>
-              <div>
-                { authContext?.access['waitlist-tag:TRAINEE'] && (
-                  <NavButton to="/auth/start/fc" style={{ textAlign: 'center' }}>
-                    <span style={{ marginRight: '10px' }}>Add ESI Scopes</span>
-                    <FontAwesomeIcon fixedWidth icon={faExternalLinkAlt} />
-                  </NavButton>
-                )}
-                <WikiPassword />
-              </div>
-            </ControlButtons>
-          )}
+          <ControlButtons>
+            <div>Account Actions</div>
+            <div>
+              {(authContext.characters.map(c => c.id).includes(characterId) && (
+                <UnlinkChar character_id={characterId} />
+              ))}
+            
+              {(authContext?.access['waitlist-tag:TRAINEE'] || authContext?.access['wiki-editor']) && authContext.current.id === characterId && (
+                <>
+                  {authContext?.access['waitlist-tag:TRAINEE'] && (
+                    <NavButton to="/auth/start/fc" style={{ textAlign: 'center' }}>
+                      <span style={{ marginRight: '10px' }}>Add ESI Scopes</span>
+                      <FontAwesomeIcon fixedWidth icon={faExternalLinkAlt} />
+                    </NavButton>
+                  )}
+                  <WikiPassword />
+                </>
+              )}
+            </div>
+          </ControlButtons>
+
 
           <Title>Time in fleet</Title>
           <ActivitySummary summary={fleetHistory && fleetHistory.summary} />

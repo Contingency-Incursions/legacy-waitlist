@@ -24,7 +24,7 @@ const Payouts = ({ fleetId }) => {
 
     const comp_updated = (e) => {
       let data = e.data;
-      if (data.id === fleetId) {
+      if (data.id == fleetId) {
         refreshPilots();
       }
     }
