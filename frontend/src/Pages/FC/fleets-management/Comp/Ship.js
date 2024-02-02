@@ -140,6 +140,12 @@ const BadgeDisplay = ({ship, badges}) => {
     if(ship === 17740 && badges.includes('WEB')){
       return 'WEB'
     }
+    if(badges.includes('ELITE-GOLD')){
+      return 'ELITE-GOLD';
+    }
+    if(badges.includes('ELITE')){
+      return 'ELITE';
+    }
     return ''
   }, [ship, badges])
 
