@@ -7,7 +7,7 @@ import { faPaste } from "@fortawesome/free-solid-svg-icons";
 import { ToastContext } from "../contexts";
 import { Badge } from "./Badge";
 
-const slotOrder = ["high", "med", "low", "rig", "other", "drone", "cargo"];
+const slotOrder = ["high", "med", "low", "rig", "other", "drone", 'subsystem', "cargo"];
 
 var modulePreload = null;
 var moduleCache = {};
@@ -187,6 +187,7 @@ function extractAnalysisIds(analysis) {
 }
 
 function getSlot(moduleId, moduleInfo) {
+
   if (moduleId.endsWith("_")) return "cargo";
   const thisModule = moduleInfo[parseInt(moduleId)] || {};
   if (thisModule.slot) return thisModule.slot;

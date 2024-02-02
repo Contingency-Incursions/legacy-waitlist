@@ -235,7 +235,7 @@ function ShipDisplay({ fit, id, note }) {
               <p>{fit.name}</p>
               <FitCard.Content.Badges>
                 {note ? <FontAwesomeIcon icon={faExclamationCircle} /> : null}
-                {fit.name.toLowerCase().indexOf("hybrid") !== -1 ? (
+                {fit.name.toLowerCase().indexOf("amulet") !== -1 ? (
                   <Shield color="red" letter="H" title="Requires Amulet + WS-618 Clone" />
                 ) : fit.name.toLowerCase().indexOf("ascendancy") !== -1 ? (
                   <Shield color="red" letter="W" title="Requires Ascendancy Clone" />
