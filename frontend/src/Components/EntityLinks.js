@@ -45,7 +45,7 @@ const ShowInfo = (id, whoami, toastContext) => {
   );
 };
 
-const CharacterName = ({ avatar, avatarSize, id, name, noLink }) => {
+const CharacterName = ({ avatar, avatarSize, id, name, noLink, main }) => {
   return (
     <>
       {avatar && (
@@ -54,7 +54,7 @@ const CharacterName = ({ avatar, avatarSize, id, name, noLink }) => {
           loading="lazy"
         />
       )}
-      {!noLink ? <A href={`/fc/search?query=${name}`}>{name}</A> : name}
+      {!noLink ? <A href={`/fc/search?query=${name}`}>{name}{main ? ' - Main' : ''}</A> : name}
     </>
   );
 };
